@@ -1,11 +1,47 @@
+sudo: require
+
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
+      - cmake-data
+      - cmake
+      - lcov
+
 language: cpp
 
-compiler:
-  - gcc
-  - clang
+compiler: gcc
 
+before_install:
+ - CXX=g++-7
+ # Install GoogleTest/Mock
+ - sudo apt-get install -y libgtest-dev valgrind
+ - sudo wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+ - sudo tar xf release-1.8.0.tar.gz
+ - cd googletest-release-1.8.0
+ - sudo cmake -DBUILD_SHARED_LIBS=ON .
+ - sudo make
+ - sudo cp -a googletest/include/gtest /usr/include
+ - sudo cp -a googlemock/include/gmock /usr/include
+ - sudo cp -a googlemock/gtest/libgtest_main.so googlemock/gtest/libgtest.so /usr/lib/
+ - sudo cp -a googlemock/libgmock_main.so googlemock/libgmock.so /usr/lib/
+ - cd "${TRAVIS_BUILD_DIR}"
+install:
+ - mkdir build
+ - cd build
+ - cmake -DCMAKE_BUILD_TYPE=Debug ..
+ - make
 script:
-  - make
-  
-after_success:
-  - codecov
+ - make test
+# after_success:
+  # # Creating report
+  # - cd ${TRAVIS_BUILD_DIR}
+  # - lcov --directory . --capture --output-file coverage.info # capture coverage info
+  # - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter out system
+  # - lcov --remove coverage.info '*_test.cpp' --output-file coverage.info
+  # - lcov --list coverage.info #debug info
+  # # Uploading report to CodeCov
+  # - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
