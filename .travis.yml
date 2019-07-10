@@ -30,9 +30,6 @@ before_install:
  - sudo cp -a googlemock/libgmock_main.so googlemock/libgmock.so /usr/lib/
  - cd "${TRAVIS_BUILD_DIR}"
 install:
- - mkdir build
- - cd build
- - cmake -DCMAKE_BUILD_TYPE=Debug ..
  - make
 script:
  - make test
