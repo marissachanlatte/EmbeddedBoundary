@@ -29,6 +29,7 @@ before_install:
  - sudo cp -a googlemock/gtest/libgtest_main.so googlemock/gtest/libgtest.so /usr/lib/
  - sudo cp -a googlemock/libgmock_main.so googlemock/libgmock.so /usr/lib/
 install:
+ - mkdir build
  - cd build
  - cmake ..
  - make
