@@ -28,6 +28,7 @@ before_install:
  - sudo cp -a googlemock/include/gmock /usr/include
  - sudo cp -a googlemock/gtest/libgtest_main.so googlemock/gtest/libgtest.so /usr/lib/
  - sudo cp -a googlemock/libgmock_main.so googlemock/libgmock.so /usr/lib/
+ - chown -R $USER:$USER .
 install:
  - mkdir build
  - cd build
