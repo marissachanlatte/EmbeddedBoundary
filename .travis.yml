@@ -52,5 +52,4 @@ after_success:
   - lcov --list coverage.info
   # Uploading to CodeCov
   # '-f' specifies file(s) to use and disables manual coverage gathering and file search which has already been done above
-  - bash <(curl -s https://codecov.io/bash) -t uuid-repo-token
-  - bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) -t "0606decb-cc12-4416-b7f2-ee578bb99605"
