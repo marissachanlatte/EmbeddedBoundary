@@ -13,7 +13,7 @@ addons:
 
 language: cpp
 
-compiler: gcc-7
+compiler: gcc
 
 before_install:
  - CXX=g++-7
