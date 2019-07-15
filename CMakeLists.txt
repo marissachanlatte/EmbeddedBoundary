@@ -41,6 +41,12 @@ include_directories(${GTEST_INCLUDE_DIRS}
 ADD_EXECUTABLE(makeGeometry ${sources})
 ADD_EXECUTABLE(geometry_test ${testing_sources})
 
+set_target_properties(dss-sim
+    PROPERTIES
+    COMPILE_FLAGS "-ftest-coverage -fprofile-arcs"
+    LINK_FLAGS    "-lgcov --coverage"
+)
+
 # Add testing definition and library to geometry_test
 target_compile_definitions(geometry_test PUBLIC -DTEST)
 
