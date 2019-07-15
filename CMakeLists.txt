@@ -6,7 +6,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 PROJECT(EmbeddedBoundary)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 17)
+# Use C++11
+set(CMAKE_CXX_STANDARD 11)
+# Require (at least) it
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Don't use e.g. GNU extension (like -std=gnu++11) for portability
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ### DEPENDENCIES #####################################################
 
