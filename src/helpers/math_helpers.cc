@@ -1,6 +1,8 @@
 #include "helpers/math_helpers.h"
 
-#include <stdint.h>
+#include <vector>
+#include <algorithm>
+#include <functional>
 
 namespace boundary{
 
@@ -17,14 +19,23 @@ int MathHelper::Factorial(int alpha){
 }
 
 
-// int MathHelpers::MultiIndexFactorial(std::vector<int> alpha){
-//
-// }
-//
-//
-// int MathHelpers::MultiIndexBinomial(std::vector<int> alpha,
-//                                     std::vector<int> beta){
-// }
+int MathHelper::MultiIndexFactorial(std::vector<int> alpha){
+  int total = 1;
+  for(std::vector<int>::iterator it = alpha.begin(); it != alpha.end(); ++it){
+    total *= Factorial(*it);
+  }
+  return total;
+}
+
+
+int MathHelper::MultiIndexBinomial(std::vector<int> alpha,
+                                   std::vector<int> beta){
+  std::vector<int> difference;
+  std::transform(alpha.begin(), alpha.end(), beta.begin(),
+                 std::back_inserter(difference), std::minus<int>());
+  return (MultiIndexFactorial(alpha)/
+          (MultiIndexFactorial(beta)*MultiIndexFactorial(difference)));
+}
 
 }
 
