@@ -44,7 +44,7 @@ ADD_EXECUTABLE(geometry_test ${testing_sources})
 set_target_properties(geometry_test
     PROPERTIES
     COMPILE_FLAGS "-ftest-coverage -fprofile-arcs"
-    LINK_FLAGS    "-lgcov --coverage"
+    LINK_FLAGS    "--coverage"
 )
 
 # Add testing definition and library to geometry_test
