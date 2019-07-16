@@ -4,5 +4,5 @@ Embedded boundary geometry generation code.
 
 To compile:
 
-cmake ..
+cmake ..  
 make
