@@ -1,4 +1,4 @@
-#include "../Normals.h"
+#include "../normals.h"
 
 #include "gtest/gtest.h"
 
@@ -9,5 +9,5 @@ class NormalTest : public ::testing::Test{
 
 TEST(NormalTest, dummy){
   Normal test_normal;
-  EXPECT_EQ(0, test_normal.makeNormal());
+  EXPECT_EQ(0, test_normal.computeNormal());
 }

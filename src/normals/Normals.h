@@ -1,12 +1,10 @@
-#ifndef NORMALS_H_
-#define NORMALS_H_
+#ifndef EMBEDDED_BOUNDARY_NORMALS_NORMALS_H_
+#define EMBEDDED_BOUNDARY_NORMALS_NORMALS_H_
 
-#include "normals/NormalBase.h"
-
-class Normal : public NormalBase{
+class Normal{
   public:
     ~Normal() = default;
-    int makeNormal();
+    int computeNormal();
 };
 
 #endif

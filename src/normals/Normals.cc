@@ -1,5 +1,5 @@
-#include "Normals.h"
+#include "normals/normals.h"
 
-int Normal::makeNormal(){
+int Normal::computeNormal(){
   return 0;
 };
