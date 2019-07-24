@@ -11,7 +11,7 @@ class LineGeometry : public InputBase{
   public:
     ~LineGeometry() = default;
     double BoundaryFunction(double x_value) override;
-    double BoundaryDerivatives(double x_value, int degree) override;
+    double BoundaryDerivatives(double x_value[2], int degree[2]) override;
     double BoundaryInverse(double y_value) override;
 
 };

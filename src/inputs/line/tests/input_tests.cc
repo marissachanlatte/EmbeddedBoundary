@@ -17,10 +17,20 @@ TEST(LineInputTest, Boundary){
 
 TEST(LineInputTest, Derivative){
   boundary::inputs::LineGeometry line;
-  EXPECT_EQ(1, line.BoundaryDerivatives(1, 1));
-  EXPECT_EQ(1, line.BoundaryDerivatives(3, 1));
-  EXPECT_EQ(4, line.BoundaryDerivatives(4, 0));
-  EXPECT_EQ(0, line.BoundaryDerivatives(6, 4));
+  double point1[2] = {1, 1};
+  double point2[2] = {3, 3};
+  double point3[2] = {4, 4};
+  double point4[2] = {6, 6};
+
+  int order1[2] = {1, 0};
+  int order2[2] = {0, 1};
+  int order3[2] = {0, 0};
+  int order4[2] = {4, 5};
+
+  EXPECT_EQ(-1, line.BoundaryDerivatives(point1, order1));
+  EXPECT_EQ(1, line.BoundaryDerivatives(point2, order2));
+  EXPECT_EQ(0, line.BoundaryDerivatives(point3, order3));
+  EXPECT_EQ(0, line.BoundaryDerivatives(point4, order4));
 }
 
 TEST(LineInputTest, Inverse){

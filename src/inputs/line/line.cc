@@ -1,5 +1,7 @@
 #include "inputs/line/line.h"
 
+#include <array>
+
 //! Defines the geometry for the boundary line x = y
 
 namespace boundary {
@@ -10,13 +12,13 @@ double LineGeometry::BoundaryFunction(double x_value){
   return x_value;
 };
 
-double LineGeometry::BoundaryDerivatives(double x_value, int degree){
-  if (degree == 0){
-    return x_value;
+double LineGeometry::BoundaryDerivatives(double x_value[2], int degree[2]){
+  if (degree[0] == 0 && degree[1] == 0){
+    return x_value[1] - x_value[0];
   }
 
-  else if (degree == 1){
-    return 1;
+  else if (degree[0] + degree[1] == 1){
+    return degree[1] - degree[0];
   }
 
   else {
