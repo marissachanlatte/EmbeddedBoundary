@@ -10,9 +10,10 @@ namespace normals {
 class Normal{
   public:
     ~Normal() = default;
-    double * ComputeNormal(double x_value[2], boundary::inputs::InputBase* input);
+    double * ComputeNormal(double x_value[2],
+                           boundary::inputs::InputBase* input);
     double NormalizedGradient(double point[2],
-                              double (*derivative)(double, int));
+                              boundary::inputs::InputBase* input);
     double PartialNormalizedGradient(int P[2], double point[2],
                                      double (*derivative)(double, int));
     double NormalDerivative(int P[2], int dim, double point[2],
