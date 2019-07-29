@@ -2,6 +2,7 @@
 #define EMBEDDED_BOUNDARY_NORMALS_NORMALS_H_
 
 #include "inputs/input_base.h"
+#include "helpers/geometry_objects.h"
 
 namespace boundary {
 
@@ -10,13 +11,15 @@ namespace normals {
 class Normal{
   public:
     ~Normal() = default;
-    double * ComputeNormal(double x_value[2],
+    double * ComputeNormal(helpers::Point a_point,
                            boundary::inputs::InputBase* input);
-    double NormalizedGradient(double point[2],
+    double NormalizedGradient(helpers::Point a_point,
                               boundary::inputs::InputBase* input);
-    double PartialNormalizedGradient(int P[2], double point[2],
+    double PartialNormalizedGradient(std::vector<int> p_order,
+                                     helpers::Point a_point,
                                      double (*derivative)(double, int));
-    double NormalDerivative(int P[2], int dim, double point[2],
+    double NormalDerivative(std::vector<int> p_order, int dim,
+                            helpers::Point a_point,
                             double (*derivative)(double, int));
 };
 
