@@ -1,5 +1,3 @@
-#include "helpers/math_helpers.h"
-
 #include <vector>
 #include <algorithm>
 #include <functional>
