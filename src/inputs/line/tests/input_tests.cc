@@ -1,6 +1,8 @@
 #include "inputs/line/line.h"
+#include "helpers/geometry_objects.h"
 
 #include "gtest/gtest.h"
+#include <vector>
 
 class LineInputTest : public ::testing::Test{
   protected:
@@ -17,15 +19,16 @@ TEST(LineInputTest, Boundary){
 
 TEST(LineInputTest, Derivative){
   boundary::inputs::LineGeometry line;
-  double point1[2] = {1, 1};
-  double point2[2] = {3, 3};
-  double point3[2] = {4, 4};
-  double point4[2] = {6, 6};
 
-  int order1[2] = {1, 0};
-  int order2[2] = {0, 1};
-  int order3[2] = {0, 0};
-  int order4[2] = {4, 5};
+  boundary::helpers::Point point1 = boundary::helpers::Point(1, 1);
+  boundary::helpers::Point point2 = boundary::helpers::Point(3, 3);
+  boundary::helpers::Point point3 = boundary::helpers::Point(4, 4);
+  boundary::helpers::Point point4 = boundary::helpers::Point(6, 6);
+
+  std::vector<int> order1{1, 0};
+  std::vector<int> order2{0, 1};
+  std::vector<int> order3{0, 0};
+  std::vector<int> order4{4, 5};
 
   EXPECT_EQ(-1, line.BoundaryDerivatives(point1, order1));
   EXPECT_EQ(1, line.BoundaryDerivatives(point2, order2));

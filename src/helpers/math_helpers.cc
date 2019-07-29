@@ -1,3 +1,4 @@
+#include "helpers/geometry_objects.h"
 #include <vector>
 #include <algorithm>
 #include <functional>
