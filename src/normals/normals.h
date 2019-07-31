@@ -17,10 +17,10 @@ class Normal{
                               boundary::inputs::InputBase* input);
     double PartialNormalizedGradient(std::vector<int> p_order,
                                      helpers::Point a_point,
-                                     double (*derivative)(double, int));
+                                     boundary::inputs::InputBase* input);
     double NormalDerivative(std::vector<int> p_order, int dim,
                             helpers::Point a_point,
-                            double (*derivative)(double, int));
+                            boundary::inputs::InputBase* input);
 };
 
 } // namespace normals
