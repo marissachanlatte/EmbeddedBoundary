@@ -4,6 +4,7 @@
 #include <vector>
 
 
+
 //! Defines the geometry for the boundary line x = y
 
 namespace boundary {
@@ -29,10 +30,24 @@ double LineGeometry::BoundaryDerivatives(helpers::Point a_point,
   }
 };
 
+
 double LineGeometry::BoundaryInverse(double y_value){
   return y_value;
 };
 
+double LineGeometry::Minimum(){
+  return -1.0; // domain min
+};
+
+
+double LineGeometry::Maximum(){
+  return 1.0; // domain max
+};
+
+
+int LineGeometry::Depth(){
+  return 4; // quad tree depth, num cells = 4^DEPTH
+};
 
 } // namespace inputs
 

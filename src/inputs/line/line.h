@@ -16,6 +16,9 @@ class LineGeometry : public InputBase{
     double BoundaryFunction(double x_value) override;
     double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) override;
     double BoundaryInverse(double y_value) override;
+    double Minimum() override;
+    double Maximum() override;
+    int Depth() override;
 
 };
 
