@@ -19,6 +19,7 @@ class LineGeometry : public InputBase{
     double Minimum() override;
     double Maximum() override;
     int Depth() override;
+    int QOrder() override;
 
 };
 

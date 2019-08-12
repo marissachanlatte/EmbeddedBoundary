@@ -49,6 +49,9 @@ int LineGeometry::Depth(){
   return 4; // quad tree depth, num cells = 4^DEPTH
 };
 
+int LineGeometry::QOrder(){
+  return 1; // Q order
+}
 } // namespace inputs
 
 } // namespace boundary

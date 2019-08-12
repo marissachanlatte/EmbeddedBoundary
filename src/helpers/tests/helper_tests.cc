@@ -2,6 +2,7 @@
 #include "helpers/geometry_objects.h"
 
 #include "gtest/gtest.h"
+#include <cmath>
 
 class HelperTest : public ::testing::Test{
   protected:
@@ -44,6 +45,20 @@ TEST(HelperTest, PointAddition){
 
   EXPECT_EQ(11, sum.x_val);
   EXPECT_EQ(11, sum.y_val);
+}
+
+
+TEST(HelperTest, InitializePoint){
+  Point test = Point();
+  EXPECT_TRUE(std::isnan(test.x_val));
+}
+
+
+TEST(HelperTest, SetUpQuadTree){
+  QuadTree first_tree = QuadTree();
+  Point* first_center = first_tree.GetCellCenter();
+  double x = first_center->x_val;
+  EXPECT_TRUE(std::isnan(x));
 }
 
 }

@@ -18,6 +18,7 @@ public:
   virtual double Minimum() = 0;
   virtual double Maximum() = 0;
   virtual int Depth() = 0;
+  virtual int QOrder() = 0;
 
 };
 

@@ -1,13 +1,15 @@
-# include "helpers/geometry_objects.h"
+#include "helpers/geometry_objects.h"
 
 #include <vector>
+#include <cmath>
+#include <limits>
 
 namespace boundary {
 
 namespace helpers {
 
 Point::Point(){
-  x_val = y_val = 0;
+  x_val = y_val = std::numeric_limits<double>::quiet_NaN();
 };
 
 
@@ -24,39 +26,57 @@ Point Point::operator + (const Point &a_point){
   return result;
 };
 
+QuadTree::QuadTree(){
+  Point center = Point();
+  cell_center_ = &center;
+};
+
 
 QuadTree::QuadTree(QuadTree* north_west,
                    QuadTree* north_east,
                    QuadTree* south_west,
-                   QuadTree* south_east){
+                   QuadTree* south_east,
+                   int id){
   north_west_ = north_west;
   north_east_ = north_east;
   south_west_ = south_west;
   south_east_ = south_east;
+  id_ = id;
 };
 
 
-QuadTree::QuadTree(Point* cell_center, int degree){
+QuadTree::QuadTree(Point* cell_center, int degree, int id){
   cell_center_ = cell_center;
   degree_ = degree;
-  normals_.resize(degree);
-  volume_moments_.resize(degree);
-  boundary_moments_.resize(degree);
+  // resize normals
+  normals_.resize(degree + 1);
+  volume_moments_.resize(degree + 1);
+  boundary_moments_.resize(degree + 1);
+  for (int i = 0; i < (degree + 1); i++){
+    normals_[i].resize(degree + 1);
+    volume_moments_[i].resize(degree + 1);
+    boundary_moments_[i].resize(degree + 1);
+    for (int j = 0; j < (degree + 1); j++){
+      normals_[i][j].resize(2);
+    }
+  }
+  id_ = id;
 };
 
 
-void QuadTree::AssignNormals(double value, int degree){
-  normals_[degree] = value;
+void QuadTree::AssignNormals(std::vector<double> value,
+                             std::vector<int> degree){
+  normals_[degree[0]][degree[1]] = value;
 };
 
 
-void QuadTree::AssignVolume(double value, int degree){
-  volume_moments_[degree] = value;
+void QuadTree::AssignVolume(double value, std::vector<int> degree){
+  volume_moments_[degree[0]][degree[1]] = value;
 };
 
 
-void QuadTree::AssignBoundary(double value, int degree){
-  boundary_moments_[degree] = value;
+void QuadTree::AssignBoundary(double value, std::vector<int> degree){
+  boundary_moments_[degree[0]][degree[1]] = value;
 };
 
 
@@ -65,18 +85,38 @@ Point* QuadTree::GetCellCenter(){
 };
 
 
-double QuadTree::GetNormal(int degree){
-  return normals_[degree];
+std::vector<double> QuadTree::GetNormal(std::vector<int> degree){
+  return normals_[degree[0]][degree[1]];
 };
 
 
-double QuadTree::GetVolume(int degree){
-  return volume_moments_[degree];
+double QuadTree::GetVolume(std::vector<int> degree){
+  return volume_moments_[degree[0]][degree[1]];
 };
 
 
-double QuadTree::GetBoundary(int degree){
-  return boundary_moments_[degree];
+double QuadTree::GetBoundary(std::vector<int> degree){
+  return boundary_moments_[degree[0]][degree[1]];
+};
+
+QuadTree* QuadTree::NorthWest(){
+  return north_west_;
+};
+
+QuadTree* QuadTree::NorthEast(){
+  return north_east_;
+};
+
+QuadTree* QuadTree::SouthEast(){
+  return south_east_;
+};
+
+QuadTree* QuadTree::SouthWest(){
+  return south_west_;
+};
+
+int QuadTree::GetID(){
+  return id_;
 };
 
 } // namespace helpers

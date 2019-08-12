@@ -11,14 +11,14 @@ namespace normals {
 class Normal{
   public:
     ~Normal() = default;
-    double * ComputeNormal(helpers::Point a_point,
+    static double * ComputeNormal(helpers::Point a_point,
                            boundary::inputs::InputBase* input);
-    double NormalizedGradient(helpers::Point a_point,
+    static double NormalizedGradient(helpers::Point a_point,
                               boundary::inputs::InputBase* input);
-    double PartialNormalizedGradient(std::vector<int> p_order,
+    static double PartialNormalizedGradient(std::vector<int> p_order,
                                      helpers::Point a_point,
                                      boundary::inputs::InputBase* input);
-    double NormalDerivative(std::vector<int> p_order, int dim,
+    static double NormalDerivative(std::vector<int> p_order, int dim,
                             helpers::Point a_point,
                             boundary::inputs::InputBase* input);
 };

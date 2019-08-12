@@ -2,6 +2,7 @@
 #define EMBEDDED_BOUNDARY_HELPERS_GEOMETRY_OBJECTS_H
 
 #include <vector>
+#include <cmath>
 
 namespace boundary {
 
@@ -23,16 +24,24 @@ namespace helpers {
       QuadTree(QuadTree* north_west,
                QuadTree* north_east,
                QuadTree* south_west,
-               QuadTree* south_east);
-      QuadTree(Point* cell_center, int degree);
-      void AssignNormals(double value, int degree);
-      void AssignVolume(double value, int degree);
-      void AssignBoundary(double value, int degree);
+               QuadTree* south_east,
+               int id);
+      QuadTree(Point* cell_center, int degree, int id);
+      void AssignNormals(std::vector<double> value, std::vector<int> degree);
+      void AssignVolume(double value, std::vector<int> degree);
+      void AssignBoundary(double value, std::vector<int> degree);
 
       Point* GetCellCenter();
-      double GetNormal(int degree);
-      double GetVolume(int degree);
-      double GetBoundary(int degree);
+      std::vector<double> GetNormal(std::vector<int> degree);
+      double GetVolume(std::vector<int> degree);
+      double GetBoundary(std::vector<int> degree);
+      int GetID();
+
+      QuadTree* NorthWest();
+      QuadTree* NorthEast();
+      QuadTree* SouthWest();
+      QuadTree* SouthEast();
+
     private:
       // Children
       QuadTree* north_west_;
@@ -43,15 +52,17 @@ namespace helpers {
       // Cell Center
       Point* cell_center_;
       int degree_;
+      int id_;
 
       // Normals
-      std::vector<double> normals_;
+      std::vector<std::vector<std::vector<double>>> normals_;
 
       // Moments
-      std::vector<double> volume_moments_;
-      std::vector<double> boundary_moments_;
+      std::vector<std::vector<double>> volume_moments_;
+      std::vector<std::vector<double>> boundary_moments_;
 
   };
+
 } // namespace helpers
 
 } // namespace boundary
