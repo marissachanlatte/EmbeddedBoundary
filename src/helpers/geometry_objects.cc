@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 namespace boundary {
 
@@ -66,6 +67,11 @@ QuadTree::QuadTree(Point* cell_center, int degree, int id){
   }
   id_ = id;
   empty_= false;
+  QuadTree dummy_tree = QuadTree();
+  north_west_ = &dummy_tree;
+  north_east_ = &dummy_tree;
+  south_west_ = &dummy_tree;
+  south_east_ = &dummy_tree;
 };
 
 

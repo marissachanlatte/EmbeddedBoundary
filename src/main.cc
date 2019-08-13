@@ -24,40 +24,49 @@ int main(){
       std::stack<boundary::helpers::QuadTree*> stack;
       int num_nodes = mesh_tree.NumNodes();
       std::vector<bool> discovered(num_nodes);
-      boundary::helpers::QuadTree* mesh = &mesh_tree.mesh;
+      boundary::helpers::QuadTree* mesh = mesh_tree.GetMesh();
       stack.push(mesh);
       while (!stack.empty()){
         boundary::helpers::QuadTree* node = stack.top();
         stack.pop();
-        std::cout << "test2" << std::endl;
         if (!discovered[node->GetID()]){
-          std::cout << "test3" << std::endl;
           // Mark as Discovered
           discovered[node->GetID()] = true;
-
+          std::cout << "test 3" << std::endl;
           // Identify Children
           boundary::helpers::QuadTree* north_west = node->NorthWest();
           boundary::helpers::QuadTree* north_east = node->NorthEast();
           boundary::helpers::QuadTree* south_east = node->SouthEast();
           boundary::helpers::QuadTree* south_west = node->SouthWest();
+          std::cout << "test 4" << std::endl;
+          // // Dereference
+          // boundary::helpers::QuadTree north_west_dref = *north_west;
+          // std::cout << "test 5" << std::endl;
+          // Find Cell Centers
+          boundary::helpers::Point* center_nw = north_west->GetCellCenter();
+          std::cout << "test 6" << std::endl;
+          // Get Values
+          double x_nw = center_nw->x_val;
 
-          // If children exist, push them to stack
-          std::cout << "test4" << std::endl;
-          std::cout << north_west->GetCellCenter()->x_val << std::endl;
-          std::cout << std::isnan(north_west->GetCellCenter()->x_val) << std::endl;
-          if (north_west){
-            std::cout << "test4" << std::endl;
-            stack.push(north_west);
-          };
-          if (north_east){
-            stack.push(north_east);
-          };
-          if (south_east){
-            stack.push(south_east);
-          };
-          if (south_west){
-            stack.push(south_west);
-          };
+          std::cout << "x val type" << x_nw << std::endl;
+          std::cout << "is nan working?" << std::isnan(x_nw) << std::endl;
+          // // If children exist, push them to stack
+          // std::cout << "test4" << std::endl;
+          // std::cout << north_west->GetCellCenter()->x_val << std::endl;
+          // std::cout << std::isnan(north_west->GetCellCenter()->x_val) << std::endl;
+          // if (north_west){
+          //   std::cout << "test5" << std::endl;
+          //   stack.push(north_west);
+          // };
+          // if (north_east){
+          //   stack.push(north_east);
+          // };
+          // if (south_east){
+          //   stack.push(south_east);
+          // };
+          // if (south_west){
+          //   stack.push(south_west);
+          // };
 
           // If no children exist, calculate normals
           if (!north_west && !north_east && !south_east && !south_west){

@@ -14,9 +14,10 @@ public:
   ~MeshTree() = default;
   helpers::QuadTree BuildMesh(int level, double right, double left, double top,
                      double bottom);
-  helpers::QuadTree mesh;
+  helpers::QuadTree* GetMesh();
   int NumNodes();
 private:
+  helpers::QuadTree* mesh_;
   int depth_;
   int q_order_;
   int num_nodes_;

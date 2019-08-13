@@ -2,6 +2,7 @@
 #include "helpers/geometry_objects.h"
 #include "inputs/input_base.h"
 
+#include <iostream>
 namespace boundary {
 
 namespace geometry {
@@ -14,15 +15,19 @@ MeshTree::MeshTree(boundary::inputs::InputBase* input){
   double bottom = input->Minimum();
 
   num_nodes_ = 0;
-  mesh = MeshTree::BuildMesh(level, right, left, top, bottom);
   depth_ = input->Depth();
   q_order_ = input->QOrder();
+
+  helpers::QuadTree mesh_tree = MeshTree::BuildMesh(level, right, left, top, bottom);
+  mesh_ = &mesh_tree;
+  helpers::Point* center = mesh_->GetCellCenter();
+  double x = center->x_val;
+  std::cout << "mesh_" << x << std::endl;
 };
 
 helpers::QuadTree MeshTree::BuildMesh(int level, double right, double left,
                                       double top, double bottom){
-  helpers::Point center = helpers::Point((right - left)/2, (top - bottom)/2);
-
+  helpers::Point center = helpers::Point((right + left)/2, (top + bottom)/2);
   if (level == depth_){
     helpers::QuadTree mini_tree = helpers::QuadTree(&center, q_order_,
                                                     num_nodes_);
@@ -53,6 +58,12 @@ helpers::QuadTree MeshTree::BuildMesh(int level, double right, double left,
 int MeshTree::NumNodes(){
   return num_nodes_;
 };
+
+
+helpers::QuadTree* MeshTree::GetMesh(){
+  return mesh_;
+};
+
 
 } // namespace geometry
 
