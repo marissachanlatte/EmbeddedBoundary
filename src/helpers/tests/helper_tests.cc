@@ -61,6 +61,16 @@ TEST(HelperTest, SetUpQuadTree){
   EXPECT_TRUE(std::isnan(x));
 }
 
+
+TEST(HelperTest, IsEmpty){
+  QuadTree empty_tree = QuadTree();
+  EXPECT_TRUE(empty_tree.IsEmpty());
+  QuadTree full_tree = QuadTree(&empty_tree, &empty_tree,
+                                &empty_tree, &empty_tree, 0);
+  EXPECT_FALSE(full_tree.IsEmpty());
+}
+
+
 }
 
 }

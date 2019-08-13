@@ -29,6 +29,7 @@ Point Point::operator + (const Point &a_point){
 QuadTree::QuadTree(){
   Point center = Point();
   cell_center_ = &center;
+  empty_ = true;
 };
 
 
@@ -42,6 +43,9 @@ QuadTree::QuadTree(QuadTree* north_west,
   south_west_ = south_west;
   south_east_ = south_east;
   id_ = id;
+  Point center = Point();
+  cell_center_ = &center;
+  empty_ = false;
 };
 
 
@@ -61,6 +65,7 @@ QuadTree::QuadTree(Point* cell_center, int degree, int id){
     }
   }
   id_ = id;
+  empty_= false;
 };
 
 
@@ -119,6 +124,9 @@ int QuadTree::GetID(){
   return id_;
 };
 
+bool QuadTree::IsEmpty(){
+  return empty_;
+}
 } // namespace helpers
 
 } // namespace boundary

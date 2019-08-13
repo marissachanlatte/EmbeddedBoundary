@@ -36,6 +36,7 @@ namespace helpers {
       double GetVolume(std::vector<int> degree);
       double GetBoundary(std::vector<int> degree);
       int GetID();
+      bool IsEmpty();
 
       QuadTree* NorthWest();
       QuadTree* NorthEast();
@@ -53,6 +54,7 @@ namespace helpers {
       Point* cell_center_;
       int degree_;
       int id_;
+      bool empty_;
 
       // Normals
       std::vector<std::vector<std::vector<double>>> normals_;
