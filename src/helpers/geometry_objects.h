@@ -16,6 +16,7 @@ namespace helpers {
       Point operator + (const Point &a_point);
       double x_val;
       double y_val;
+      //int MortonOrder(); will implement later using Phil's code
   };
 
 } // namespace helpers

@@ -35,18 +35,42 @@ double LineGeometry::BoundaryInverse(double y_value){
   return y_value;
 };
 
-double LineGeometry::Minimum(){
+
+int LineGeometry::Inside(std::array<double, 2> point){
+  if (point[0] < point[1]){
+    return 0;
+  }
+  else if (point[0] > point[1]){
+    return 1;
+  }
+  else {
+    return 2;
+  }
+};
+
+
+double LineGeometry::XMin(){
   return -1.0; // domain min
 };
 
 
-double LineGeometry::Maximum(){
+double LineGeometry::XMax(){
   return 1.0; // domain max
 };
 
 
-int LineGeometry::Depth(){
-  return 4; // quad tree depth, num cells = 4^DEPTH
+double LineGeometry::YMin(){
+  return -1.0; // domain min
+};
+
+
+double LineGeometry::YMax(){
+  return 1.0; // domain max
+};
+
+
+double LineGeometry::CellSize(){
+  return .25;
 };
 
 int LineGeometry::QOrder(){
