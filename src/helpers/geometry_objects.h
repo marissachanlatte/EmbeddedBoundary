@@ -8,6 +8,9 @@ namespace boundary {
 
 namespace helpers {
 
+/// A Class describing a point
+/** This class represents a two dimensional point
+*/
   class Point{
     public:
       Point();

@@ -11,6 +11,8 @@ namespace boundary {
 
 namespace inputs {
 
+
+/// An input file representing the line x=y
 class LineGeometry : public InputBase{
   public:
     ~LineGeometry() = default;

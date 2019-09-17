@@ -4,9 +4,6 @@
 #include <vector>
 
 
-
-//! Defines the geometry for the boundary line x = y
-
 namespace boundary {
 
 namespace inputs {
