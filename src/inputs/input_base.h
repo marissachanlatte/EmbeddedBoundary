@@ -10,8 +10,9 @@ namespace boundary {
 
 namespace inputs {
 
+/// The input file base class. 
 /**
-The input file base class. All input files are based on this class which
+All input files are based on this class which
 contains all relevant input geometry information.
 */
 class InputBase {

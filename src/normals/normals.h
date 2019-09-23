@@ -8,7 +8,7 @@ namespace boundary {
 
 namespace normals {
 
-/// A class to compute the normals and derivatives of the normals 
+/// A class to compute the normals and derivatives of the normals
 class Normal{
   public:
     ~Normal() = default;

@@ -36,6 +36,15 @@ TEST(BoundaryTests, IsBoundaryCell){
   EXPECT_FALSE(is_boundary3);
 }
 
+TEST(BoundaryTests, BoundaryCells){
+  boundary::inputs::LineGeometry input;
+  Boundary line_boundary = Boundary(&input);
+  std::map<std::array<double, 2>, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  EXPECT_EQ(boundary_cells.size(), 8);
+  std::array<double, 2> first_point = {-.875, -.875};
+  EXPECT_TRUE(boundary_cells[first_point].irregular);
+}
+
 } // namespace geometry
 
 } // namespace boundary
