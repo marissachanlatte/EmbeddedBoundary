@@ -45,6 +45,24 @@ TEST(BoundaryTests, BoundaryCells){
   EXPECT_TRUE(boundary_cells[first_point].irregular);
 }
 
+TEST(BoundaryTests, Normals){
+  boundary::inputs::LineGeometry input;
+  Boundary line_boundary = Boundary(&input);
+  std::map<std::array<double, 2>, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  std::array<double, 2> first_point = {-.875, -.875};
+  std::vector<std::vector<std::vector<double>>> first_normals = boundary_cells[first_point].normal_derivatives;
+  EXPECT_FLOAT_EQ(first_normals[0][0][0], -0.70710678);
+  EXPECT_FLOAT_EQ(first_normals[0][0][1], 0.70710678);
+  EXPECT_FLOAT_EQ(first_normals[0][1][1], 0);
+  std::array<double, 2> second_point = {.125, .125};
+  std::vector<std::vector<std::vector<double>>> second_normals = boundary_cells[second_point].normal_derivatives;
+  EXPECT_FLOAT_EQ(second_normals[0][0][0], -0.70710678);
+  EXPECT_FLOAT_EQ(second_normals[0][0][1], 0.70710678);
+  EXPECT_FLOAT_EQ(second_normals[1][0][1], 0);
+
+}
+
+
 } // namespace geometry
 
 } // namespace boundary

@@ -34,31 +34,31 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
         cell.id = id_count;
         // update id count
         id_count += 1;
-        // // resize vector of normal normal_derivatives
-        // helpers::Point cell_center = helpers::Point(x_max - cell_size, y_max - cell_size);
-        // int Q = input->QOrder();
-        // cell.normal_derivatives.resize(Q+1);
-        // for (int i=0; i < Q+1; ++i){
-        //   cell.normal_derivatives[i].resize(Q+1);
-        //
-        //   for (int j = 0; j < Q + 1; ++j){
-        //     cell.normal_derivatives[i][j].resize(2);
-        //   }
-        // }
-        // // Compute derivatives of the normal and store in cell struct
-        // for (int q_mag=Q; q_mag > 0 ; q_mag--){
-        //   for (int q1 = 0; q1 < q_mag + 1; q1++){
-        //     std::vector<int> q = {q1, q_mag - q1};
-        //     cell.normal_derivatives[q1][q_mag - q1][0] = normals::Normal::NormalDerivative(q,
-        //                                                     1,
-        //                                                     cell_center,
-        //                                                     input);
-        //     cell.normal_derivatives[q1][q_mag - q1][1] = normals::Normal::NormalDerivative(q,
-        //                                                     2,
-        //                                                     cell_center,
-        //                                                     input);
-        //   }
-        // }
+        // resize vector of normal normal_derivatives
+        helpers::Point cell_center = helpers::Point(x_max - cell_size, y_max - cell_size);
+        int Q = input->QOrder();
+        cell.normal_derivatives.resize(Q+1);
+        for (int i=0; i < Q+1; ++i){
+          cell.normal_derivatives[i].resize(Q+1);
+
+          for (int j = 0; j < Q + 1; ++j){
+            cell.normal_derivatives[i][j].resize(2);
+          }
+        }
+        // Compute derivatives of the normal and store in cell struct
+        for (int q_mag=Q; q_mag >= 0 ; q_mag--){
+          for (int q1 = 0; q1 < q_mag + 1; q1++){
+            std::vector<int> q = {q1, q_mag - q1};
+            cell.normal_derivatives[q1][q_mag - q1][0] = normals::Normal::NormalDerivative(q,
+                                                            1,
+                                                            cell_center,
+                                                            input);
+            cell.normal_derivatives[q1][q_mag - q1][1] = normals::Normal::NormalDerivative(q,
+                                                            2,
+                                                            cell_center,
+                                                            input);
+          }
+        }
         // // Compute 1d volume fractions and store in cell
         // // Check if four corners are inside or outside boundary
         // std::vector<int> inside{input->Inside(corners[0]),
