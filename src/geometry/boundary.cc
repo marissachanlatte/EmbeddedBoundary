@@ -59,43 +59,46 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
                                                             input);
           }
         }
-        // // Compute 1d volume fractions and store in cell
-        // // Check if four corners are inside or outside boundary
-        // std::vector<int> inside{input->Inside(corners[0]),
-        //                         input->Inside(corners[1]),
-        //                         input->Inside(corners[2]),
-        //                         input->Inside(corners[3])};
-        // for (int edge=0; edge < 4; edge++){
-        //   // iterate four edges to determine which ones intersect boundary
-        //   if (inside[edge] == inside[(edge+1)%4]){ // no change from corner to corner, TODO: come up with more robust way to do this
-        //     cell.vol_frac_1d[edge] = cell_size*inside[edge];
-        //   }
-        //   else { // change from corner to corner, indicating boundary cuts through
-        //     // check if edge is horizontal or vertical
-        //     if ((corners[edge][0] - corners[(edge+1)%4][0]) == 0){ // horizontal
-        //       // find the intersection of x=corners[i, 0]
-        //       double y = input->BoundaryFunction(corners[edge][0]);
-        //       double edge_inside = abs(y - corners[edge][1]);
-        //       if (inside[edge]){
-        //         cell.vol_frac_1d[edge] = edge_inside;
-        //       }
-        //       else{
-        //         cell.vol_frac_1d[edge] = cell_size - edge_inside;
-        //       }
-        //     }
-        //     else { // vertical
-        //       // find intersection of y=corners[i, 1]
-        //       double x = input->BoundaryInverse(corners[edge][1]);
-        //       double edge_inside = abs(x - corners[edge][0]);
-        //       if (inside[edge]){
-        //         cell.vol_frac_1d[edge] = edge_inside;
-        //       }
-        //       else {
-        //         cell.vol_frac_1d[edge] = cell_size - edge_inside;
-        //       }
-        //     }
-        //   }
-        // }
+        // Compute 1d volume fractions and store in cell
+        // Check if four corners are inside or outside boundary
+        std::vector<int> inside{input->Inside(corners[0]),
+                                input->Inside(corners[1]),
+                                input->Inside(corners[2]),
+                                input->Inside(corners[3])};
+        for (int corner=0; corner < 4; corner++){
+          // iterate four edges to determine which ones intersect boundary
+          if (inside[corner] == inside[(corner+1)%4] || inside[corner] == 2){ // no change from corner to corner, TODO: come up with more robust way to do this
+            cell.vol_frac_1d[corner] = cell_size*inside[(corner+1)%4];
+          }
+          else if (inside[(corner+1)%4] == 2){ // next corner is on the boundary
+            cell.vol_frac_1d[corner] = cell_size*inside[corner];
+          }
+          else { // change from corner to corner, indicating boundary cuts through
+            // check if edge is horizontal or vertical
+            if ((corners[corner][0] - corners[(corner+1)%4][0]) == 0){ // horizontal
+              // find the intersection of x=corners[i, 0]
+              double y = input->BoundaryFunction(corners[corner][0]);
+              double edge_inside = abs(y - corners[corner][1]);
+              if (inside[corner]){
+                cell.vol_frac_1d[corner] = edge_inside;
+              }
+              else{
+                cell.vol_frac_1d[corner] = cell_size - edge_inside;
+              }
+            }
+            else { // vertical
+              // find intersection of y=corners[i, 1]
+              double x = input->BoundaryInverse(corners[corner][1]);
+              double edge_inside = abs(x - corners[corner][0]);
+              if (inside[corner]){
+                cell.vol_frac_1d[corner] = edge_inside;
+              }
+              else {
+                cell.vol_frac_1d[corner] = cell_size - edge_inside;
+              }
+            }
+          }
+        }
         // add point to map
         std::array<double, 2> point = {x_min + cell_size/2, y_min + cell_size/2};
         boundary_cells_.insert(
