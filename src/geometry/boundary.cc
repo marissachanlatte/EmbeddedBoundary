@@ -4,19 +4,22 @@
 
 #include <array>
 #include <iostream>
+#include <Eigen/Dense>
 
 namespace boundary {
 
 namespace geometry {
 
 Boundary::Boundary(boundary::inputs::InputBase* input){
-  double cell_size = input->CellSize();
+  input_ = input;
+  cell_size_ = input->CellSize();
+  Q_ = input->QOrder();
   double y_min = input->YMin();
-  double y_max = y_min + cell_size;
+  double y_max = y_min + cell_size_;
   int id_count = 0;
   while (y_max <= input->YMax()){
     double x_min = input->XMin();
-    double x_max = x_min + cell_size;
+    double x_max = x_min + cell_size_;
     while (x_max <= input->XMax()){
       // corners of cell
       std::array<std::array<double, 2>, 4> corners;
@@ -34,19 +37,21 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
         cell.id = id_count;
         // update id count
         id_count += 1;
-        // resize vector of normal normal_derivatives
-        helpers::Point cell_center = helpers::Point(x_max - cell_size, y_max - cell_size);
-        int Q = input->QOrder();
-        cell.normal_derivatives.resize(Q+1);
-        for (int i=0; i < Q+1; ++i){
-          cell.normal_derivatives[i].resize(Q+1);
-
-          for (int j = 0; j < Q + 1; ++j){
+        helpers::Point cell_center = helpers::Point(x_max - cell_size_, y_max - cell_size_);
+        // resize vectors
+        cell.normal_derivatives.resize(Q_+1);
+        cell.volume_moments.resize(Q_+1);
+        cell.boundary_moments.resize(Q_+1);
+        for (int i=0; i < Q_+1; ++i){
+          cell.normal_derivatives[i].resize(Q_+1);
+          cell.volume_moments[i].resize(Q_+1);
+          cell.boundary_moments[i].resize(Q_+1);
+          for (int j = 0; j < Q_ + 1; ++j){
             cell.normal_derivatives[i][j].resize(2);
           }
         }
         // Compute derivatives of the normal and store in cell struct
-        for (int q_mag=Q; q_mag >= 0 ; q_mag--){
+        for (int q_mag=Q_; q_mag >= 0 ; q_mag--){
           for (int q1 = 0; q1 < q_mag + 1; q1++){
             std::vector<int> q = {q1, q_mag - q1};
             cell.normal_derivatives[q1][q_mag - q1][0] = normals::Normal::NormalDerivative(q,
@@ -61,17 +66,17 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
         }
         // Compute 1d volume fractions and store in cell
         // Check if four corners are inside or outside boundary
-        std::vector<int> inside{input->Inside(corners[0]),
-                                input->Inside(corners[1]),
-                                input->Inside(corners[2]),
-                                input->Inside(corners[3])};
+        std::vector<int> inside{input_->Inside(corners[0]),
+                                input_->Inside(corners[1]),
+                                input_->Inside(corners[2]),
+                                input_->Inside(corners[3])};
         for (int corner=0; corner < 4; corner++){
           // iterate four edges to determine which ones intersect boundary
           if (inside[corner] == inside[(corner+1)%4] || inside[corner] == 2){ // no change from corner to corner, TODO: come up with more robust way to do this
-            cell.vol_frac_1d[corner] = cell_size*inside[(corner+1)%4];
+            cell.vol_frac_1d[corner] = cell_size_*inside[(corner+1)%4];
           }
           else if (inside[(corner+1)%4] == 2){ // next corner is on the boundary
-            cell.vol_frac_1d[corner] = cell_size*inside[corner];
+            cell.vol_frac_1d[corner] = cell_size_*inside[corner];
           }
           else { // change from corner to corner, indicating boundary cuts through
             // check if edge is horizontal or vertical
@@ -83,7 +88,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
                 cell.vol_frac_1d[corner] = edge_inside;
               }
               else{
-                cell.vol_frac_1d[corner] = cell_size - edge_inside;
+                cell.vol_frac_1d[corner] = cell_size_ - edge_inside;
               }
             }
             else { // vertical
@@ -94,24 +99,30 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
                 cell.vol_frac_1d[corner] = edge_inside;
               }
               else {
-                cell.vol_frac_1d[corner] = cell_size - edge_inside;
+                cell.vol_frac_1d[corner] = cell_size_ - edge_inside;
               }
             }
           }
         }
         // add point to map
-        std::array<double, 2> point = {x_min + cell_size/2, y_min + cell_size/2};
+        std::array<double, 2> point = {x_min + cell_size_/2, y_min + cell_size_/2};
         boundary_cells_.insert(
           std::pair<std::array<double, 2>, geo_info>(point, cell));
       }
       // Go to next cell
-      x_max += cell_size;
-      x_min += cell_size;
+      x_max += cell_size_;
+      x_min += cell_size_;
     }
     // Go to next row
-    y_max += cell_size;
-    y_min += cell_size;
+    y_max += cell_size_;
+    y_min += cell_size_;
   }
+
+  for (std::map<std::array<double, 2>, geo_info>::iterator it=boundary_cells_.begin();
+       it != boundary_cells_.end(); it++){
+          CalculateMoments_(it->first);
+       }
+
 };
 
 bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
@@ -170,6 +181,127 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
 
 std::map<std::array<double, 2>, geo_info> Boundary::BoundaryCells(){
   return boundary_cells_;
+}
+
+
+double Boundary::DIntegral_(double beginning, double end, std::array<int, 2> q,
+                            int index, double fixed_value){
+  double next_plus = q[(index + 1) % 2] + 1;
+  return std::pow(fixed_value, q[index])*(1/(next_plus))*(std::pow(end, next_plus) - std::pow(beginning, next_plus));
+}
+
+
+double Boundary::CalcD_(double bd_length,
+              double fixed_value,
+              std::array<double, 2> cell_center,
+              std::array<int, 2> q,
+              int d,
+              std::array<int, 2> which_d){
+  int d_op = (d + 1) % 2;
+  double d_pm;
+  if (bd_length == cell_size_){
+    d_pm = DIntegral_(cell_center[d_op] - cell_size_/2,
+                            cell_center[d_op] + cell_size_/2,
+                            q, d, fixed_value);
+  }
+  else if (bd_length > 0){
+    // TODO: fix this to be more general
+    std::array<double, 2> corner = {cell_center[0] + cell_size_/2*which_d[0],
+                                    cell_center[1] + cell_size_/2*which_d[1]};
+    double intersection = input_->BoundaryInverse(fixed_value);
+    if (input_->Inside(corner)){
+          d_pm = DIntegral_(intersection, corner[d_op], q, d, fixed_value);
+    }
+    else {
+      d_pm = DIntegral_(corner[d_op] - cell_size_, intersection, q, d, fixed_value);
+    }
+  }
+  else {
+    d_pm = 0;
+  }
+  return d_pm;
+}
+
+
+void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
+  for (int q_mag = Q_; q_mag >= 0; q_mag--){
+    Eigen::VectorXf rho = Eigen::VectorXf::Zero(2*(q_mag + 1));
+    Eigen::MatrixXf lhs = Eigen::MatrixXf::Zero(2*(q_mag + 1), 2*q_mag + 1);
+
+    int it = -1;
+    for (int q1 = 0; q1 < (q_mag + 1); q1++){
+      std::array<int, 2> q = {q1, q_mag - q1};
+      for (int d = 0; d < 2; d++){
+        it += 1;
+        std::array<int, 2> e = {0, 0};
+        e[d] = 1;
+
+        std::array<int, 2> plus_vec = {1, 1};
+        std::array<int, 2> first_minus_vec = {-1, 1};
+        std::array<int, 2> second_minus_vec = {1, -1};
+
+        double ptv_bd_length;
+        double d_plus;
+        double ntve_bd_length;
+        double d_minus;
+        // set d_plus and d_minus
+        if (d == 0){
+          // calculate d_plus
+          ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[2];
+          double fixed_ptve_x = cell_center[0] + cell_size_/2;
+          d_plus = CalcD_(ptv_bd_length, fixed_ptve_x, cell_center, q, d, plus_vec);
+
+          // calculate d_minus
+          ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[0];
+          double fixed_ntve_x = cell_center[0] - cell_size_/2;
+          d_minus = CalcD_(ntve_bd_length, fixed_ntve_x, cell_center, q,
+                           d, first_minus_vec);
+        }
+        else if (d == 1){
+          // calculate d_plus
+          ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[1];
+          double fixed_ptve_y = cell_center[1] + cell_size_/2;
+          d_plus = CalcD_(ptv_bd_length, fixed_ptve_y, cell_center, q,
+                                 d, plus_vec);
+
+          // calculate d_minus
+          ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[3];
+          double fixed_ntve_y = cell_center[1] - cell_size_/2;
+          d_minus = CalcD_(ntve_bd_length, fixed_ntve_y, cell_center, q,
+                           d, second_minus_vec);
+        }
+        int s_sum = 0;
+        int S = Q_ - q_mag;
+        for (int s1 = 0; s1 < S+1; s1++){
+          for (int s2 = 0; s2 < S+1; s2++){
+            if (s1 + s2 >= S || s1 + s2 < 1){
+              continue;
+            }
+            s_sum += (boundary_cells_[cell_center].normal_derivatives[s1][s2][d]
+                      *boundary_cells_[cell_center].boundary_moments[q[0] + s1][q[1] + s2]);
+
+          }
+        }
+        std::array<int, 2> q_minus_e = {q[0] - e[0], q[1] - e[1]};
+        if (q_minus_e[0] >= 0 && q_minus_e[1] >= 0){
+          lhs(it, q_minus_e[0]) = q[d];
+        }
+        // M_B Unknowns (stored based on value of q[0
+        lhs(it, q_mag + q[0]) = -boundary_cells_[cell_center].normal_derivatives[0][0][d];
+        rho(it) = d_plus - d_minus + s_sum;
+      }
+    }
+    // Solve
+    Eigen::VectorXf v_and_b = lhs.colPivHouseholderQr().solve(rho);
+
+    // Unpack V and B
+    for (int i = 0; i < q_mag; i++){
+      boundary_cells_[cell_center].volume_moments[i][q_mag - 1 - i] = v_and_b(i);
+    }
+    for (int i = 0; i < q_mag + 1; i++){
+      boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
+    }
+  }
 }
 
 

@@ -80,6 +80,18 @@ TEST(BoundaryTests, VolFrac1D){
   EXPECT_EQ(second_vol_frac[3], .25);
 }
 
+TEST(BoundaryTests, VolumeMoments){
+  boundary::inputs::LineGeometry input;
+  Boundary line_boundary = Boundary(&input);
+  std::map<std::array<double, 2>, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  double total_area = 0;
+  for (std::map<std::array<double, 2>, geo_info>::iterator it=boundary_cells.begin();
+       it != boundary_cells.end(); it++){
+          total_area += it->second.volume_moments[0][0];
+       }
+  EXPECT_FLOAT_EQ(total_area, .25);
+}
+
 } // namespace geometry
 
 } // namespace boundary

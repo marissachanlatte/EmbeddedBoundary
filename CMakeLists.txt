@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 ### DEPENDENCIES #####################################################
+FIND_PACKAGE(Eigen3 3.3)
 
 ### GTEST/GMOCK  ######################################################
 
@@ -51,6 +52,10 @@ set_target_properties(geometry_test
 target_compile_definitions(geometry_test PUBLIC -DTEST)
 
 target_link_libraries(geometry_test ${GTEST_BOTH_LIBRARIES})
+
+# Link Eigen to both executables
+target_link_libraries(makeGeometry Eigen3::Eigen)
+target_link_libraries(geometry_test Eigen3::Eigen)
 
 ### TEST FILES ##################################################
 # Create copies of .gold files in the src directory for gtest
