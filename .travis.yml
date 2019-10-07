@@ -10,7 +10,7 @@ addons:
       - cmake-data
       - cmake
       - lcov
-      - eigen
+      - libeigen3-dev
 
 language: cpp
 
