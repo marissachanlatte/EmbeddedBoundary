@@ -10,7 +10,6 @@ addons:
       - cmake-data
       - cmake
       - lcov
-      - libeigen3-dev
 
 language: cpp
 
@@ -18,6 +17,8 @@ compiler: gcc
 
 before_install:
  - CXX=g++-7
+ # Install Eigen
+ - wget http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz && tar xzf 3.3.4.tar.gz && sudo cp -Rp eigen-eigen-5a0156e40feb /usr/local/include/eigen3;
  # Install GoogleTest/Mock
  - sudo apt-get install -y libgtest-dev valgrind
  - sudo wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
