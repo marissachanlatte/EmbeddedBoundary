@@ -4,6 +4,7 @@
 
 #include <array>
 #include <iostream>
+#include <stdexcept>
 #include <Eigen/Dense>
 
 namespace boundary {
@@ -37,7 +38,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
         cell.id = id_count;
         // update id count
         id_count += 1;
-        helpers::Point cell_center = helpers::Point(x_max - cell_size_, y_max - cell_size_);
+        helpers::Point cell_center = helpers::Point(x_max - cell_size_/2, y_max - cell_size_/2);
         // resize vectors
         cell.normal_derivatives.resize(Q_+1);
         cell.volume_moments.resize(Q_+1);
@@ -72,7 +73,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
                                 input_->Inside(corners[3])};
         for (int corner=0; corner < 4; corner++){
           // iterate four edges to determine which ones intersect boundary
-          if (inside[corner] == inside[(corner+1)%4] || inside[corner] == 2){ // no change from corner to corner, TODO: come up with more robust way to do this
+          if ((inside[corner] == inside[(corner+1)%4]) || inside[corner] == 2){ // no change from corner to corner, TODO: come up with more robust way to do this
             cell.vol_frac_1d[corner] = cell_size_*inside[(corner+1)%4];
           }
           else if (inside[(corner+1)%4] == 2){ // next corner is on the boundary
@@ -82,7 +83,17 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
             // check if edge is horizontal or vertical
             if ((corners[corner][0] - corners[(corner+1)%4][0]) == 0){ // horizontal
               // find the intersection of x=corners[i, 0]
-              double y = input->BoundaryFunction(corners[corner][0]);
+              std::vector<double> y_values = input->BoundaryFunction(corners[corner][0]);
+              double y;
+              if (y_values.size() == 1){
+                y = input->BoundaryFunction(corners[corner][0])[0];
+              }
+              else if (y_values.size() == 2){
+                // choose the value that is in the cell
+                // Robustness TODO: fix this in the case that both values are in cell
+                y = WhichValue(y_values, corners[corner][1], corners[(corner+1)%4][1]);
+              }
+
               double edge_inside = abs(y - corners[corner][1]);
               if (inside[corner]){
                 cell.vol_frac_1d[corner] = edge_inside;
@@ -93,7 +104,16 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
             }
             else { // vertical
               // find intersection of y=corners[i, 1]
-              double x = input->BoundaryInverse(corners[corner][1]);
+              std::vector<double> x_values = input->BoundaryInverse(corners[corner][1]);
+              double x;
+              if (x_values.size() == 1){
+                x = input->BoundaryFunction(corners[corner][0])[0];
+              }
+              else if (x_values.size() == 2){
+                // choose the value that is in the cell
+                // Robustness TODO: fix this in the case that both values are in cell
+                x = WhichValue(x_values, corners[corner][0], corners[(corner+1)%4][0]);
+              }
               double edge_inside = abs(x - corners[corner][0]);
               if (inside[corner]){
                 cell.vol_frac_1d[corner] = edge_inside;
@@ -124,6 +144,29 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
        }
 
 };
+
+double Boundary::WhichValue(std::vector<double> values, double first_bound, double second_bound){
+  if (first_bound < second_bound){
+    for (std::vector<double>::iterator it = values.begin(); it != values.end(); it++){
+      if (*it >= first_bound && *it <= second_bound){
+        return *it;
+      }
+    }
+  }
+
+  else if (first_bound > second_bound){
+    for (std::vector<double>::iterator it = values.begin(); it != values.end(); it++){
+      if (*it <= first_bound && *it >= second_bound){
+        return *it;
+      }
+    }
+  }
+
+  else {
+    throw std::invalid_argument("No change between bounds.");
+  }
+};
+
 
 bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
                               std::array<double, 2> lower_right,
@@ -208,7 +251,16 @@ double Boundary::CalcD_(double bd_length,
     // TODO: fix this to be more general
     std::array<double, 2> corner = {cell_center[0] + cell_size_/2*which_d[0],
                                     cell_center[1] + cell_size_/2*which_d[1]};
-    double intersection = input_->BoundaryInverse(fixed_value);
+    std::vector<double> int_values = input_->BoundaryInverse(fixed_value);
+    double intersection;
+    if (int_values.size() == 1){
+      intersection = int_values[0];
+    }
+    else if (int_values.size() == 2){
+      // choose the value that is in the cell
+      // Robustness TODO: fix this in the case that both values are in cell
+      intersection = WhichValue(int_values, cell_center[d_op] - cell_size_/2, cell_center[d_op] + cell_size_/2);
+    }
     if (input_->Inside(corner)){
           d_pm = DIntegral_(intersection, corner[d_op], q, d, fixed_value);
     }
@@ -290,6 +342,8 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
         lhs(it, q_mag + q[0]) = -boundary_cells_[cell_center].normal_derivatives[0][0][d];
         rho(it) = d_plus - d_minus + s_sum;
       }
+    }
+    if (cell_center[0] == .625 && cell_center[1] == -.875){
     }
     // Solve
     Eigen::VectorXf v_and_b = lhs.colPivHouseholderQr().solve(rho);

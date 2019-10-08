@@ -10,7 +10,7 @@ namespace boundary {
 
 namespace inputs {
 
-/// The input file base class. 
+/// The input file base class.
 /**
 All input files are based on this class which
 contains all relevant input geometry information.
@@ -19,11 +19,11 @@ class InputBase {
 public:
   virtual ~InputBase() = default;
   /// The function describing the boundary.
-  virtual double BoundaryFunction(double x_value) = 0;
+  virtual std::vector<double> BoundaryFunction(double x_value) = 0;
   /// The derivatives of the boundary function.
   virtual double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) = 0;
   /// The inverse of the boundary function.
-  virtual double BoundaryInverse(double y_value) = 0;
+  virtual std::vector<double> BoundaryInverse(double y_value) = 0;
   /// A function returning whether or not a point is inside or outside the
   /// boundary.
   /* It returns 0 for outside, 1 for inside, 2 for on boundary.

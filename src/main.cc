@@ -1,4 +1,5 @@
 #include "inputs/line/line.h"
+#include "inputs/circle/circle.h"
 #include "helpers/geometry_objects.h"
 #include "normals/normals.h"
 #include "geometry/boundary.h"
@@ -10,7 +11,7 @@
 #include <fstream>
 
 int main(){
-  boundary::inputs::LineGeometry input;
+  boundary::inputs::CircleGeometry input;
   boundary::geometry::Boundary line_boundary = boundary::geometry::Boundary(&input);
   std::map<std::array<double, 2>, boundary::geometry::geo_info> boundary_cells = line_boundary.BoundaryCells();
   std::ofstream output;

@@ -12,7 +12,7 @@ namespace boundary {
 
 namespace normals {
 
-double * Normal::ComputeNormal(helpers::Point a_point,
+std::array<double, 2> Normal::ComputeNormal(helpers::Point a_point,
                                boundary::inputs::InputBase* input){
 
   std::vector<int> x_unit{1, 0};
@@ -21,7 +21,7 @@ double * Normal::ComputeNormal(helpers::Point a_point,
   double dx = input->BoundaryDerivatives(a_point, x_unit);
   double dy = input->BoundaryDerivatives(a_point, y_unit);
   double normalization = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
-  static double gradient[2] = {dx/normalization, dy/normalization};
+  std::array<double, 2> gradient = {dx/normalization, dy/normalization};
   return gradient;
 }
 

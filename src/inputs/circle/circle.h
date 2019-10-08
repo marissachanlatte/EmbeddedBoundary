@@ -1,5 +1,5 @@
-#ifndef EMBEDDED_BOUNDARY_SRC_INPUTS_LINE_LINE_H
-#define EMBEDDED_BOUNDARY_SRC_INPUTS_LINE_LINE_H
+#ifndef EMBEDDED_BOUNDARY_SRC_INPUTS_CIRCLE_CIRCLE_H
+#define EMBEDDED_BOUNDARY_SRC_INPUTS_CIRCLE_CIRCLE_H
 
 #include "inputs/input_base.h"
 #include "helpers/geometry_objects.h"
@@ -12,10 +12,10 @@ namespace boundary {
 namespace inputs {
 
 
-/// An input file representing the line x=y
-class LineGeometry : public InputBase{
+/// An input file representing the Circle 0 = x^2 + y^2 - 1
+class CircleGeometry : public InputBase{
   public:
-    ~LineGeometry() = default;
+    ~CircleGeometry() = default;
     std::vector<double> BoundaryFunction(double x_value) override;
     double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) override;
     std::vector<double> BoundaryInverse(double y_value) override;
@@ -33,4 +33,4 @@ class LineGeometry : public InputBase{
 
 } // namespace boundary
 
-#endif // EMBEDDED_BOUNDARY_SRC_INPUTS_LINE_LINE_H
+#endif // EMBEDDED_BOUNDARY_SRC_INPUTS_CIRCLE_CIRCLE_H

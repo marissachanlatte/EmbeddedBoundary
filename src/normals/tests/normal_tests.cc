@@ -1,11 +1,13 @@
 #include "normals/normals.h"
 #include "inputs/line/line.h"
+#include "inputs/circle/circle.h"
 #include "helpers/geometry_objects.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <cmath>
 #include <iostream>
+#include <array>
 
 class NormalTest : public ::testing::Test{
   protected:
@@ -16,10 +18,16 @@ TEST(NormalTest, ComputeNormal){
   boundary::inputs::LineGeometry line;
   boundary::helpers::Point a_point = boundary::helpers::Point(1, 1);
   double test_array[2] = {-std::sqrt(2)/2, std::sqrt(2)/2};
-  double* normal = boundary::normals::Normal::ComputeNormal(a_point, &line);
+  std::array<double, 2> normal = boundary::normals::Normal::ComputeNormal(a_point, &line);
 
   EXPECT_THAT(test_array[0], testing::DoubleNear(normal[0], 1e-10));
   EXPECT_THAT(test_array[1], testing::DoubleNear(normal[1], 1e-10));
+
+  boundary::inputs::CircleGeometry circle;
+  boundary::helpers::Point second_point = boundary::helpers::Point(1, 0);
+  std::array<double, 2> circle_normal = boundary::normals::Normal::ComputeNormal(second_point, &circle);
+  EXPECT_FLOAT_EQ(1, circle_normal[0]);
+  EXPECT_FLOAT_EQ(0, circle_normal[1]);
 }
 
 TEST(NormalTest, NormalDerivative){

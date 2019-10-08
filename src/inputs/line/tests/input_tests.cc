@@ -11,10 +11,10 @@ class LineInputTest : public ::testing::Test{
 
 TEST(LineInputTest, Boundary){
   boundary::inputs::LineGeometry line;
-  EXPECT_EQ(1, line.BoundaryFunction(1));
-  EXPECT_EQ(5, line.BoundaryFunction(5));
-  EXPECT_EQ(-1, line.BoundaryFunction(-1));
-  EXPECT_EQ(8.3, line.BoundaryFunction(8.3));
+  EXPECT_EQ(1, line.BoundaryFunction(1)[0]);
+  EXPECT_EQ(5, line.BoundaryFunction(5)[0]);
+  EXPECT_EQ(-1, line.BoundaryFunction(-1)[0]);
+  EXPECT_EQ(8.3, line.BoundaryFunction(8.3)[0]);
 }
 
 TEST(LineInputTest, Derivative){
@@ -38,8 +38,8 @@ TEST(LineInputTest, Derivative){
 
 TEST(LineInputTest, Inverse){
   boundary::inputs::LineGeometry line;
-  EXPECT_EQ(1, line.BoundaryInverse(1));
-  EXPECT_EQ(5, line.BoundaryInverse(5));
-  EXPECT_EQ(-1, line.BoundaryInverse(-1));
-  EXPECT_EQ(8.3, line.BoundaryInverse(8.3));
+  EXPECT_EQ(1, line.BoundaryInverse(1)[0]);
+  EXPECT_EQ(5, line.BoundaryInverse(5)[0]);
+  EXPECT_EQ(-1, line.BoundaryInverse(-1)[0]);
+  EXPECT_EQ(8.3, line.BoundaryInverse(8.3)[0]);
 }

@@ -8,8 +8,10 @@ namespace boundary {
 
 namespace inputs {
 
-double LineGeometry::BoundaryFunction(double x_value){
-  return x_value;
+std::vector<double> LineGeometry::BoundaryFunction(double x_value){
+  std::vector<double> y_values;
+  y_values.push_back(x_value);
+  return y_values;
 };
 
 double LineGeometry::BoundaryDerivatives(helpers::Point a_point,
@@ -28,8 +30,10 @@ double LineGeometry::BoundaryDerivatives(helpers::Point a_point,
 };
 
 
-double LineGeometry::BoundaryInverse(double y_value){
-  return y_value;
+std::vector<double> LineGeometry::BoundaryInverse(double y_value){
+  std::vector<double> x_values;
+  x_values.push_back(y_value);
+  return x_values;
 };
 
 

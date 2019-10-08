@@ -4,6 +4,8 @@
 #include "inputs/input_base.h"
 #include "helpers/geometry_objects.h"
 
+#include<array>
+
 namespace boundary {
 
 namespace normals {
@@ -13,7 +15,7 @@ class Normal{
   public:
     ~Normal() = default;
     /// Computes the normal to a given boundary at a given point
-    static double * ComputeNormal(helpers::Point a_point,
+    static std::array<double, 2> ComputeNormal(helpers::Point a_point,
                            boundary::inputs::InputBase* input);
     /// Computes the normalized gradient of the boundary at a given point.
     static double NormalizedGradient(helpers::Point a_point,

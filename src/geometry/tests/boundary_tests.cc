@@ -1,5 +1,6 @@
 #include "geometry/boundary.h"
 #include "inputs/line/line.h"
+#include "inputs/circle/circle.h"
 
 #include "gtest/gtest.h"
 #include <array>
@@ -78,6 +79,40 @@ TEST(BoundaryTests, VolFrac1D){
   EXPECT_EQ(second_vol_frac[1], 0);
   EXPECT_EQ(second_vol_frac[2], .25);
   EXPECT_EQ(second_vol_frac[3], .25);
+  boundary::inputs::CircleGeometry circle;
+  Boundary circle_boundary = Boundary(&circle);
+  std::map<std::array<double, 2>, geo_info> circle_cells = circle_boundary.BoundaryCells();
+  std::array<double, 2> first_circle_point = {-.625, -.875};
+  std::array<double, 4> first_circle_frac = circle_cells[first_circle_point].vol_frac_1d;
+  EXPECT_FLOAT_EQ(first_circle_frac[0], 0);
+  EXPECT_FLOAT_EQ(first_circle_frac[1], 0.16143783);
+  EXPECT_FLOAT_EQ(first_circle_frac[2], 0.1160254);
+  EXPECT_FLOAT_EQ(first_circle_frac[3], 0);
+  std::array<double, 2> second_circle_point = {.625, -.875};
+  std::array<double, 4> second_circle_frac = circle_cells[second_circle_point].vol_frac_1d;
+  EXPECT_FLOAT_EQ(second_circle_frac[0], 0.1160254);
+  EXPECT_FLOAT_EQ(second_circle_frac[1], 0.16143783);
+  EXPECT_FLOAT_EQ(second_circle_frac[2], 0);
+  EXPECT_FLOAT_EQ(second_circle_frac[3], 0);
+
+}
+
+TEST(BoundaryTests, WhichValue){
+  std::vector<double> values;
+  values.push_back(-1);
+  values.push_back(1);
+  EXPECT_EQ(1, Boundary::WhichValue(values, .5, 1.75));
+  EXPECT_EQ(-1, Boundary::WhichValue(values, -.5, -1.75));
+
+}
+
+TEST(BoundaryTests, NormalDerivatives){
+  boundary::inputs::CircleGeometry circle;
+  Boundary circle_boundary = Boundary(&circle);
+  std::map<std::array<double, 2>, geo_info> boundary_cells = circle_boundary.BoundaryCells();
+  std::array<double, 2> first_point = {.625, -.875};
+  EXPECT_FLOAT_EQ(0.58123819, boundary_cells[first_point].normal_derivatives[0][0][0]);
+  EXPECT_FLOAT_EQ(-0.81373347, boundary_cells[first_point].normal_derivatives[0][0][1]);
 }
 
 TEST(BoundaryTests, VolumeMoments){
@@ -90,6 +125,18 @@ TEST(BoundaryTests, VolumeMoments){
           total_area += it->second.volume_moments[0][0];
        }
   EXPECT_FLOAT_EQ(total_area, .25);
+
+  boundary::inputs::CircleGeometry circle_input;
+  Boundary circle_boundary = Boundary(&circle_input);
+  std::map<std::array<double, 2>, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
+  double total_circle = 2;
+  for (std::map<std::array<double, 2>, geo_info>::iterator it=circle_boundary_cells.begin();
+       it != circle_boundary_cells.end(); it++){
+          total_circle += it->second.volume_moments[0][0];
+       }
+  std::cout << total_circle << std::endl;
+  EXPECT_NEAR(total_circle, 3.14, 5e-2);
+
 }
 
 } // namespace geometry

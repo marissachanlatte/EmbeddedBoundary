@@ -44,8 +44,12 @@ This class stores a map of all boundary cells with necessary geometry informatio
                                  std::array<double, 2> upper_left,
                                  boundary::inputs::InputBase* input);
       std::map<std::array<double, 2>, geo_info> BoundaryCells();
+      static double WhichValue(std::vector<double> values,
+                         double first_bound,
+                         double second_bound);
 
     private:
+
       void CalculateMoments_(std::array<double, 2> cell_center);
       double DIntegral_(double beginning,
                         double end,
