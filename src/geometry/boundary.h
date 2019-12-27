@@ -10,6 +10,9 @@
 namespace boundary {
 
 namespace geometry {
+/**
+This struct contains all geometry information for a given cell
+**/
 
   struct geo_info {
     /// tells if cell is irregular or not
