@@ -13,8 +13,15 @@ namespace geometry {
 
 Boundary::Boundary(boundary::inputs::InputBase* input){
   input_ = input;
+  // Set global variables
   cell_size_ = input->CellSize();
   Q_ = input->QOrder();
+  x_min_ = input->XMin();
+  x_max_ = input->XMax();
+  y_min_ = input->YMin();
+  y_max_ = input->YMax();
+
+  // Iterate through all cells
   double y_min = input->YMin();
   double y_max = y_min + cell_size_;
   int id_count = 0;
@@ -219,19 +226,19 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
     }
   }
   return !same;
-}
+};
 
 
 std::map<std::array<double, 2>, geo_info> Boundary::BoundaryCells(){
   return boundary_cells_;
-}
+};
 
 
 double Boundary::DIntegral_(double beginning, double end, std::array<int, 2> q,
                             int index, double fixed_value){
   double next_plus = q[(index + 1) % 2] + 1;
   return std::pow(fixed_value, q[index])*(1/(next_plus))*(std::pow(end, next_plus) - std::pow(beginning, next_plus));
-}
+};
 
 
 double Boundary::CalcD_(double bd_length,
@@ -272,7 +279,7 @@ double Boundary::CalcD_(double bd_length,
     d_pm = 0;
   }
   return d_pm;
-}
+};
 
 
 void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
@@ -356,8 +363,27 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
       boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
     }
   }
-}
+};
 
+
+double Boundary::XMin(){
+  return x_min_;
+};
+
+
+double Boundary::XMax(){
+  return x_max_;
+};
+
+
+double Boundary::YMin(){
+  return y_min_;
+};
+
+
+double Boundary::YMax(){
+  return y_max_;
+};
 
 } // namespace geometry
 

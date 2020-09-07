@@ -139,6 +139,16 @@ TEST(BoundaryTests, VolumeMoments){
 
 }
 
+
+TEST(BoundaryTests, DomainLimits){
+  boundary::inputs::LineGeometry input;
+  Boundary line_boundary = Boundary(&input);
+  EXPECT_FLOAT_EQ(line_boundary.XMax(), 1.0);
+  EXPECT_FLOAT_EQ(line_boundary.XMin(), -1.0);
+  EXPECT_FLOAT_EQ(line_boundary.YMax(), 1.0);
+  EXPECT_FLOAT_EQ(line_boundary.YMin(), -1.0);
+}
+
 } // namespace geometry
 
 } // namespace boundary

@@ -50,6 +50,10 @@ This class stores a map of all boundary cells with necessary geometry informatio
       static double WhichValue(std::vector<double> values,
                          double first_bound,
                          double second_bound);
+      double XMax();
+      double XMin();
+      double YMax();
+      double YMin();
 
     private:
 
@@ -69,6 +73,10 @@ This class stores a map of all boundary cells with necessary geometry informatio
       boundary::inputs::InputBase* input_;
       int Q_;
       double cell_size_;
+      double x_max_;
+      double x_min_;
+      double y_max_;
+      double y_min_;
   };
 }
 
