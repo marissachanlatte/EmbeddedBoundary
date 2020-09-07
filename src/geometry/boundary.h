@@ -50,6 +50,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
       static double WhichValue(std::vector<double> values,
                          double first_bound,
                          double second_bound);
+      double CellSize();
       double XMax();
       double XMin();
       double YMax();

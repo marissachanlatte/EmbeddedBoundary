@@ -3,6 +3,7 @@
 #include "normals/normals.h"
 
 #include <array>
+#include "math.h"
 #include <iostream>
 #include <stdexcept>
 #include <Eigen/Dense>
@@ -20,6 +21,12 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   x_max_ = input->XMax();
   y_min_ = input->YMin();
   y_max_ = input->YMax();
+
+  // Check that cell size evenly divides x & y
+  if ((std::fmod(std::abs(x_max_ - x_min_), cell_size_) != 0) ||
+     (std::fmod(std::abs(y_max_ - y_min_), cell_size_) != 0)) {
+       throw "Cell size does not evenly divide domain.";
+     }
 
   // Iterate through all cells
   double y_min = input->YMin();
@@ -363,6 +370,11 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
       boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
     }
   }
+};
+
+
+double Boundary::CellSize(){
+  return cell_size_;
 };
 
 
