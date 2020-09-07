@@ -47,6 +47,8 @@ This class stores a map of all boundary cells with necessary geometry informatio
                                  std::array<double, 2> upper_left,
                                  boundary::inputs::InputBase* input);
       std::map<std::array<double, 2>, geo_info> BoundaryCells();
+      // Tells whether a cell is 0 - interior, 1 - boundary, or 2 - exterior
+      std::map<int, int> CellMap();
       static double WhichValue(std::vector<double> values,
                          double first_bound,
                          double second_bound);
@@ -71,6 +73,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
                     int d,
                     std::array<int, 2> which_d);
       std::map<std::array<double, 2>, geo_info> boundary_cells_;
+      std::map<int, int> cell_map_;
       boundary::inputs::InputBase* input_;
       int Q_;
       double cell_size_;

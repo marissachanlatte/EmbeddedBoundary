@@ -32,6 +32,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   double y_min = input->YMin();
   double y_max = y_min + cell_size_;
   int id_count = 0;
+  int global_id = 0;
   while (y_max <= input->YMax()){
     double x_min = input->XMin();
     double x_max = x_min + cell_size_;
@@ -46,6 +47,8 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
       bool is_boundary = IsBoundaryCell(corners[0], corners[1],
                                         corners[2], corners[3], input);
       if (is_boundary){
+        // add to cell map 
+        cell_map_.insert(std::pair<int, int>(global_id, 1));
         // make struct with tag and id
         geo_info cell;
         cell.irregular = true;
@@ -143,6 +146,18 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
         boundary_cells_.insert(
           std::pair<std::array<double, 2>, geo_info>(point, cell));
       }
+
+      // If inside, add to cell map
+      else if (input->Inside(corners[0])){
+        cell_map_.insert(std::pair<int, int>(global_id, 0));
+      }
+
+      // Else, exterior
+      else {cell_map_.insert(std::pair<int, int>(global_id, 2));}
+
+      // Update global id
+      global_id += 1;
+
       // Go to next cell
       x_max += cell_size_;
       x_min += cell_size_;
@@ -370,6 +385,10 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
       boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
     }
   }
+};
+
+std::map<int, int> Boundary::CellMap(){
+  return cell_map_;
 };
 
 
