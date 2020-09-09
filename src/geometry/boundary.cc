@@ -52,7 +52,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
         // make struct with tag and id
         geo_info cell;
         cell.irregular = true;
-        cell.id = id_count;
+        cell.id = global_id;
         // update id count
         id_count += 1;
         helpers::Point cell_center = helpers::Point(x_max - cell_size_/2, y_max - cell_size_/2);
