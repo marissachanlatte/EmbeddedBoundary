@@ -46,6 +46,8 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
 
       bool is_boundary = IsBoundaryCell(corners[0], corners[1],
                                         corners[2], corners[3], input);
+      // cell center
+      std::array<double, 2> center = {x_min + cell_size_/2, y_min + cell_size_/2};
       if (is_boundary){
         // add to cell map 
         cell_map_.insert(std::pair<int, int>(global_id, 1));
@@ -141,10 +143,9 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
             }
           }
         }
-        // add point to map
-        std::array<double, 2> point = {x_min + cell_size_/2, y_min + cell_size_/2};
+        // add center to map
         boundary_cells_.insert(
-          std::pair<std::array<double, 2>, geo_info>(point, cell));
+          std::pair<std::array<double, 2>, geo_info>(center, cell));
       }
 
       // If inside, add to cell map
@@ -154,6 +155,9 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
 
       // Else, exterior
       else {cell_map_.insert(std::pair<int, int>(global_id, 2));}
+
+      // Add id to cell center map
+      id_to_center_.insert(std::pair<int, std::array<double, 2>>(global_id, center));
 
       // Update global id
       global_id += 1;
@@ -198,9 +202,9 @@ double Boundary::WhichValue(std::vector<double> values, double first_bound, doub
 
 
 bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
-                              std::array<double, 2> lower_right,
-                              std::array<double, 2> upper_right,
                               std::array<double, 2> upper_left,
+                              std::array<double, 2> upper_right,
+                              std::array<double, 2> lower_right,
                               boundary::inputs::InputBase* input){
   // put into array with inside values
   std::vector<int> inside{input->Inside(lower_left),
@@ -209,6 +213,9 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
                           input->Inside(lower_right)};
   // try changing all 2s to 0s and see if they are all the same
   int it_prev = inside[0];
+      if (it_prev == 2){
+      it_prev = 0;
+    }
   bool same;
   for (int it = 1; it < 4; it++){
     int current = inside[it];
@@ -227,9 +234,13 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
       break;
     }
   }
+
   // if they're not try changing all the 2s to 1s and see if they're all the same
   if (!same){
     it_prev = inside[0];
+    if (it_prev == 2){
+      it_prev = 1;
+    }
     for (int it = 1; it < 4; it++){
       int current = inside[it];
       if (current == 2){
@@ -247,6 +258,7 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
       }
     }
   }
+
   return !same;
 };
 
@@ -386,6 +398,12 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
     }
   }
 };
+
+
+std::array<double, 2> Boundary::IDtoCenter(int id){
+  return id_to_center_[id];
+};
+
 
 std::map<int, int> Boundary::CellMap(){
   return cell_map_;
