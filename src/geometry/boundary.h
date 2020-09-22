@@ -52,6 +52,8 @@ This class stores a map of all boundary cells with necessary geometry informatio
       static double WhichValue(std::vector<double> values,
                          double first_bound,
                          double second_bound);
+      // Given a cell ID, returns cell center
+      std::array<double, 2> IDtoCenter(int id);
       double CellSize();
       double XMax();
       double XMin();
@@ -74,6 +76,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
                     std::array<int, 2> which_d);
       std::map<std::array<double, 2>, geo_info> boundary_cells_;
       std::map<int, int> cell_map_;
+      std::map<int, std::array<double, 2>> id_to_center_;
       boundary::inputs::InputBase* input_;
       int Q_;
       double cell_size_;
