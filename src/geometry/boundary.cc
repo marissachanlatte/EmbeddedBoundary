@@ -44,13 +44,19 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
       corners[2] = {x_max, y_max}; // upper right
       corners[3] = {x_max, y_min}; // lower right
 
+      // Check if four corners are inside or outside boundary
+      std::vector<int> inside{input_->Inside(corners[0]),
+                                input_->Inside(corners[1]),
+                                input_->Inside(corners[2]),
+                                input_->Inside(corners[3])};
+
       bool is_boundary = IsBoundaryCell(corners[0], corners[1],
                                         corners[2], corners[3], input);
       // cell center
       std::array<double, 2> center = {x_min + cell_size_/2, y_min + cell_size_/2};
       if (is_boundary){
         // add to cell map 
-        cell_map_.insert(std::pair<int, int>(global_id, 1));
+        cell_map_.insert(std::pair<int, int>(global_id, 2));
         // make struct with tag and id
         geo_info cell;
         cell.irregular = true;
@@ -85,11 +91,6 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
           }
         }
         // Compute 1d volume fractions and store in cell
-        // Check if four corners are inside or outside boundary
-        std::vector<int> inside{input_->Inside(corners[0]),
-                                input_->Inside(corners[1]),
-                                input_->Inside(corners[2]),
-                                input_->Inside(corners[3])};
         for (int corner=0; corner < 4; corner++){
           // iterate four edges to determine which ones intersect boundary
           if ((inside[corner] == inside[(corner+1)%4]) || inside[corner] == 2){ // no change from corner to corner, TODO: come up with more robust way to do this
@@ -148,13 +149,8 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
           std::pair<std::array<double, 2>, geo_info>(center, cell));
       }
 
-      // If inside, add to cell map
-      else if (input->Inside(corners[0])){
-        cell_map_.insert(std::pair<int, int>(global_id, 0));
-      }
-
-      // Else, exterior
-      else {cell_map_.insert(std::pair<int, int>(global_id, 2));}
+      // Else add to cell map
+      else {cell_map_.insert(std::pair<int, int>(global_id, *std::min_element(inside.begin(), inside.end())));}
 
       // Add id to cell center map
       id_to_center_.insert(std::pair<int, std::array<double, 2>>(global_id, center));

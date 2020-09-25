@@ -38,7 +38,7 @@ void writeSolution(Eigen::VectorXd solution, boundary::geometry::Boundary bounda
   output.open ("../outputs/output_solution.txt");
   for (int id = 0; id < solution.size(); id++){
     std::array<double, 2> point = boundary.IDtoCenter(id);
-    output << point[0] << " " << point[1] << " " << solution << std::endl;
+    output << point[0] << " " << point[1] << " " << solution[id] << std::endl;
   }
   output.close();
 }
@@ -55,12 +55,14 @@ int main(){
   // Read in input
   boundary::inputs::SquareGeometry input;
   // Make geometry
-  boundary::geometry::Boundary line_boundary = boundary::geometry::Boundary(&input);
-  std::map<std::array<double, 2>, boundary::geometry::geo_info> boundary_cells = line_boundary.BoundaryCells();
-  std::map<int, int> cell_map = line_boundary.CellMap();
-  double cell_size = line_boundary.CellSize();
+  boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&input);
+  std::map<std::array<double, 2>, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
+  std::map<int, int> cell_map = boundary.CellMap();
+  double cell_size = boundary.CellSize();
+  // Make laplacian
+  Eigen::VectorXd solution = makeLaplacian(boundary);
   // Write to file
-  writeGeometry(cell_map, boundary_cells, line_boundary, cell_size);
+  writeSolution(solution, boundary);
   return 0;
 }
 

@@ -4,6 +4,8 @@
 #include "geometry/boundary.h"
 
 #include <Eigen/Sparse>
+#include <Eigen/SparseLU>
+#include <Eigen/Dense>
 
 namespace boundary {
 
@@ -16,11 +18,17 @@ namespace solvers {
       Laplacian();
       Laplacian(boundary::geometry::Boundary geometry);
       ~Laplacian() = default;
+      Eigen::VectorXd solve();
     
     private:
         Eigen::SparseMatrix<double> matrix_;
-        Eigen::SparseMatrix<double> BuildMatrix(boundary::geometry::Boundary geometry);
+        Eigen::VectorXd rhs_;
+        void BuildMatrix(boundary::geometry::Boundary geometry);
+        void safeMatrixAssign(int i_index, int j_index, double value);
         int IJToGlobal(int x_index, int y_index, int num_x);
+        int num_x_;
+        int num_y_;
+
   };
 
 } // namespace solvers
