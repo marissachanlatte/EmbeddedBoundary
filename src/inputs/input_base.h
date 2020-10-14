@@ -26,7 +26,7 @@ public:
   virtual std::vector<double> BoundaryInverse(double y_value) = 0;
   /// A function returning whether or not a point is inside or outside the
   /// boundary.
-  /* It returns 0 for outside, 1 for inside, 2 for on boundary.
+  /* It returns 0 for exterior, 1 for interior, 2 for on boundary.
   */
   virtual int Inside(std::array<double, 2> point) = 0;
   /// Domain minimum in the x direction.
