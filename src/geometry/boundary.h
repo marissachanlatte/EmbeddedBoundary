@@ -21,7 +21,7 @@ This struct contains all geometry information for a given cell
     int id;
     /// derivatives of the normal to the boundary
     std::vector<std::vector<std::vector<double>>> normal_derivatives;
-    /// 1d volume fraction for boundary cell edges
+    /// 1d volume fraction for boundary cell edges (left, up, right, down)
     std::array<double, 4> vol_frac_1d;
     /// volume moments
     std::vector<std::vector<double>> volume_moments;
@@ -47,7 +47,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
                                  std::array<double, 2> upper_left,
                                  boundary::inputs::InputBase* input);
       std::map<std::array<double, 2>, geo_info> BoundaryCells();
-      // Tells whether a cell is 0 - interior, 1 - boundary, or 2 - exterior
+      // Tells whether a cell is 0 - exterior, 1 - interior, or 2 - boundary
       std::map<int, int> CellMap();
       static double WhichValue(std::vector<double> values,
                          double first_bound,
