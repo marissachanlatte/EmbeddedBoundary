@@ -20,12 +20,15 @@ void writeGeometry(std::map<int, int> cell_map, std::map<std::array<double, 2>, 
   for (std::map<int, int>::iterator it=cell_map.begin(); it != cell_map.end(); it++){
     std::array<double, 2> center = boundary.IDtoCenter(it->first);
     if (it->second == 0){
-      output << center[0] << " " << center[1] << " " << std::pow(boundary.CellSize(), 2) << std::endl;
-    }
-    else if (it->second == 1){
+      // exterior
       output << center[0] << " " << center[1] << " " << 0 << std::endl;
     }
+    else if (it->second == 1){
+      // interior
+      output << center[0] << " " << center[1] << " " << std::pow(boundary.CellSize(), 2) << std::endl;
+    }
     else if (it->second == 2){
+      // boundary
       output << center[0] << " " << center[1] << " " << boundary_cells[center].volume_moments[0][0] << std::endl;
     }   
   }
@@ -63,6 +66,7 @@ int main(){
   Eigen::VectorXd solution = makeLaplacian(boundary);
   // Write to file
   writeSolution(solution, boundary);
+  // writeGeometry(cell_map, boundary_cells, boundary, cell_size);
   return 0;
 }
 
