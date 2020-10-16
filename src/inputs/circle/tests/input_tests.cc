@@ -1,4 +1,4 @@
- #include "inputs/circle/circle.h"
+ #include "inputs/circle/circle_test.h"
  #include "helpers/geometry_objects.h"
 
  #include "gtest/gtest.h"
@@ -10,7 +10,7 @@
  };
 
  TEST(CircleInputTest, Boundary){
-   boundary::inputs::CircleGeometry circle;
+   boundary::inputs::CircleTestGeometry circle;
    EXPECT_EQ(0, circle.BoundaryFunction(1)[0]);
    EXPECT_EQ(std::sqrt(.75), circle.BoundaryFunction(.5)[0]);
    EXPECT_EQ(-std::sqrt(.75), circle.BoundaryFunction(.5)[1]);
@@ -36,7 +36,7 @@
  // }
  //
  TEST(CircleInputTest, Inverse){
-   boundary::inputs::CircleGeometry circle;
+   boundary::inputs::CircleTestGeometry circle;
    EXPECT_EQ(0, circle.BoundaryInverse(1)[0]);
    EXPECT_EQ(std::sqrt(.75), circle.BoundaryInverse(.5)[0]);
    EXPECT_EQ(-std::sqrt(.75), circle.BoundaryInverse(.5)[1]);

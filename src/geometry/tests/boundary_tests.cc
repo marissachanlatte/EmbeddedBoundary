@@ -1,6 +1,6 @@
 #include "geometry/boundary.h"
 #include "inputs/line/line.h"
-#include "inputs/circle/circle.h"
+#include "inputs/circle/circle_test.h"
 
 #include "gtest/gtest.h"
 #include <array>
@@ -79,7 +79,7 @@ TEST(BoundaryTests, VolFrac1D){
   EXPECT_EQ(second_vol_frac[1], 0);
   EXPECT_EQ(second_vol_frac[2], .25);
   EXPECT_EQ(second_vol_frac[3], .25);
-  boundary::inputs::CircleGeometry circle;
+  boundary::inputs::CircleTestGeometry circle;
   Boundary circle_boundary = Boundary(&circle);
   std::map<std::array<double, 2>, geo_info> circle_cells = circle_boundary.BoundaryCells();
   std::array<double, 2> first_circle_point = {-.625, -.875};
@@ -107,7 +107,7 @@ TEST(BoundaryTests, WhichValue){
 }
 
 TEST(BoundaryTests, NormalDerivatives){
-  boundary::inputs::CircleGeometry circle;
+  boundary::inputs::CircleTestGeometry circle;
   Boundary circle_boundary = Boundary(&circle);
   std::map<std::array<double, 2>, geo_info> boundary_cells = circle_boundary.BoundaryCells();
   std::array<double, 2> first_point = {.625, -.875};
@@ -126,7 +126,7 @@ TEST(BoundaryTests, VolumeMoments){
        }
   EXPECT_FLOAT_EQ(total_area, .25);
 
-  boundary::inputs::CircleGeometry circle_input;
+  boundary::inputs::CircleTestGeometry circle_input;
   Boundary circle_boundary = Boundary(&circle_input);
   std::map<std::array<double, 2>, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
   double total_circle = 2;
