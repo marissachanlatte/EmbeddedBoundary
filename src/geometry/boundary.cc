@@ -21,6 +21,8 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   x_max_ = input->XMax();
   y_min_ = input->YMin();
   y_max_ = input->YMax();
+  num_x_ = int(std::abs(x_max_ - x_min_)/cell_size_);
+  num_y_ = int(std::abs(y_max_ - y_min_)/cell_size_);
 
   // Check that cell size evenly divides x & y
   if ((std::fmod(std::abs(x_max_ - x_min_), cell_size_) != 0) ||
@@ -401,6 +403,67 @@ std::array<double, 2> Boundary::IDtoCenter(int id){
 };
 
 
+int Boundary::IJToGlobal(int i_index, int j_index, int num_x){
+  if(i_index < 0 || j_index < 0 || i_index >= num_y_ || j_index >= num_x_){
+    return -1;
+  }
+  return num_x*j_index + i_index;
+};
+
+
+std::array<int, 2> Boundary::neighborCell(int i_index, int j_index, int edge){
+  std::map<int, std::array<int, 2>> neighbor_map = {{0, {i_index, j_index - 1}},
+                                                    {1, {i_index + 1, j_index}},
+                                                    {2, {i_index, j_index + 1}},
+                                                    {3, {i_index - 1, j_index}}};
+  return neighbor_map[edge];
+}
+
+
+int Boundary::sgn_(double v){
+    // branchless sign function.
+    // https://helloacm.com/how-to-implement-the-sgn-function-in-c/
+    return (v > 0) - (v < 0);
+}
+
+
+std::array<int, 2> Boundary::projected_normal_(int side_index, double nx, double ny){
+    // (side_index & 1) iff care about y direction.
+    // thus we can create a projected normal using comparison + bit mask.
+    std::array<int, 2> normal = {sgn_((    (side_index & 1)) * nx),
+                                 sgn_((1 ^ (side_index & 1)) * ny)};
+    return normal;
+}
+
+
+int Boundary::parity_(int side_index){
+    // return parity of 2 bit number
+    return (side_index ^ (side_index >> 1)) & 1;
+}
+
+
+std::array<std::array<int, 2>, 2> Boundary::interpolationPair(int i, int j, double nx, double ny, int side_index){
+  // want to move along projected direction of negative normal.
+  std::array<int, 2> steps = projected_normal_(side_index, -nx, -ny);
+  
+  // take step along projected normal.
+  int i2 = i + steps[0]; 
+  int j2 = j + steps[1];
+
+  int direction = parity_(side_index) - (not parity_(side_index));
+  steps[0] = direction * ((side_index & 1) ^ 1);
+  steps[1] = direction *  (side_index & 1);
+
+  int i3 = i2 + steps[0];
+  int j3 = j2 + steps[1];
+
+  std::array<int, 2> first_pair = {i2, j2};
+  std::array<int, 2> second_pair = {i3, j3};
+  std::array<std::array<int, 2>, 2> pair = {first_pair, second_pair};
+  return pair;
+}
+
+
 std::map<int, int> Boundary::CellMap(){
   return cell_map_;
 };
@@ -429,6 +492,14 @@ double Boundary::YMin(){
 double Boundary::YMax(){
   return y_max_;
 };
+
+double Boundary::NumX(){
+  return num_x_;
+}
+
+double Boundary::NumY(){
+  return num_y_;
+}
 
 } // namespace geometry
 
