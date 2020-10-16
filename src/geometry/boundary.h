@@ -55,11 +55,11 @@ This class stores a map of all boundary cells with necessary geometry informatio
       // Given a cell ID, returns cell center
       std::array<double, 2> IDtoCenter(int id);
       // Given an IJ index, returns global index
-      int IJToGlobal(int x_index, int y_index, int num_x);
+      int IJToGlobal(int x_index, int y_index);
       // Given a cell and an edge, returns (i, j) index of neighboring cell
-      std::array<int, 2> neighborCell(int i_index, int j_index, int edge);
+      std::array<int, 2> NeighborCell(int i_index, int j_index, int edge);
       // Given a cell edge and normal returns what pair to interpolate with to find partial edge center
-      std::array<std::array<int, 2>, 2> interpolationPair(int i, int j, double nx, double ny, int side_index);
+      std::array<std::array<int, 2>, 2> InterpolationPair(int i, int j, double nx, double ny, int side_index);
       double CellSize();
       double XMax();
       double XMin();
@@ -86,9 +86,9 @@ This class stores a map of all boundary cells with necessary geometry informatio
       std::map<int, int> cell_map_;
       std::map<int, std::array<double, 2>> id_to_center_;
       boundary::inputs::InputBase* input_;
-      int sgn_(double v);
-      std::array<int, 2> projected_normal_(int side_index, double nx, double ny);
-      int parity_(int side_index);
+      int Sgn_(double v);
+      std::array<int, 2> ProjectedNormal_(int side_index, double nx, double ny);
+      int Parity_(int side_index);
       int Q_;
       double cell_size_;
       double x_max_;

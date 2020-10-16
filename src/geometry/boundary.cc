@@ -403,15 +403,15 @@ std::array<double, 2> Boundary::IDtoCenter(int id){
 };
 
 
-int Boundary::IJToGlobal(int i_index, int j_index, int num_x){
+int Boundary::IJToGlobal(int i_index, int j_index){
   if(i_index < 0 || j_index < 0 || i_index >= num_y_ || j_index >= num_x_){
     return -1;
   }
-  return num_x*j_index + i_index;
+  return num_x_*i_index + j_index;
 };
 
 
-std::array<int, 2> Boundary::neighborCell(int i_index, int j_index, int edge){
+std::array<int, 2> Boundary::NeighborCell(int i_index, int j_index, int edge){
   std::map<int, std::array<int, 2>> neighbor_map = {{0, {i_index, j_index - 1}},
                                                     {1, {i_index + 1, j_index}},
                                                     {2, {i_index, j_index + 1}},
@@ -420,37 +420,37 @@ std::array<int, 2> Boundary::neighborCell(int i_index, int j_index, int edge){
 }
 
 
-int Boundary::sgn_(double v){
+int Boundary::Sgn_(double v){
     // branchless sign function.
     // https://helloacm.com/how-to-implement-the-sgn-function-in-c/
     return (v > 0) - (v < 0);
 }
 
 
-std::array<int, 2> Boundary::projected_normal_(int side_index, double nx, double ny){
+std::array<int, 2> Boundary::ProjectedNormal_(int side_index, double nx, double ny){
     // (side_index & 1) iff care about y direction.
     // thus we can create a projected normal using comparison + bit mask.
-    std::array<int, 2> normal = {sgn_((    (side_index & 1)) * nx),
-                                 sgn_((1 ^ (side_index & 1)) * ny)};
+    std::array<int, 2> normal = {Sgn_((    (side_index & 1)) * nx),
+                                 Sgn_((1 ^ (side_index & 1)) * ny)};
     return normal;
 }
 
 
-int Boundary::parity_(int side_index){
+int Boundary::Parity_(int side_index){
     // return parity of 2 bit number
     return (side_index ^ (side_index >> 1)) & 1;
 }
 
 
-std::array<std::array<int, 2>, 2> Boundary::interpolationPair(int i, int j, double nx, double ny, int side_index){
+std::array<std::array<int, 2>, 2> Boundary::InterpolationPair(int i, int j, double nx, double ny, int side_index){
   // want to move along projected direction of negative normal.
-  std::array<int, 2> steps = projected_normal_(side_index, -nx, -ny);
+  std::array<int, 2> steps = ProjectedNormal_(side_index, -nx, -ny);
   
   // take step along projected normal.
   int i2 = i + steps[0]; 
   int j2 = j + steps[1];
 
-  int direction = parity_(side_index) - (not parity_(side_index));
+  int direction = Parity_(side_index) - (not Parity_(side_index));
   steps[0] = direction * ((side_index & 1) ^ 1);
   steps[1] = direction *  (side_index & 1);
 

@@ -24,16 +24,9 @@ namespace solvers {
         Eigen::SparseMatrix<double> matrix_;
         Eigen::VectorXd rhs_;
         void BuildMatrix(boundary::geometry::Boundary geometry);
-        void safeMatrixAssign(int i_index, int j_index, double value);
-        int IJToGlobal(int x_index, int y_index, int num_x);
-        std::array<int, 2> neighborCell(int i_index, int j_index, int edge);
-        int sgn(double v);
-        std::array<int, 2> projected_normal(int side_index, double nx, double ny);
-        int parity(int side_index);
-        std::array<std::array<int, 2>, 2> interpolationPair(int i, int j, double nx, double ny, int side_index);
+        void SafeMatrixAssign(int i_index, int j_index, double value);
         int num_x_;
         int num_y_;
-
   };
 
 } // namespace solvers
