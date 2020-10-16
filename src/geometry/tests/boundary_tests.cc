@@ -149,6 +149,23 @@ TEST(BoundaryTests, DomainLimits){
   EXPECT_FLOAT_EQ(line_boundary.YMin(), -1.0);
 }
 
+
+TEST(BoundaryTests, NeighborCell){
+  boundary::inputs::CircleTestGeometry input;
+  Boundary circle_boundary = Boundary(&input);
+  // left
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 0)[0], 2);
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 0)[1], 1);
+  // up
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 1)[0], 3);
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 1)[1], 2);
+  // right
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 2)[0], 2);
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 2)[1], 3);
+  // down
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 3)[0], 1);
+  EXPECT_EQ(circle_boundary.neighborCell(2, 2, 3)[1], 2);
+}
 } // namespace geometry
 
 } // namespace boundary
