@@ -177,6 +177,25 @@ TEST(BoundaryTests, IJToGlobal){
 }
 
 
+TEST(BoundaryTests, InterpolationPair){
+  boundary::inputs::CircleTestGeometry input;
+  Boundary circle_boundary = Boundary(&input);
+  std::array<std::array<int, 2>, 2> pair1 = circle_boundary.InterpolationPair(2, 2, -1, -1, 1);
+  EXPECT_EQ(2, pair1[0][0]);
+  EXPECT_EQ(3, pair1[0][1]);
+  EXPECT_EQ(3, pair1[1][0]);
+  EXPECT_EQ(3, pair1[1][1]);
+  std::array<std::array<int, 2>, 2> pair2 = circle_boundary.InterpolationPair(2, 2, -1, -1, 2);
+  EXPECT_EQ(3, pair2[0][0]);
+  EXPECT_EQ(2, pair2[0][1]);
+  EXPECT_EQ(3, pair2[1][0]);
+  EXPECT_EQ(3, pair2[1][1]);
+  std::array<std::array<int, 2>, 2> pair3 = circle_boundary.InterpolationPair(2, 5, 1, -1, 0);
+  EXPECT_EQ(3, pair3[0][0]);
+  EXPECT_EQ(5, pair3[0][1]);
+  EXPECT_EQ(3, pair3[1][0]);
+  EXPECT_EQ(4, pair3[1][1]);
+}
 } // namespace geometry
 
 } // namespace boundary

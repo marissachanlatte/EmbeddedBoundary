@@ -447,15 +447,15 @@ std::array<std::array<int, 2>, 2> Boundary::InterpolationPair(int i, int j, doub
   std::array<int, 2> steps = ProjectedNormal_(side_index, -nx, -ny);
   
   // take step along projected normal.
-  int i2 = i + steps[0]; 
-  int j2 = j + steps[1];
+  int i2 = i + steps[1]; 
+  int j2 = j + steps[0];
 
   int direction = Parity_(side_index) - (not Parity_(side_index));
   steps[0] = direction * ((side_index & 1) ^ 1);
   steps[1] = direction *  (side_index & 1);
 
-  int i3 = i2 + steps[0];
-  int j3 = j2 + steps[1];
+  int i3 = i2 + steps[1];
+  int j3 = j2 + steps[0];
 
   std::array<int, 2> first_pair = {i2, j2};
   std::array<int, 2> second_pair = {i3, j3};
