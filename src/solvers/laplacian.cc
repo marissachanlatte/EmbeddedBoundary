@@ -28,54 +28,64 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
       int covered_id = cell_map[global_id];
       // If boundary cell
       if (covered_id == 2){
-        std::cout << "boundary cell " << i << " " << j << std::endl;
         // get cell center
-        std::array<double, 2> cell_center = {geometry.XMin() + i*cell_size + cell_size/2, 
-                                              geometry.YMin() + j*cell_size + cell_size/2};
+        std::array<double, 2> cell_center = {geometry.XMin() + j*cell_size + cell_size/2, 
+                                              geometry.YMin() + i*cell_size + cell_size/2};
         // get volume moment (note, actual volume, not fraction)
         double volume_moment = geometry_info[cell_center].volume_moments[0][0];
         // scaling factor
         double scaling_factor = 1/volume_moment;
-        std::cout << "scaling factor" << scaling_factor << std::endl;
         // edge lengths
         std::array<double, 4> edge_lengths = geometry_info[cell_center].vol_frac_1d;
         // normals
         std::vector<std::vector<std::vector<double>>> normal_derivatives = geometry_info[cell_center].normal_derivatives;
         std::vector<double> normal = normal_derivatives[0][0];
         // iterate through cell edges (left, up, right, down)
+        std::cout << "+++++++++++++++++++++++++" << std::endl;
+        std::cout << "+        CELL " << global_id  << "        + " << std::endl;
+        std::cout << "+++++++++++++++++++++++++" << std::endl;
+        std::cout << "scaling factor: " << scaling_factor << std::endl;
         for (int edge = 0; edge < 4; edge++){
+          std::cout << "Edge " << edge << std::endl;
           // find neighboring cell through this edge
           std::array<int, 2> neighbor_idx = geometry.NeighborCell(i, j, edge);
+          int flux_sgn;
+          // negative flux
+          if (edge == 0 || edge == 3){
+            flux_sgn = -1;
+          }
+          else {flux_sgn = 1;}
           // if full edge, then apply appropriate part of 5 pt stencil
           if (edge_lengths[edge] == cell_size){
             SafeMatrixAssign(global_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1]), 
-                             -1/std::pow(cell_size, 2) * scaling_factor);
-            SafeMatrixAssign(global_id, global_id, 1/std::pow(cell_size, 2) * scaling_factor);
+                             scaling_factor);
+            SafeMatrixAssign(global_id, global_id, -scaling_factor);
           }
           // no edge, no flux
           else if (edge_lengths[edge] == 0){
+            SafeMatrixAssign(global_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1]), 
+                             scaling_factor);
+            SafeMatrixAssign(global_id, global_id, -scaling_factor);
           }
           // partial edge, linearly interpolate 
           else {
             // get aperature
             double aperature = geometry_info[cell_center].boundary_moments[0][0];
+            std::cout << "aperature: " << aperature << std::endl;
             // this cell & neighbor
-            std::cout << "cell 1 " << geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1]) << std::endl;
             SafeMatrixAssign(global_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1]), 
-                             aperature*(1 + aperature)/2*scaling_factor);
-            SafeMatrixAssign(global_id, global_id, -aperature*(1 + aperature)/2*scaling_factor);
+                             aperature*(1 + aperature)/2*scaling_factor * flux_sgn);
+            SafeMatrixAssign(global_id, global_id, -aperature*(1 + aperature)/2*scaling_factor * flux_sgn);
             // interpolate with inside value
             std::array<std::array<int, 2>, 2> inter_pair = geometry.InterpolationPair(i, j, normal[0], normal[1], edge);
             SafeMatrixAssign(global_id, geometry.IJToGlobal(inter_pair[0][0], inter_pair[0][1]), 
-                             aperature*(1 - aperature)/2*scaling_factor);
+                             -aperature*(1 - aperature)/2*scaling_factor * flux_sgn);
             SafeMatrixAssign(global_id, geometry.IJToGlobal(inter_pair[1][0], inter_pair[1][1]), 
-                             -aperature*(1 - aperature)/2*scaling_factor);
-            std::cout << "cell 2 " << geometry.IJToGlobal(inter_pair[0][0], inter_pair[0][1]) << std::endl;
-            std::cout << "cell 3 " << geometry.IJToGlobal(inter_pair[1][0], inter_pair[1][1]) << std::endl;
+                             aperature*(1 - aperature)/2*scaling_factor * flux_sgn);
           }
         }
         // boundary flux - use Neumann boundary conditions which gives a prescribed flux
-        rhs_[global_id] += 1*scaling_factor;
+        // rhs_[global_id] += 1*scaling_factor;
 
         // Set RHS
         rhs_[global_id] = 1;
@@ -113,6 +123,7 @@ Eigen::VectorXd Laplacian::solve(){
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
   solver.compute(matrix_); 
   std::cout << matrix_ << std::endl;
+  std::cout << rhs_ << std::endl;
   solution = solver.solve(rhs_); 
   return solution;
 };
