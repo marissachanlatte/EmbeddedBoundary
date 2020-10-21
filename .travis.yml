@@ -18,7 +18,7 @@ compiler: gcc
 before_install:
  - CXX=g++-7
  # Install Eigen 3.3.4 
- - wget http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz -O /tmp/eigen-3.3.4.tar.gz
+ - wget https://gitlab.com/libeigen/eigen/-/archive/3.3.4/eigen-3.3.4.tar.gz -O /tmp/eigen-3.3.4.tar.gz
  - tar -C /tmp -xzf /tmp/eigen-3.3.4.tar.gz
  - rm /tmp/eigen-3.3.4.tar.gz
  # Fix detection of BLAS/LAPACK broken in 3.3.4 release.
