@@ -41,12 +41,7 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
         std::vector<std::vector<std::vector<double>>> normal_derivatives = geometry_info[cell_center].normal_derivatives;
         std::vector<double> normal = normal_derivatives[0][0];
         // iterate through cell edges (left, up, right, down)
-        std::cout << "+++++++++++++++++++++++++" << std::endl;
-        std::cout << "+        CELL " << global_id  << "        + " << std::endl;
-        std::cout << "+++++++++++++++++++++++++" << std::endl;
-        std::cout << "scaling factor: " << scaling_factor << std::endl;
         for (int edge = 0; edge < 4; edge++){
-          std::cout << "Edge " << edge << std::endl;
           // find neighboring cell through this edge
           std::array<int, 2> neighbor_idx = geometry.NeighborCell(i, j, edge);
           int flux_sgn;
@@ -71,7 +66,6 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
           else {
             // get aperature
             double aperature = geometry_info[cell_center].boundary_moments[0][0];
-            std::cout << "aperature: " << aperature << std::endl;
             // this cell & neighbor
             SafeMatrixAssign(global_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1]), 
                              aperature*(1 + aperature)/2*scaling_factor * flux_sgn);
@@ -122,8 +116,6 @@ Eigen::VectorXd Laplacian::solve(){
   Eigen::VectorXd solution(num_x_*num_y_);
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
   solver.compute(matrix_); 
-  std::cout << matrix_ << std::endl;
-  std::cout << rhs_ << std::endl;
   solution = solver.solve(rhs_); 
   return solution;
 };
