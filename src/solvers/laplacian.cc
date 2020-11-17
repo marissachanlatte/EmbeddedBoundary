@@ -42,14 +42,9 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
         std::vector<double> normal = normal_derivatives[0][0];
         // iterate through cell edges (left, up, right, down)
         for (int edge = 0; edge < 4; edge++){
+          
           // find neighboring cell through this edge
           std::array<int, 2> neighbor_idx = geometry.NeighborCell(i, j, edge);
-          int flux_sgn;
-          // negative flux
-          if (edge == 0 || edge == 3){
-            flux_sgn = -1;
-          }
-          else {flux_sgn = 1;}
           // if full edge, then apply appropriate part of 5 pt stencil
           if (edge_lengths[edge] == cell_size){
             SafeMatrixAssign(global_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1]), 
@@ -68,15 +63,16 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
             double aperature = geometry_info[cell_center].boundary_moments[0][0];
             // this cell & neighbor
             SafeMatrixAssign(global_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1]), 
-                             aperature*(1 + aperature)/2*scaling_factor * flux_sgn);
-            SafeMatrixAssign(global_id, global_id, -aperature*(1 + aperature)/2*scaling_factor * flux_sgn);
+                             aperature*(1 + aperature)/2*scaling_factor);
+            SafeMatrixAssign(global_id, global_id, -aperature*(1 + aperature)/2*scaling_factor);
             // interpolate with inside value
             std::array<std::array<int, 2>, 2> inter_pair = geometry.InterpolationPair(i, j, normal[0], normal[1], edge);
             SafeMatrixAssign(global_id, geometry.IJToGlobal(inter_pair[0][0], inter_pair[0][1]), 
-                             -aperature*(1 - aperature)/2*scaling_factor * flux_sgn);
+                             -aperature*(1 - aperature)/2*scaling_factor);
             SafeMatrixAssign(global_id, geometry.IJToGlobal(inter_pair[1][0], inter_pair[1][1]), 
-                             aperature*(1 - aperature)/2*scaling_factor * flux_sgn);
+                             aperature*(1 - aperature)/2*scaling_factor);
           }
+
         }
         // boundary flux - use Neumann boundary conditions which gives a prescribed flux
         // rhs_[global_id] += 1*scaling_factor;
