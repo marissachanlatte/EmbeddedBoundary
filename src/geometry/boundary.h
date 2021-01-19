@@ -47,18 +47,18 @@ This class stores a map of all boundary cells with necessary geometry informatio
                                  std::array<double, 2> upper_left,
                                  boundary::inputs::InputBase* input);
       std::map<std::array<double, 2>, geo_info> BoundaryCells();
-      // Tells whether a cell is 0 - exterior, 1 - interior, or 2 - boundary
+      /// Tells whether a cell is 0 - exterior, 1 - interior, or 2 - boundary
       std::map<int, int> CellMap();
       static double WhichValue(std::vector<double> values,
                          double first_bound,
                          double second_bound);
-      // Given a cell ID, returns cell center
+      /// Given a cell ID, returns cell center
       std::array<double, 2> IDtoCenter(int id);
-      // Given an IJ index, returns global index
+      /// Given an IJ index, returns global index
       int IJToGlobal(int x_index, int y_index);
-      // Given a cell and an edge, returns (i, j) index of neighboring cell
+      /// Given a cell and an edge, returns (i, j) index of neighboring cell
       std::array<int, 2> NeighborCell(int i_index, int j_index, int edge);
-      // Given a cell edge and normal returns what pair to interpolate with to find partial edge center
+      /// Given a cell edge and normal returns what pair to interpolate with to find partial edge center
       std::array<std::array<int, 2>, 2> InterpolationPair(int i, int j, double nx, double ny, int side_index);
       double CellSize();
       double XMax();
