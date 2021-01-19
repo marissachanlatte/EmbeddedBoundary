@@ -3,6 +3,7 @@
 #include "normals/normals.h"
 
 #include <array>
+#include "math.h"
 #include <iostream>
 #include <stdexcept>
 #include <Eigen/Dense>
@@ -13,11 +14,27 @@ namespace geometry {
 
 Boundary::Boundary(boundary::inputs::InputBase* input){
   input_ = input;
+  // Set global variables
   cell_size_ = input->CellSize();
   Q_ = input->QOrder();
+  x_min_ = input->XMin();
+  x_max_ = input->XMax();
+  y_min_ = input->YMin();
+  y_max_ = input->YMax();
+  num_x_ = int(std::abs(x_max_ - x_min_)/cell_size_);
+  num_y_ = int(std::abs(y_max_ - y_min_)/cell_size_);
+
+  // Check that cell size evenly divides x & y
+  if ((std::fmod(std::abs(x_max_ - x_min_), cell_size_) != 0) ||
+     (std::fmod(std::abs(y_max_ - y_min_), cell_size_) != 0)) {
+       throw "Cell size does not evenly divide domain.";
+     }
+
+  // Iterate through all cells
   double y_min = input->YMin();
   double y_max = y_min + cell_size_;
   int id_count = 0;
+  int global_id = 0;
   while (y_max <= input->YMax()){
     double x_min = input->XMin();
     double x_max = x_min + cell_size_;
@@ -29,13 +46,23 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
       corners[2] = {x_max, y_max}; // upper right
       corners[3] = {x_max, y_min}; // lower right
 
+      // Check if four corners are inside or outside boundary
+      std::vector<int> inside{input_->Inside(corners[0]),
+                                input_->Inside(corners[1]),
+                                input_->Inside(corners[2]),
+                                input_->Inside(corners[3])};
+
       bool is_boundary = IsBoundaryCell(corners[0], corners[1],
                                         corners[2], corners[3], input);
+      // cell center
+      std::array<double, 2> center = {x_min + cell_size_/2, y_min + cell_size_/2};
       if (is_boundary){
+        // add to cell map 
+        cell_map_.insert(std::pair<int, int>(global_id, 2));
         // make struct with tag and id
         geo_info cell;
         cell.irregular = true;
-        cell.id = id_count;
+        cell.id = global_id;
         // update id count
         id_count += 1;
         helpers::Point cell_center = helpers::Point(x_max - cell_size_/2, y_max - cell_size_/2);
@@ -66,11 +93,6 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
           }
         }
         // Compute 1d volume fractions and store in cell
-        // Check if four corners are inside or outside boundary
-        std::vector<int> inside{input_->Inside(corners[0]),
-                                input_->Inside(corners[1]),
-                                input_->Inside(corners[2]),
-                                input_->Inside(corners[3])};
         for (int corner=0; corner < 4; corner++){
           // iterate four edges to determine which ones intersect boundary
           if ((inside[corner] == inside[(corner+1)%4]) || inside[corner] == 2){ // no change from corner to corner, TODO: come up with more robust way to do this
@@ -124,11 +146,20 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
             }
           }
         }
-        // add point to map
-        std::array<double, 2> point = {x_min + cell_size_/2, y_min + cell_size_/2};
+        // add center to map
         boundary_cells_.insert(
-          std::pair<std::array<double, 2>, geo_info>(point, cell));
+          std::pair<std::array<double, 2>, geo_info>(center, cell));
       }
+
+      // Else add to cell map
+      else {cell_map_.insert(std::pair<int, int>(global_id, *std::min_element(inside.begin(), inside.end())));}
+
+      // Add id to cell center map
+      id_to_center_.insert(std::pair<int, std::array<double, 2>>(global_id, center));
+
+      // Update global id
+      global_id += 1;
+
       // Go to next cell
       x_max += cell_size_;
       x_min += cell_size_;
@@ -169,9 +200,9 @@ double Boundary::WhichValue(std::vector<double> values, double first_bound, doub
 
 
 bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
-                              std::array<double, 2> lower_right,
-                              std::array<double, 2> upper_right,
                               std::array<double, 2> upper_left,
+                              std::array<double, 2> upper_right,
+                              std::array<double, 2> lower_right,
                               boundary::inputs::InputBase* input){
   // put into array with inside values
   std::vector<int> inside{input->Inside(lower_left),
@@ -180,6 +211,9 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
                           input->Inside(lower_right)};
   // try changing all 2s to 0s and see if they are all the same
   int it_prev = inside[0];
+      if (it_prev == 2){
+      it_prev = 0;
+    }
   bool same;
   for (int it = 1; it < 4; it++){
     int current = inside[it];
@@ -198,9 +232,13 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
       break;
     }
   }
+
   // if they're not try changing all the 2s to 1s and see if they're all the same
   if (!same){
     it_prev = inside[0];
+    if (it_prev == 2){
+      it_prev = 1;
+    }
     for (int it = 1; it < 4; it++){
       int current = inside[it];
       if (current == 2){
@@ -218,20 +256,21 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
       }
     }
   }
+
   return !same;
-}
+};
 
 
 std::map<std::array<double, 2>, geo_info> Boundary::BoundaryCells(){
   return boundary_cells_;
-}
+};
 
 
 double Boundary::DIntegral_(double beginning, double end, std::array<int, 2> q,
                             int index, double fixed_value){
   double next_plus = q[(index + 1) % 2] + 1;
   return std::pow(fixed_value, q[index])*(1/(next_plus))*(std::pow(end, next_plus) - std::pow(beginning, next_plus));
-}
+};
 
 
 double Boundary::CalcD_(double bd_length,
@@ -272,7 +311,7 @@ double Boundary::CalcD_(double bd_length,
     d_pm = 0;
   }
   return d_pm;
-}
+};
 
 
 void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
@@ -356,8 +395,111 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center){
       boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
     }
   }
+};
+
+
+std::array<double, 2> Boundary::IDtoCenter(int id){
+  return id_to_center_[id];
+};
+
+
+int Boundary::IJToGlobal(int i_index, int j_index){
+  if(i_index < 0 || j_index < 0 || i_index >= num_y_ || j_index >= num_x_){
+    return -1;
+  }
+  return num_x_*i_index + j_index;
+};
+
+
+std::array<int, 2> Boundary::NeighborCell(int i_index, int j_index, int edge){
+  std::map<int, std::array<int, 2>> neighbor_map = {{0, {i_index, j_index - 1}},
+                                                    {1, {i_index + 1, j_index}},
+                                                    {2, {i_index, j_index + 1}},
+                                                    {3, {i_index - 1, j_index}}};
+  return neighbor_map[edge];
 }
 
+
+int Boundary::Sgn_(double v){
+    // branchless sign function.
+    // https://helloacm.com/how-to-implement-the-sgn-function-in-c/
+    return (v > 0) - (v < 0);
+}
+
+
+std::array<int, 2> Boundary::ProjectedNormal_(int side_index, double nx, double ny){
+    // (side_index & 1) iff care about y direction.
+    // thus we can create a projected normal using comparison + bit mask.
+    std::array<int, 2> normal = {Sgn_((    (side_index & 1)) * nx),
+                                 Sgn_((1 ^ (side_index & 1)) * ny)};
+    return normal;
+}
+
+
+int Boundary::Parity_(int side_index){
+    // return parity of 2 bit number
+    return (side_index ^ (side_index >> 1)) & 1;
+}
+
+
+std::array<std::array<int, 2>, 2> Boundary::InterpolationPair(int i, int j, double nx, double ny, int side_index){
+  // want to move along projected direction of negative normal.
+  std::array<int, 2> steps = ProjectedNormal_(side_index, -nx, -ny);
+  
+  // take step along projected normal.
+  int i2 = i + steps[1]; 
+  int j2 = j + steps[0];
+
+  int direction = Parity_(side_index) - (not Parity_(side_index));
+  steps[0] = direction * ((side_index & 1) ^ 1);
+  steps[1] = direction *  (side_index & 1);
+
+  int i3 = i2 + steps[1];
+  int j3 = j2 + steps[0];
+
+  std::array<int, 2> first_pair = {i2, j2};
+  std::array<int, 2> second_pair = {i3, j3};
+  std::array<std::array<int, 2>, 2> pair = {first_pair, second_pair};
+  return pair;
+}
+
+
+std::map<int, int> Boundary::CellMap(){
+  return cell_map_;
+};
+
+
+double Boundary::CellSize(){
+  return cell_size_;
+};
+
+
+double Boundary::XMin(){
+  return x_min_;
+};
+
+
+double Boundary::XMax(){
+  return x_max_;
+};
+
+
+double Boundary::YMin(){
+  return y_min_;
+};
+
+
+double Boundary::YMax(){
+  return y_max_;
+};
+
+double Boundary::NumX(){
+  return num_x_;
+}
+
+double Boundary::NumY(){
+  return num_y_;
+}
 
 } // namespace geometry
 
