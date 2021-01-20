@@ -20,10 +20,14 @@ TEST(LineInputTest, Boundary){
 TEST(LineInputTest, Derivative){
   boundary::inputs::LineGeometry line;
 
-  boundary::helpers::Point point1 = boundary::helpers::Point(1, 1);
-  boundary::helpers::Point point2 = boundary::helpers::Point(3, 3);
-  boundary::helpers::Point point3 = boundary::helpers::Point(4, 4);
-  boundary::helpers::Point point4 = boundary::helpers::Point(6, 6);
+  std::vector<double> point1_coords{1, 1};
+  boundary::helpers::Point point1 = boundary::helpers::Point(point1_coords);
+  std::vector<double>  point2_coords{3, 3};
+  boundary::helpers::Point point2 = boundary::helpers::Point(point2_coords);
+  std::vector<double>  point3_coords{4, 4};
+  boundary::helpers::Point point3 = boundary::helpers::Point(point3_coords);
+  std::vector<double>  point4_coords{6, 6};
+  boundary::helpers::Point point4 = boundary::helpers::Point(point4_coords);
 
   std::vector<int> order1{1, 0};
   std::vector<int> order2{0, 1};

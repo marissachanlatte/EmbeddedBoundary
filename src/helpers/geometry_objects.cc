@@ -9,23 +9,30 @@ namespace boundary {
 
 namespace helpers {
 
+
 Point::Point(){
-  x_val = y_val = std::numeric_limits<double>::quiet_NaN();
-};
+  _coords.push_back(std::numeric_limits<double>::quiet_NaN());
+}
 
 
-Point::Point(double first_dim, double second_dim){
-  x_val = first_dim;
-  y_val = second_dim;
-};
+Point::Point(std::vector<double> coords){
+  _coords = coords;
+  _dim = coords.size();
+}
+
+double Point::value(int d) const {
+  return _coords[d];
+}
 
 
 Point Point::operator + (const Point &a_point){
-  Point result;
-  result.x_val = x_val + a_point.x_val;
-  result.y_val = y_val + a_point.y_val;
-  return result;
-};
+  std::vector<double> result;
+  // Loop over dimension
+  for (int d = 0; d < _dim; d++){
+    result.push_back(_coords[d] + a_point.value(d));
+  }
+  return Point(result);
+}
 
 } // namespace helpers
 

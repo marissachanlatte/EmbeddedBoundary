@@ -17,7 +17,7 @@ std::vector<double> LineGeometry::BoundaryFunction(double x_value){
 double LineGeometry::BoundaryDerivatives(helpers::Point a_point,
                                          std::vector<int> degree){
   if (degree[0] == 0 && degree[1] == 0){
-    return a_point.y_val - a_point.x_val;
+    return a_point.value(1) - a_point.value(0);
   }
 
   else if (degree[0] + degree[1] == 1){

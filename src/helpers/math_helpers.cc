@@ -43,6 +43,34 @@ static int MultiIndexBinomial(std::vector<int> alpha,
           (MultiIndexFactorial(beta)*MultiIndexFactorial(difference)));
 }
 
+// /**
+// A function to generate keys from Z Morton Order
+// */
+// static int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
+//                      std::vector<double> mins){
+//   int dim = coords.size();
+//   // scale coordinates to 0 - 1
+//   std::array<double, dim> scaled;
+//   for (int d = 0; d < dim; d++){
+//     scaled[d] = (coords[d] - mins[d])/(maxes[d] - mins[d])
+//   }
+//   int key = 0;
+//   // Keep track of digit of final key
+//   int digit = 0;
+//   // Loop through depths
+//   for (int k = 0; k < depth; k ++){
+//     // Loop through dimensions
+//     for (int d = 0; d < dim; d++){
+//       // Get depth 
+//     }
+//   }
+// }
+
+// /** 
+// A function that normalizes a point to between 0 and 1 
+// */
+// static std::
+
 }
 
 }

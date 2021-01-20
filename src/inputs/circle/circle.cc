@@ -19,11 +19,11 @@ std::vector<double> CircleGeometry::BoundaryFunction(double x_value){
 double CircleGeometry::BoundaryDerivatives(helpers::Point a_point,
                                          std::vector<int> degree){
   if (degree[0] == 0 && degree[1] == 0){
-    return std::pow(a_point.y_val, 2) + std::pow(a_point.x_val, 2) - 1;
+    return std::pow(a_point.value(1), 2) + std::pow(a_point.value(0), 2) - 1;
   }
 
   else if (degree[0] + degree[1] == 1){
-    return 2*(degree[0]*a_point.x_val + degree[1]*a_point.y_val);
+    return 2*(degree[0]*a_point.value(0) + degree[1]*a_point.value(1));
   }
 
   else if ((degree[0] == 2 && degree[1] == 0) || (degree[0] == 0 && degree[1] == 2)){

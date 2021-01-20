@@ -57,7 +57,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
       // cell center
       std::array<double, 2> center = {x_min + cell_size_/2, y_min + cell_size_/2};
       if (is_boundary){
-        // add to cell map 
+        // add to cell map TODO: Replace with octtree
         cell_map_.insert(std::pair<int, int>(global_id, 2));
         // make struct with tag and id
         geo_info cell;
@@ -65,7 +65,8 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
         cell.id = global_id;
         // update id count
         id_count += 1;
-        helpers::Point cell_center = helpers::Point(x_max - cell_size_/2, y_max - cell_size_/2);
+        std::vector<double> cell_center_coords{x_max - cell_size_/2, y_max - cell_size_/2};
+        helpers::Point cell_center = helpers::Point(cell_center_coords);
         // resize vectors
         cell.normal_derivatives.resize(Q_+1);
         cell.volume_moments.resize(Q_+1);
