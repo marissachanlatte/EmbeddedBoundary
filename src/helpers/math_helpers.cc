@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <iostream>
 
 namespace boundary{
 
@@ -50,12 +51,9 @@ static int MultiIndexBinomial(std::vector<int> alpha,
 //                      std::vector<double> mins){
 //   int dim = coords.size();
 //   // scale coordinates to 0 - 1
-//   std::array<double, dim> scaled;
-//   for (int d = 0; d < dim; d++){
-//     scaled[d] = (coords[d] - mins[d])/(maxes[d] - mins[d])
-//   }
+//   std::vector<double> scaled = NormalizeVector(coords, maxes, mins);
 //   int key = 0;
-//   // Keep track of digit of final key
+//   // Keep track of number of digits of key
 //   int digit = 0;
 //   // Loop through depths
 //   for (int k = 0; k < depth; k ++){
@@ -66,10 +64,18 @@ static int MultiIndexBinomial(std::vector<int> alpha,
 //   }
 // }
 
-// /** 
-// A function that normalizes a point to between 0 and 1 
-// */
-// static std::
+/** 
+A function that normalizes a point to between 0 and 1 
+*/
+static std::vector<double> NormalizeVector(std::vector<double> coords, std::vector<double> maxes,
+                                          std::vector<double> mins){
+  std::vector<double> normalized_vector;
+  int dim = coords.size();
+  for (int d = 0; d < dim; d++){
+    normalized_vector.push_back((coords[d] - mins[d])/(maxes[d] - mins[d]));
+  }
+  return normalized_vector;
+}
 
 }
 

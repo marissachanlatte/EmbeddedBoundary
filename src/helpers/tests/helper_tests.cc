@@ -55,6 +55,17 @@ TEST(HelperTest, InitializePoint){
   EXPECT_TRUE(std::isnan(test.value(0)));
 }
 
+
+TEST(HelperTest, NormalizeVector){
+  std::vector<double> test_vector{4.5, 1, .4};
+  std::vector<double> maxes{10, 10, 10};
+  std::vector<double> mins{-10, -10, -10};
+  std::vector<double> correct{0.725, 0.55, 0.52};
+  std::vector<double> normalized = NormalizeVector(test_vector, maxes, mins);
+  EXPECT_EQ(normalized[0], correct[0]);
+  EXPECT_EQ(normalized[1], correct[1]);
+  EXPECT_EQ(normalized[2], correct[2]);
+}
 }
 
 }
