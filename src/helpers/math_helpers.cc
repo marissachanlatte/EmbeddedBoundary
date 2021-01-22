@@ -44,25 +44,6 @@ static int MultiIndexBinomial(std::vector<int> alpha,
           (MultiIndexFactorial(beta)*MultiIndexFactorial(difference)));
 }
 
-// /**
-// A function to generate keys from Z Morton Order
-// */
-// static int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
-//                      std::vector<double> mins){
-//   int dim = coords.size();
-//   // scale coordinates to 0 - 1
-//   std::vector<double> scaled = NormalizeVector(coords, maxes, mins);
-//   int key = 0;
-//   // Keep track of number of digits of key
-//   int digit = 0;
-//   // Loop through depths
-//   for (int k = 0; k < depth; k ++){
-//     // Loop through dimensions
-//     for (int d = 0; d < dim; d++){
-//       // Get depth 
-//     }
-//   }
-// }
 
 /** 
 A function that normalizes a point to between 0 and 1 
@@ -76,6 +57,55 @@ static std::vector<double> NormalizeVector(std::vector<double> coords, std::vect
   }
   return normalized_vector;
 }
+
+
+/** 
+ A function to map points in [0, 1]^n to the integers
+ */
+static std::vector<int> IntegerMap(std::vector<double> scaled_coords, int depth){
+  // Vector of indices
+  std::vector<int> indices;
+  // Cell size
+  double cell_size = std::pow(2, -depth);
+  for (auto& it : scaled_coords){
+    indices.push_back(int(std::floor(it/cell_size)));
+  }
+  return indices;
+}
+
+
+/**
+A function to generate keys from Z Morton Order
+*/
+static int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
+                     std::vector<double> mins){
+  int dim = coords.size();
+  // scale coordinates to 0 - 1
+  std::vector<double> scaled = NormalizeVector(coords, maxes, mins);
+  // Use mesh spacing to map to integers
+  std::vector<int> mesh_mapped = IntegerMap(scaled, depth);
+  // Initialize key
+  int key = 0;
+  // Keep track of number of digits of key
+  int digit = 0;
+  // Loop through depths
+  for (int k = 0; k < depth; k ++){
+    // Loop through dimensions
+    for (int d = (dim - 1); d >= 0; d--){
+      // Get kth bit
+      int bit = ((mesh_mapped[d] & (1 << k)) >> k);
+      // add to key in digit place
+      key += bit * std::pow(10, digit);
+      // increment digit
+      digit += 1;
+    }
+  }
+  // Add leading 1
+  key += std::pow(10, digit);
+  return key;
+}
+
+
 
 }
 

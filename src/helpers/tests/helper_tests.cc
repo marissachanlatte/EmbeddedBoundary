@@ -66,6 +66,33 @@ TEST(HelperTest, NormalizeVector){
   EXPECT_EQ(normalized[1], correct[1]);
   EXPECT_EQ(normalized[2], correct[2]);
 }
+
+
+TEST(HelperTest, IntegerMap){
+  std::vector<double> test_point{.3, .6};
+  std::vector<int> zero{0, 0};
+  EXPECT_EQ(IntegerMap(test_point, 0), zero);
+  std::vector<int> zero_one{0, 1};
+  EXPECT_EQ(IntegerMap(test_point, 1), zero_one);
+  std::vector<int> one_two{1, 2};
+  EXPECT_EQ(IntegerMap(test_point, 2), one_two);
+}
+
+
+TEST(HelperTest, MortonKey){
+  std::vector<double> zero_vector{0, 0, 0};
+  std::vector<double> one_max{1, 1, 1};
+  int key = MortonKey(zero_vector, 0, one_max, zero_vector);
+  EXPECT_EQ(key, 1);
+  std::vector<double> test_point{.6, .2};
+  int key1 = MortonKey(test_point, 1, one_max, zero_vector);
+  EXPECT_EQ(key1, 110);
+  int key2 = MortonKey(test_point, 2, one_max, zero_vector);
+  EXPECT_EQ(key2, 11000);
+  int key3 = MortonKey(test_point, 3, one_max, zero_vector);
+  EXPECT_EQ(key3, 1100001);
+}
+
 }
 
 }
