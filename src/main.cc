@@ -25,7 +25,7 @@ void writeGeometry(std::map<int, int> cell_map, std::map<std::array<double, 2>, 
     }
     else if (it->second == 1){
       // interior
-      output << center[0] << " " << center[1] << " " << std::pow(boundary.CellSize(), 2) << std::endl;
+      output << center[0] << " " << center[1] << " " << std::pow(boundary.InitialCellSize(), 2) << std::endl;
     }
     else if (it->second == 2){
       // boundary
@@ -61,7 +61,7 @@ int main(){
   boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&input);
   std::map<std::array<double, 2>, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
   std::map<int, int> cell_map = boundary.CellMap();
-  double cell_size = boundary.CellSize();
+  double cell_size = boundary.InitialCellSize();
   // Make laplacian
   Eigen::VectorXd solution = makeLaplacian(boundary);
   // Write to file
