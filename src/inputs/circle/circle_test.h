@@ -24,7 +24,7 @@ class CircleTestGeometry : public InputBase{
     double XMax() override;
     double YMin() override;
     double YMax() override;
-    double CellSize() override;
+    double InitialCellSize() override;
     int QOrder() override;
 
 };

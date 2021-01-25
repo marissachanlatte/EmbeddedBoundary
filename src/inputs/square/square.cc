@@ -64,7 +64,7 @@ double SquareGeometry::YMax(){
 };
 
 
-double SquareGeometry::CellSize(){
+double SquareGeometry::InitialCellSize(){
   return 1.0;
 };
 

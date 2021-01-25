@@ -70,7 +70,7 @@ double LineGeometry::YMax(){
 };
 
 
-double LineGeometry::CellSize(){
+double LineGeometry::InitialCellSize(){
   return .25;
 };
 

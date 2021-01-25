@@ -60,7 +60,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
       std::array<int, 2> NeighborCell(int i_index, int j_index, int edge);
       /// Given a cell edge and normal returns what pair to interpolate with to find partial edge center
       std::array<std::array<int, 2>, 2> InterpolationPair(int i, int j, double nx, double ny, int side_index);
-      double CellSize();
+      double InitialCellSize();
       double XMax();
       double XMin();
       double YMax();

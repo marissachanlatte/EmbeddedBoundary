@@ -78,7 +78,7 @@ double CircleTestGeometry::YMax(){
 };
 
 
-double CircleTestGeometry::CellSize(){
+double CircleTestGeometry::InitialCellSize(){
   return .25;
 };
 

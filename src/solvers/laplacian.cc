@@ -16,7 +16,7 @@ Laplacian::Laplacian(boundary::geometry::Boundary geometry){
 
 
 void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
-  double cell_size = geometry.CellSize();
+  double cell_size = geometry.InitialCellSize();
   // Get cell map
   std::map<int, int> cell_map = geometry.CellMap();
   // Get geometry information

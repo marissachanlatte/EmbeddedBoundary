@@ -77,7 +77,7 @@ double CircleGeometry::YMax(){
 };
 
 
-double CircleGeometry::CellSize(){
+double CircleGeometry::InitialCellSize(){
   return .25;
 };
 

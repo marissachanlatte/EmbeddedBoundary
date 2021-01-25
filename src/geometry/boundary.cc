@@ -15,7 +15,7 @@ namespace geometry {
 Boundary::Boundary(boundary::inputs::InputBase* input){
   input_ = input;
   // Set global variables
-  cell_size_ = input->CellSize();
+  cell_size_ = input->InitialCellSize();
   Q_ = input->QOrder();
   x_min_ = input->XMin();
   x_max_ = input->XMax();
@@ -176,6 +176,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
        }
 
 };
+
 
 double Boundary::WhichValue(std::vector<double> values, double first_bound, double second_bound){
   if (first_bound < second_bound){
@@ -470,7 +471,7 @@ std::map<int, int> Boundary::CellMap(){
 };
 
 
-double Boundary::CellSize(){
+double Boundary::InitialCellSize(){
   return cell_size_;
 };
 

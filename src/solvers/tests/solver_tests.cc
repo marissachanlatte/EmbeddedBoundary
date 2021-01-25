@@ -12,7 +12,7 @@ TEST(LaplaceTest, Symmetry){
   boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&input);
   std::map<std::array<double, 2>, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
   std::map<int, int> cell_map = boundary.CellMap();
-  double cell_size = boundary.CellSize();
+  double cell_size = boundary.InitialCellSize();
   // Make laplacian
   boundary::solvers::Laplacian laplacian = boundary::solvers::Laplacian(boundary);
   Eigen::VectorXd solution = laplacian.solve();

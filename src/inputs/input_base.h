@@ -38,7 +38,7 @@ public:
   /// Domain maximum in the y direction.
   virtual double YMax() = 0;
   /// Size of cells (assumes square cells).
-  virtual double CellSize() = 0;
+  virtual double InitialCellSize() = 0;
   /// Desired Q order.
   virtual int QOrder() = 0;
 
