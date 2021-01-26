@@ -70,7 +70,8 @@ This class stores a map of all boundary cells with necessary geometry informatio
 
     private:
 
-      void CalculateMoments_(std::array<double, 2> cell_center);
+      void SetupMesh_(double cell_size, double y_min, double y_max, double x_min, double x_max);
+      void CalculateMoments_(std::array<double, 2> cell_center, double cell_size);
       double DIntegral_(double beginning,
                         double end,
                         std::array<int, 2> q,
@@ -81,7 +82,8 @@ This class stores a map of all boundary cells with necessary geometry informatio
                     std::array<double, 2> cell_center,
                     std::array<int, 2> q,
                     int d,
-                    std::array<int, 2> which_d);
+                    std::array<int, 2> which_d,
+                    double cell_size);
       std::map<std::array<double, 2>, geo_info> boundary_cells_;
       std::map<int, int> cell_map_;
       std::map<int, std::array<double, 2>> id_to_center_;
@@ -90,7 +92,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
       std::array<int, 2> ProjectedNormal_(int side_index, double nx, double ny);
       int Parity_(int side_index);
       int Q_;
-      double cell_size_;
+      double initial_cell_size_;
       double x_max_;
       double x_min_;
       double y_max_;
