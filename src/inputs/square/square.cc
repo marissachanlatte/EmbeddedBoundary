@@ -64,8 +64,12 @@ double SquareGeometry::YMax(){
 };
 
 
-double SquareGeometry::InitialCellSize(){
-  return 1.0;
+// double SquareGeometry::InitialCellSize(){
+//   return 1.0;
+// };
+
+int SquareGeometry::FixedDepth(){
+  return 1;
 };
 
 int SquareGeometry::QOrder(){

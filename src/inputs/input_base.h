@@ -37,8 +37,12 @@ public:
   virtual double YMin() = 0;
   /// Domain maximum in the y direction.
   virtual double YMax() = 0;
-  /// Size of cells (assumes square cells).
-  virtual double InitialCellSize() = 0;
+  // /// Size of cells (assumes square cells).
+  // virtual double InitialCellSize() = 0;
+  /// Fixed number of refinements 
+  /* total cells = (2^depth)^2, if set to -1 use automatic adaptive refinement criteria
+  */
+  virtual int FixedDepth() = 0;
   /// Desired Q order.
   virtual int QOrder() = 0;
 

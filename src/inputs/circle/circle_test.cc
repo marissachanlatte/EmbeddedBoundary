@@ -78,8 +78,12 @@ double CircleTestGeometry::YMax(){
 };
 
 
-double CircleTestGeometry::InitialCellSize(){
-  return .25;
+// double CircleTestGeometry::InitialCellSize(){
+//   return .25;
+// };
+
+int CircleTestGeometry::FixedDepth(){
+  return 3;
 };
 
 int CircleTestGeometry::QOrder(){

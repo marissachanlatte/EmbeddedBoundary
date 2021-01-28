@@ -70,8 +70,12 @@ double LineGeometry::YMax(){
 };
 
 
-double LineGeometry::InitialCellSize(){
-  return .25;
+// double LineGeometry::InitialCellSize(){
+//   return .25;
+// };
+
+int LineGeometry::FixedDepth(){
+  return 3;
 };
 
 int LineGeometry::QOrder(){

@@ -1,5 +1,6 @@
 #include "geometry/boundary.h"
 #include "helpers/geometry_objects.h"
+#include "helpers/math_helpers.cc"
 #include "normals/normals.h"
 
 #include <array>
@@ -15,25 +16,29 @@ namespace geometry {
 Boundary::Boundary(boundary::inputs::InputBase* input){
   input_ = input;
   // Set global variables
-  initial_cell_size_ = input->InitialCellSize();
   Q_ = input->QOrder();
-  x_min_ = input->XMin();
-  x_max_ = input->XMax();
-  y_min_ = input->YMin();
-  y_max_ = input->YMax();
-  num_x_ = int(std::abs(x_max_ - x_min_)/initial_cell_size_);
-  num_y_ = int(std::abs(y_max_ - y_min_)/initial_cell_size_);
+  // mins[0] = input->XMin();
+  // x_max_ = input->XMax();
+  // y_min_ = input->YMin();
+  // y_max_ = input->YMax();
+  mins_.push_back(input->XMin());
+  mins_.push_back(input->YMin());
+  maxes_.push_back(input->XMax());
+  maxes_.push_back(input->YMax());
+  initial_cell_size_ = maxes_[0] - mins_[0];
+  max_depth_ = input->FixedDepth();
+  // num_x_ = int(std::abs(maxes_[0] - mins_[0])/initial_cell_size_);
+  // num_y_ = int(std::abs(maxes_[1] - mins_[1])/initial_cell_size_);
 
   // Check that cell size evenly divides x & y
-  if ((std::fmod(std::abs(x_max_ - x_min_), initial_cell_size_) != 0) ||
-     (std::fmod(std::abs(y_max_ - y_min_), initial_cell_size_) != 0)) {
-       throw "Cell size does not evenly divide domain.";
-     }
+  // if ((std::fmod(std::abs(maxes_[0] - mins_[0]), initial_cell_size_) != 0) ||
+  //    (std::fmod(std::abs(maxes_[1] - mins_[1]), initial_cell_size_) != 0)) {
+  //      throw "Cell size does not evenly divide domain.";
+  //    }
+  SetupMesh_(initial_cell_size_, mins_[1], maxes_[1], mins_[0], maxes_[0]);
 
-  SetupMesh_(initial_cell_size_, y_min_, y_max_, x_min_, x_max_);
-
-  // ToDo: Change this to iterate through terminal cells
-  for (std::map<std::array<double, 2>, geo_info>::iterator it=boundary_cells_.begin();
+  // ToDo: Change this to iterate through only terminal cells
+  for (std::map<int, geo_info>::iterator it=boundary_cells_.begin();
        it != boundary_cells_.end(); it++){
         CalculateMoments_(it->first, initial_cell_size_);
        }
@@ -43,11 +48,13 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
 
 void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x_min, 
                          double x_max){
+  // Caculate depth
+  int depth = int(std::log2((initial_cell_size_/cell_size)));
   // Iterate through all cells
   double y_curr = y_min;
   double y_next = y_min + cell_size;
-  int id_count = 0;
-  int global_id = 0;
+  // int id_count = 0;
+  // int global_id = 0;
   while (y_next <= y_max){
     double x_curr = x_min;
     double x_next = x_curr + cell_size;
@@ -64,23 +71,32 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
                                 input_->Inside(corners[1]),
                                 input_->Inside(corners[2]),
                                 input_->Inside(corners[3])};
-
       bool is_boundary = IsBoundaryCell(corners[0], corners[1],
                                         corners[2], corners[3], input_);
-      std::cout << corners[1][0] << " " << corners[1][1] << std::endl;
       // cell center
-      std::array<double, 2> center = {x_curr + cell_size/2, y_curr + cell_size/2};
+      std::vector<double> center {x_curr + cell_size/2, y_curr + cell_size/2};
+      // Refine
+      // TODO: come up with a real criterion, this one just refines all cells to max
+      if (depth < max_depth_){
+        SetupMesh_(cell_size/2, y_curr, center[1], x_curr, center[0]); // lower left
+        SetupMesh_(cell_size/2, center[1], y_next, x_curr, center[0]); // upper left
+        SetupMesh_(cell_size/2, center[1], y_next, center[0], x_next); // upper right
+        SetupMesh_(cell_size/2, y_curr, center[1], center[0], x_next); // lower right
+      }
+      // calculate Morton key
+      int key = helpers::MortonKey(center, depth, maxes_, mins_);
       if (is_boundary){
+        std::cout << key << std::endl;
         // add to cell map 
-        cell_map_.insert(std::pair<int, int>(global_id, 2));
+        // cell_map_.insert(std::pair<int, int>(global_id, 2));
+        cell_map_.insert(std::pair<int, int>(key, 2));
         // make struct with tag and id
         geo_info cell;
         cell.irregular = true;
-        cell.id = global_id;
+        // cell.id = global_id;
         // update id count
-        id_count += 1;
-        std::vector<double> cell_center_coords{x_next - cell_size/2, y_next - cell_size/2};
-        helpers::Point cell_center = helpers::Point(cell_center_coords);
+        // id_count += 1;
+        helpers::Point cell_center = helpers::Point(center);
         // resize vectors
         cell.normal_derivatives.resize(Q_+1);
         cell.volume_moments.resize(Q_+1);
@@ -158,18 +174,18 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
           }
         }
         // add center to map
-        boundary_cells_.insert(
-          std::pair<std::array<double, 2>, geo_info>(center, cell));
+        boundary_cells_.insert(std::pair<int, geo_info>(key, cell));
       }
 
       // Else add to cell map
-      else {cell_map_.insert(std::pair<int, int>(global_id, *std::min_element(inside.begin(), inside.end())));}
+      //else {cell_map_.insert(std::pair<int, int>(global_id, *std::min_element(inside.begin(), inside.end())));}
+      else {cell_map_.insert(std::pair<int, int>(key, *std::min_element(inside.begin(), inside.end())));}
 
       // Add id to cell center map
-      id_to_center_.insert(std::pair<int, std::array<double, 2>>(global_id, center));
+      id_to_center_.insert(std::pair<int, std::vector<double>>(key, center));
 
-      // Update global id
-      global_id += 1;
+      // // Update global id
+      // global_id += 1;
 
       // Go to next cell
       x_next += cell_size;
@@ -266,7 +282,7 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
 };
 
 
-std::map<std::array<double, 2>, geo_info> Boundary::BoundaryCells(){
+std::map<int, geo_info> Boundary::BoundaryCells(){
   return boundary_cells_;
 };
 
@@ -280,7 +296,8 @@ double Boundary::DIntegral_(double beginning, double end, std::array<int, 2> q,
 
 double Boundary::CalcD_(double bd_length,
               double fixed_value,
-              std::array<double, 2> cell_center,
+              // std::array<double, 2> cell_center,
+              std::vector<double> cell_center,
               std::array<int, 2> q,
               int d,
               std::array<int, 2> which_d,
@@ -321,7 +338,8 @@ double Boundary::CalcD_(double bd_length,
 };
 
 
-void Boundary::CalculateMoments_(std::array<double, 2> cell_center, double cell_size){
+void Boundary::CalculateMoments_(int key, double cell_size){
+  std::vector<double> cell_center = id_to_center_[key];
   for (int q_mag = Q_; q_mag >= 0; q_mag--){
     Eigen::VectorXf rho = Eigen::VectorXf::Zero(2*(q_mag + 1));
     Eigen::MatrixXf lhs = Eigen::MatrixXf::Zero(2*(q_mag + 1), 2*q_mag + 1);
@@ -345,25 +363,29 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center, double cell_
         // set d_plus and d_minus
         if (d == 0){
           // calculate d_plus
-          ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[2];
+          // ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[2];
+          ptv_bd_length = boundary_cells_[key].vol_frac_1d[2];
           double fixed_ptve_x = cell_center[0] + cell_size/2;
           d_plus = CalcD_(ptv_bd_length, fixed_ptve_x, cell_center, q, d, plus_vec, cell_size);
 
           // calculate d_minus
-          ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[0];
+          // ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[0];
+          ntve_bd_length = boundary_cells_[key].vol_frac_1d[0];
           double fixed_ntve_x = cell_center[0] - cell_size/2;
           d_minus = CalcD_(ntve_bd_length, fixed_ntve_x, cell_center, q,
                            d, first_minus_vec, cell_size);
         }
         else if (d == 1){
           // calculate d_plus
-          ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[1];
+          // ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[1];
+          ptv_bd_length = boundary_cells_[key].vol_frac_1d[1];
           double fixed_ptve_y = cell_center[1] + cell_size/2;
           d_plus = CalcD_(ptv_bd_length, fixed_ptve_y, cell_center, q,
                                  d, plus_vec, cell_size);
 
           // calculate d_minus
-          ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[3];
+          // ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[3];
+          ntve_bd_length = boundary_cells_[key].vol_frac_1d[3];
           double fixed_ntve_y = cell_center[1] - cell_size/2;
           d_minus = CalcD_(ntve_bd_length, fixed_ntve_y, cell_center, q,
                            d, second_minus_vec, cell_size);
@@ -375,9 +397,10 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center, double cell_
             if (s1 + s2 >= S || s1 + s2 < 1){
               continue;
             }
-            s_sum += (boundary_cells_[cell_center].normal_derivatives[s1][s2][d]
-                      *boundary_cells_[cell_center].boundary_moments[q[0] + s1][q[1] + s2]);
-
+            // s_sum += (boundary_cells_[cell_center].normal_derivatives[s1][s2][d]
+            //           *boundary_cells_[cell_center].boundary_moments[q[0] + s1][q[1] + s2]);
+            s_sum += (boundary_cells_[key].normal_derivatives[s1][s2][d]
+                      *boundary_cells_[key].boundary_moments[q[0] + s1][q[1] + s2]);
           }
         }
         std::array<int, 2> q_minus_e = {q[0] - e[0], q[1] - e[1]};
@@ -385,7 +408,8 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center, double cell_
           lhs(it, q_minus_e[0]) = q[d];
         }
         // M_B Unknowns (stored based on value of q[0
-        lhs(it, q_mag + q[0]) = -boundary_cells_[cell_center].normal_derivatives[0][0][d];
+        // lhs(it, q_mag + q[0]) = -boundary_cells_[cell_center].normal_derivatives[0][0][d];
+        lhs(it, q_mag + q[0]) = -boundary_cells_[key].normal_derivatives[0][0][d];
         rho(it) = d_plus - d_minus + s_sum;
       }
     }
@@ -395,26 +419,28 @@ void Boundary::CalculateMoments_(std::array<double, 2> cell_center, double cell_
 
     // Unpack V and B
     for (int i = 0; i < q_mag; i++){
-      boundary_cells_[cell_center].volume_moments[i][q_mag - 1 - i] = v_and_b(i);
+      // boundary_cells_[cell_center].volume_moments[i][q_mag - 1 - i] = v_and_b(i);
+      boundary_cells_[key].volume_moments[i][q_mag - 1 - i] = v_and_b(i);
     }
     for (int i = 0; i < q_mag + 1; i++){
-      boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
+      // boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
+      boundary_cells_[key].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
     }
   }
 };
 
 
-std::array<double, 2> Boundary::IDtoCenter(int id){
+std::vector<double> Boundary::IDtoCenter(int id){
   return id_to_center_[id];
 };
 
 
-int Boundary::IJToGlobal(int i_index, int j_index){
-  if(i_index < 0 || j_index < 0 || i_index >= num_y_ || j_index >= num_x_){
-    return -1;
-  }
-  return num_x_*i_index + j_index;
-};
+// int Boundary::IJToGlobal(int i_index, int j_index){
+//   if(i_index < 0 || j_index < 0 || i_index >= num_y_ || j_index >= num_x_){
+//     return -1;
+//   }
+//   return num_x_*i_index + j_index;
+// };
 
 
 std::array<int, 2> Boundary::NeighborCell(int i_index, int j_index, int edge){
@@ -481,31 +507,31 @@ double Boundary::InitialCellSize(){
 
 
 double Boundary::XMin(){
-  return x_min_;
+  return mins_[0];
 };
 
 
 double Boundary::XMax(){
-  return x_max_;
+  return maxes_[0];
 };
 
 
 double Boundary::YMin(){
-  return y_min_;
+  return mins_[1];
 };
 
 
 double Boundary::YMax(){
-  return y_max_;
+  return maxes_[1];
 };
 
-double Boundary::NumX(){
-  return num_x_;
-}
+// double Boundary::NumX(){
+//   return num_x_;
+// }
 
-double Boundary::NumY(){
-  return num_y_;
-}
+// double Boundary::NumY(){
+//   return num_y_;
+// }
 
 } // namespace geometry
 

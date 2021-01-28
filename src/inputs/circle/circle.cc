@@ -77,8 +77,12 @@ double CircleGeometry::YMax(){
 };
 
 
-double CircleGeometry::InitialCellSize(){
-  return .25;
+// double CircleGeometry::InitialCellSize(){
+//   return .25;
+// };
+
+int CircleGeometry::FixedDepth() {
+  return 3;
 };
 
 int CircleGeometry::QOrder(){

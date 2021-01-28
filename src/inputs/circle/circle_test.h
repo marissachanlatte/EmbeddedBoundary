@@ -24,9 +24,9 @@ class CircleTestGeometry : public InputBase{
     double XMax() override;
     double YMin() override;
     double YMax() override;
-    double InitialCellSize() override;
+    // double InitialCellSize() override;
+    int FixedDepth() override;
     int QOrder() override;
-
 };
 
 } // namespace inputs
