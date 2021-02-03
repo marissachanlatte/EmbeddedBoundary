@@ -37,6 +37,7 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   //    }
   SetupMesh_(initial_cell_size_, mins_[1], maxes_[1], mins_[0], maxes_[0]);
   RecursiveCalculateMoments_(1, initial_cell_size_);
+  PropagateUp_();
   // ToDo: Change this to iterate through only terminal cells
   // for (std::map<int, geo_info>::iterator it=boundary_cells_.begin();
   //      it != boundary_cells_.end(); it++){
@@ -47,26 +48,60 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
 };
 
 void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
-  // Check if children exist, if they do, recursive calculate
-  // TODO: Fix for arbitrary dim
+  // Check if child exists. If it does, check for their children... 
+  
   bool has_child = false;
   for (int it = 0; it < 4; it++){
+    // Iterating through all four possible child cells
+    // TODO: Fix for arbitrary dim
     int new_key = 100*key + (it&1) + (it > 1)*10;
     if (boundary_cells_.count(new_key)){
       has_child = true;
       RecursiveCalculateMoments_(new_key, cell_size/2);
     }
   }
-  // If they don't calculate moments
+  // If no children, calculate moments
   if (!has_child) {
     CalculateMoments_(key, cell_size);
   }
 }
 
 
-// std::map<int, geo_info> Boundary::UniformMesh(int depth){
-//   // 
-// };
+void Boundary::PropagateUp_(){
+  for (int depth = max_depth_; depth >= 0; depth--){
+    int n = 2*depth;
+    int cell_size = initial_cell_size_/std::pow(2, depth);
+    // Iterate through all cells at this level
+    for (int it=0; it < (1 << n); it++){
+      int key = std::pow(10, n);
+      for (int jt=0; jt < n; jt++){
+        key += ((it>>jt)&1)*std::pow(10, jt);
+      }
+      // If a boundary cell, sum up all children
+      if (boundary_cells_.count(key)){
+        for (int it = 0; it < 4; it++){ // Loop through children 
+          int child_key = 100*key + (it&1) + (it > 1)*10;
+          for (int q_mag = Q_; q_mag >= 0; q_mag--){ // Loop through q order
+            for (int i = 0; i < q_mag + 1; i++){  // Volume moments
+              // Check if child exists
+              if (boundary_cells_.count(child_key)){
+                if (i < q_mag){boundary_cells_[key].volume_moments[i][q_mag - 1 - i] += boundary_cells_[child_key].volume_moments[i][q_mag - 1 - i];}
+                boundary_cells_[key].boundary_moments[i][q_mag - i] += boundary_cells_[child_key].boundary_moments[i][q_mag - i];
+              }
+              else {
+                // If child cell is interior add whole volume
+                if (cell_map_.count(child_key) == 1){
+                  boundary_cells_[key].volume_moments[i][q_mag - 1 - i] += std::pow(cell_size, 2);
+                }
+              }
+            } 
+          }
+        }
+      }
+    }
+  }  
+};
+
 
 void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x_min, 
                          double x_max){
