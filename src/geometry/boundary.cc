@@ -36,15 +36,37 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   //      throw "Cell size does not evenly divide domain.";
   //    }
   SetupMesh_(initial_cell_size_, mins_[1], maxes_[1], mins_[0], maxes_[0]);
-
+  RecursiveCalculateMoments_(1, initial_cell_size_);
   // ToDo: Change this to iterate through only terminal cells
-  for (std::map<int, geo_info>::iterator it=boundary_cells_.begin();
-       it != boundary_cells_.end(); it++){
-        CalculateMoments_(it->first, initial_cell_size_);
-       }
+  // for (std::map<int, geo_info>::iterator it=boundary_cells_.begin();
+  //      it != boundary_cells_.end(); it++){
+  //       CalculateMoments_(it->first, initial_cell_size_);
+  //      }
+
 
 };
 
+void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
+  // Check if children exist, if they do, recursive calculate
+  // TODO: Fix for arbitrary dim
+  bool has_child = false;
+  for (int it = 0; it < 4; it++){
+    int new_key = 100*key + (it&1) + (it > 1)*10;
+    if (boundary_cells_.count(new_key)){
+      has_child = true;
+      RecursiveCalculateMoments_(new_key, cell_size/2);
+    }
+  }
+  // If they don't calculate moments
+  if (!has_child) {
+    CalculateMoments_(key, cell_size);
+  }
+}
+
+
+// std::map<int, geo_info> Boundary::UniformMesh(int depth){
+//   // 
+// };
 
 void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x_min, 
                          double x_max){
@@ -86,7 +108,6 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
       // calculate Morton key
       int key = helpers::MortonKey(center, depth, maxes_, mins_);
       if (is_boundary){
-        std::cout << key << std::endl;
         // add to cell map 
         // cell_map_.insert(std::pair<int, int>(global_id, 2));
         cell_map_.insert(std::pair<int, int>(key, 2));

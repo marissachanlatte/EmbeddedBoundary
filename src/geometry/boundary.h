@@ -69,11 +69,14 @@ This class stores a map of all boundary cells with necessary geometry informatio
       double YMin();
       double NumX();
       double NumY();
+      /// Provides boundary cell information for a uniform mesh at a given depth
+      //std::map<int, geo_info> UniformMesh(int depth);
 
     private:
 
       void SetupMesh_(double cell_size, double y_min, double y_max, double x_min, double x_max);
       void CalculateMoments_(int key, double cell_size);
+      void RecursiveCalculateMoments_(int key, double cell_size);
       double DIntegral_(double beginning,
                         double end,
                         std::array<int, 2> q,
