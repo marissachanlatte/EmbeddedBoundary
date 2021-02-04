@@ -70,7 +70,7 @@ void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
 void Boundary::PropagateUp_(){
   for (int depth = max_depth_; depth >= 0; depth--){
     int n = 2*depth;
-    int cell_size = initial_cell_size_/std::pow(2, depth);
+    double child_cell_volume = std::pow(initial_cell_size_/std::pow(2, depth + 1), 2);
     // Iterate through all cells at this level
     for (int it=0; it < (1 << n); it++){
       int key = std::pow(10, n);
@@ -83,15 +83,15 @@ void Boundary::PropagateUp_(){
           int child_key = 100*key + (it&1) + (it > 1)*10;
           for (int q_mag = Q_; q_mag >= 0; q_mag--){ // Loop through q order
             for (int i = 0; i < q_mag + 1; i++){  // Volume moments
-              // Check if child exists
+              // Check if child is on boundary
               if (boundary_cells_.count(child_key)){
                 if (i < q_mag){boundary_cells_[key].volume_moments[i][q_mag - 1 - i] += boundary_cells_[child_key].volume_moments[i][q_mag - 1 - i];}
                 boundary_cells_[key].boundary_moments[i][q_mag - i] += boundary_cells_[child_key].boundary_moments[i][q_mag - i];
               }
+              // If child cell is interior add whole volume
               else {
-                // If child cell is interior add whole volume
-                if (cell_map_.count(child_key) == 1){
-                  boundary_cells_[key].volume_moments[i][q_mag - 1 - i] += std::pow(cell_size, 2);
+                if (cell_map_[child_key] == 1){
+                  boundary_cells_[key].volume_moments[i][q_mag - 1 - i] += child_cell_volume;
                 }
               }
             } 
@@ -123,15 +123,17 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
       corners[2] = {x_next, y_next}; // upper right
       corners[3] = {x_next, y_curr}; // lower right
 
-      // Check if four corners are inside or outside boundary
-      std::vector<int> inside{input_->Inside(corners[0]),
-                                input_->Inside(corners[1]),
-                                input_->Inside(corners[2]),
-                                input_->Inside(corners[3])};
-      bool is_boundary = IsBoundaryCell(corners[0], corners[1],
-                                        corners[2], corners[3], input_);
       // cell center
       std::vector<double> center {x_curr + cell_size/2, y_curr + cell_size/2};
+
+      // calculate Morton key
+      int key = helpers::MortonKey(center, depth, maxes_, mins_);
+
+      std::vector<int> inside{input_->Inside(corners[0]),
+                              input_->Inside(corners[1]),
+                              input_->Inside(corners[2]),
+                              input_->Inside(corners[3])};
+
       // Refine
       // TODO: come up with a real criterion, this one just refines all cells to max
       if (depth < max_depth_){
@@ -140,8 +142,25 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
         SetupMesh_(cell_size/2, center[1], y_next, center[0], x_next); // upper right
         SetupMesh_(cell_size/2, y_curr, center[1], center[0], x_next); // lower right
       }
-      // calculate Morton key
-      int key = helpers::MortonKey(center, depth, maxes_, mins_);
+
+      // Determine if cell is boundary cell
+      bool is_boundary = false;
+      if (depth == max_depth_){
+        // Check if four corners are inside or outside boundary
+        is_boundary = IsBoundaryCell(corners[0], corners[1],
+                                     corners[2], corners[3], input_);
+      }
+
+      else {
+        // Check if any of the child cells are boundary cells
+        for (int it = 0; it < 4; it++){ // Loop through children 
+          int child_key = 100*key + (it&1) + (it > 1)*10;
+          if (cell_map_[child_key] == 2){
+            is_boundary = true;
+          }
+        }
+      }
+
       if (is_boundary){
         // add to cell map 
         // cell_map_.insert(std::pair<int, int>(global_id, 2));

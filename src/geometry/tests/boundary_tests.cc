@@ -115,29 +115,19 @@ TEST(BoundaryTests, NormalDerivatives){
   EXPECT_FLOAT_EQ(-0.81373347, boundary_cells[1101000].normal_derivatives[0][0][1]);
 }
 
-// TODO: Need sum up function
-// TEST(BoundaryTests, VolumeMoments){
-//   boundary::inputs::LineGeometry input;
-//   Boundary line_boundary = Boundary(&input);
-//   std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
-//   double total_area = 0;
-//   for (std::map<std::array<double, 2>, geo_info>::iterator it=boundary_cells.begin();
-//        it != boundary_cells.end(); it++){
-//           total_area += it->second.volume_moments[0][0];
-//        }
-//   EXPECT_FLOAT_EQ(total_area, .25);
+TEST(BoundaryTests, VolumeMoments){
+  boundary::inputs::LineGeometry input;
+  Boundary line_boundary = Boundary(&input);
+  std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  EXPECT_FLOAT_EQ(boundary_cells[1].volume_moments[0][0], 2);
 
-//   boundary::inputs::CircleTestGeometry circle_input;
-//   Boundary circle_boundary = Boundary(&circle_input);
-//   std::map<std::array<double, 2>, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
-//   double total_circle = 2;
-//   for (std::map<std::array<double, 2>, geo_info>::iterator it=circle_boundary_cells.begin();
-//        it != circle_boundary_cells.end(); it++){
-//           total_circle += it->second.volume_moments[0][0];
-//        }
-//   EXPECT_NEAR(total_circle, 3.14, 5e-2);
-
-// }
+  boundary::inputs::CircleTestGeometry circle_input;
+  Boundary circle_boundary = Boundary(&circle_input);
+  std::map<int, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
+  std::cout << circle_boundary_cells.count(1) << std::endl;
+  std::cout << circle_boundary_cells[1].volume_moments[0][0] << std::endl;
+  EXPECT_NEAR(circle_boundary_cells[1].volume_moments[0][0], 3.14, 5e-2);
+}
 
 
 TEST(BoundaryTests, DomainLimits){
