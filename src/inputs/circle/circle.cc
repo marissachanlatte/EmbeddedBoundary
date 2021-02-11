@@ -81,9 +81,15 @@ double CircleGeometry::YMax(){
 //   return .25;
 // };
 
-int CircleGeometry::FixedDepth() {
+int CircleGeometry::MaxDepth() {
   return 3;
 };
+
+
+int CircleGeometry::MaxSolverDepth(){
+  return 3;
+}
+
 
 int CircleGeometry::QOrder(){
   return 1; // Q order

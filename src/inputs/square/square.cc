@@ -68,9 +68,15 @@ double SquareGeometry::YMax(){
 //   return 1.0;
 // };
 
-int SquareGeometry::FixedDepth(){
-  return 1;
+int SquareGeometry::MaxDepth(){
+  return 4;
 };
+
+
+int SquareGeometry::MaxSolverDepth(){
+  return 4;
+}
+
 
 int SquareGeometry::QOrder(){
   return 1; // Q order

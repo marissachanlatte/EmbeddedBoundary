@@ -39,10 +39,12 @@ public:
   virtual double YMax() = 0;
   // /// Size of cells (assumes square cells).
   // virtual double InitialCellSize() = 0;
-  /// Fixed number of refinements 
-  /* total cells = (2^depth)^2, if set to -1 use automatic adaptive refinement criteria
+  /// Max number of geometric refinements 
+  /* total cells = (2^depth)^2
   */
-  virtual int FixedDepth() = 0;
+  virtual int MaxDepth() = 0;
+  /// Max level of refinement used for solver
+  virtual int MaxSolverDepth() = 0;
   /// Desired Q order.
   virtual int QOrder() = 0;
 

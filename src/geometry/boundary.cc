@@ -26,7 +26,8 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   maxes_.push_back(input->XMax());
   maxes_.push_back(input->YMax());
   initial_cell_size_ = maxes_[0] - mins_[0];
-  max_depth_ = input->FixedDepth();
+  max_depth_ = input->MaxDepth();
+  max_solver_depth_ = input->MaxSolverDepth();
   // num_x_ = int(std::abs(maxes_[0] - mins_[0])/initial_cell_size_);
   // num_y_ = int(std::abs(maxes_[1] - mins_[1])/initial_cell_size_);
 
@@ -49,7 +50,6 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
 
 void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
   // Check if child exists. If it does, check for their children... 
-  
   bool has_child = false;
   for (int it = 0; it < 4; it++){
     // Iterating through all four possible child cells
@@ -61,7 +61,7 @@ void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
     }
   }
   // If no children, calculate moments
-  if (!has_child) {
+  if (!has_child && boundary_cells_.count(key)) {
     CalculateMoments_(key, cell_size);
   }
 }
@@ -95,6 +95,14 @@ void Boundary::PropagateUp_(){
                 }
               }
             } 
+          }
+        }
+        // If child below solver max level, delete
+        if (depth >= max_solver_depth_){
+          for (int it = 0; it < 4; it++){ // Loop through children 
+            int child_key = 100*key + (it&1) + (it > 1)*10;
+            // Delete child
+            boundary_cells_.erase(child_key);
           }
         }
       }
@@ -510,12 +518,13 @@ std::vector<double> Boundary::IDtoCenter(int id){
 };
 
 
-// int Boundary::IJToGlobal(int i_index, int j_index){
-//   if(i_index < 0 || j_index < 0 || i_index >= num_y_ || j_index >= num_x_){
-//     return -1;
-//   }
-//   return num_x_*i_index + j_index;
-// };
+int Boundary::IJToGlobal(int i_index, int j_index, int depth){
+  int num_x = std::pow(2, depth);
+  if(i_index < 0 || j_index < 0 || i_index >= num_x || j_index >= num_x){
+    return -1;
+  }
+  return num_x*i_index + j_index;
+};
 
 
 std::array<int, 2> Boundary::NeighborCell(int i_index, int j_index, int edge){
@@ -600,6 +609,20 @@ double Boundary::YMax(){
   return maxes_[1];
 };
 
+
+std::vector<double> Boundary::Mins(){
+  return mins_;
+};
+
+
+std::vector<double> Boundary::Maxes(){
+  return maxes_;
+};
+
+
+int Boundary::MaxSolverDepth(){
+  return max_solver_depth_;
+}
 // double Boundary::NumX(){
 //   return num_x_;
 // }

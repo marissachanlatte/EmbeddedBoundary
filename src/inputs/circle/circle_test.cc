@@ -82,9 +82,15 @@ double CircleTestGeometry::YMax(){
 //   return .25;
 // };
 
-int CircleTestGeometry::FixedDepth(){
+int CircleTestGeometry::MaxDepth(){
   return 3;
 };
+
+
+int CircleTestGeometry::MaxSolverDepth(){
+  return 3;
+}
+
 
 int CircleTestGeometry::QOrder(){
   return 1; // Q order

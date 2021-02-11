@@ -25,7 +25,8 @@ class CircleGeometry : public InputBase{
     double YMin() override;
     double YMax() override;
     // double InitialCellSize() override;
-    int FixedDepth() override;
+    int MaxDepth() override;
+    int MaxSolverDepth() override;
     int QOrder() override;
 
 };

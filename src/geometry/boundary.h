@@ -54,21 +54,23 @@ This class stores a map of all boundary cells with necessary geometry informatio
                          double first_bound,
                          double second_bound);
       /// Given a cell ID, returns cell center
-      // std::array<double, 2> IDtoCenter(int id);
       std::vector<double> IDtoCenter(int id);
-      // /// Given an IJ index, returns global index
-      // int IJToGlobal(int x_index, int y_index);
+      /// Given an IJ index, returns global index for a certain depth
+      int IJToGlobal(int x_index, int y_index, int depth);
       /// Given a cell and an edge, returns (i, j) index of neighboring cell
       std::array<int, 2> NeighborCell(int i_index, int j_index, int edge);
       /// Given a cell edge and normal returns what pair to interpolate with to find partial edge center
       std::array<std::array<int, 2>, 2> InterpolationPair(int i, int j, double nx, double ny, int side_index);
+      int MaxSolverDepth();
       double InitialCellSize();
+      std::vector<double> Mins();
+      std::vector<double> Maxes();
       double XMax();
       double XMin();
       double YMax();
       double YMin();
-      double NumX();
-      double NumY();
+      // double NumX();
+      // double NumY();
 
     private:
 
@@ -112,6 +114,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
       std::vector<double> mins_;
       std::vector<double> maxes_;
       int max_depth_;
+      int max_solver_depth_;
       // double num_x_;
       // double num_y_;
   };

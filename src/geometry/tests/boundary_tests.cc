@@ -140,52 +140,52 @@ TEST(BoundaryTests, DomainLimits){
 }
 
 
-// TEST(BoundaryTests, NeighborCell){
-//   boundary::inputs::CircleTestGeometry input;
-//   Boundary circle_boundary = Boundary(&input);
-//   // left
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 0)[0], 2);
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 0)[1], 1);
-//   // up
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 1)[0], 3);
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 1)[1], 2);
-//   // right
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 2)[0], 2);
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 2)[1], 3);
-//   // down
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 3)[0], 1);
-//   EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 3)[1], 2);
-// }
+TEST(BoundaryTests, NeighborCell){
+  boundary::inputs::CircleTestGeometry input;
+  Boundary circle_boundary = Boundary(&input);
+  // left
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 0)[0], 2);
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 0)[1], 1);
+  // up
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 1)[0], 3);
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 1)[1], 2);
+  // right
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 2)[0], 2);
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 2)[1], 3);
+  // down
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 3)[0], 1);
+  EXPECT_EQ(circle_boundary.NeighborCell(2, 2, 3)[1], 2);
+}
 
 
-// TEST(BoundaryTests, IJToGlobal){
-//   boundary::inputs::CircleTestGeometry input;
-//   Boundary circle_boundary = Boundary(&input);
-//   EXPECT_EQ(circle_boundary.IJToGlobal(2, 2), 18);
-//   EXPECT_EQ(circle_boundary.IJToGlobal(3, 2), 26);
-//   EXPECT_EQ(circle_boundary.IJToGlobal(2, 3), 19);
-// }
+TEST(BoundaryTests, IJToGlobal){
+  boundary::inputs::CircleTestGeometry input;
+  Boundary circle_boundary = Boundary(&input);
+  EXPECT_EQ(circle_boundary.IJToGlobal(2, 2, 3), 18);
+  EXPECT_EQ(circle_boundary.IJToGlobal(3, 2, 3), 26);
+  EXPECT_EQ(circle_boundary.IJToGlobal(2, 3, 3), 19);
+}
 
 
-// TEST(BoundaryTests, InterpolationPair){
-//   boundary::inputs::CircleTestGeometry input;
-//   Boundary circle_boundary = Boundary(&input);
-//   std::array<std::array<int, 2>, 2> pair1 = circle_boundary.InterpolationPair(2, 2, -1, -1, 1);
-//   EXPECT_EQ(2, pair1[0][0]);
-//   EXPECT_EQ(3, pair1[0][1]);
-//   EXPECT_EQ(3, pair1[1][0]);
-//   EXPECT_EQ(3, pair1[1][1]);
-//   std::array<std::array<int, 2>, 2> pair2 = circle_boundary.InterpolationPair(2, 2, -1, -1, 2);
-//   EXPECT_EQ(3, pair2[0][0]);
-//   EXPECT_EQ(2, pair2[0][1]);
-//   EXPECT_EQ(3, pair2[1][0]);
-//   EXPECT_EQ(3, pair2[1][1]);
-//   std::array<std::array<int, 2>, 2> pair3 = circle_boundary.InterpolationPair(2, 5, 1, -1, 0);
-//   EXPECT_EQ(3, pair3[0][0]);
-//   EXPECT_EQ(5, pair3[0][1]);
-//   EXPECT_EQ(3, pair3[1][0]);
-//   EXPECT_EQ(4, pair3[1][1]);
-// }
+TEST(BoundaryTests, InterpolationPair){
+  boundary::inputs::CircleTestGeometry input;
+  Boundary circle_boundary = Boundary(&input);
+  std::array<std::array<int, 2>, 2> pair1 = circle_boundary.InterpolationPair(2, 2, -1, -1, 1);
+  EXPECT_EQ(2, pair1[0][0]);
+  EXPECT_EQ(3, pair1[0][1]);
+  EXPECT_EQ(3, pair1[1][0]);
+  EXPECT_EQ(3, pair1[1][1]);
+  std::array<std::array<int, 2>, 2> pair2 = circle_boundary.InterpolationPair(2, 2, -1, -1, 2);
+  EXPECT_EQ(3, pair2[0][0]);
+  EXPECT_EQ(2, pair2[0][1]);
+  EXPECT_EQ(3, pair2[1][0]);
+  EXPECT_EQ(3, pair2[1][1]);
+  std::array<std::array<int, 2>, 2> pair3 = circle_boundary.InterpolationPair(2, 5, 1, -1, 0);
+  EXPECT_EQ(3, pair3[0][0]);
+  EXPECT_EQ(5, pair3[0][1]);
+  EXPECT_EQ(3, pair3[1][0]);
+  EXPECT_EQ(4, pair3[1][1]);
+}
 } // namespace geometry
 
 } // namespace boundary

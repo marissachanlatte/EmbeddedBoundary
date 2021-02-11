@@ -74,9 +74,15 @@ double LineGeometry::YMax(){
 //   return .25;
 // };
 
-int LineGeometry::FixedDepth(){
-  return 3;
+int LineGeometry::MaxDepth(){
+  return 4;
 };
+
+
+int LineGeometry::MaxSolverDepth(){
+  return 3;
+}
+
 
 int LineGeometry::QOrder(){
   return 1; // Q order
