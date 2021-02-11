@@ -46,7 +46,6 @@ This class stores a map of all boundary cells with necessary geometry informatio
                                  std::array<double, 2> upper_right,
                                  std::array<double, 2> upper_left,
                                  boundary::inputs::InputBase* input);
-      // std::map<std::array<double, 2>, geo_info> BoundaryCells();
       std::map<int, geo_info> BoundaryCells();
       /// Tells whether a cell is 0 - exterior, 1 - interior, or 2 - boundary
       std::map<int, int> CellMap();
@@ -69,8 +68,6 @@ This class stores a map of all boundary cells with necessary geometry informatio
       double XMin();
       double YMax();
       double YMin();
-      // double NumX();
-      // double NumY();
 
     private:
 
@@ -83,13 +80,6 @@ This class stores a map of all boundary cells with necessary geometry informatio
                         std::array<int, 2> q,
                         int index,
                         double fixed_value);
-      // double CalcD_(double bd_length,
-      //               double fixed_value,
-      //               std::array<double, 2> cell_center,
-      //               std::array<int, 2> q,
-      //               int d,
-      //               std::array<int, 2> which_d,
-      //               double cell_size);
       double CalcD_(double bd_length,
                     double fixed_value,
                     std::vector<double> cell_center,
@@ -99,7 +89,6 @@ This class stores a map of all boundary cells with necessary geometry informatio
                     double cell_size);
       std::map<int, geo_info> boundary_cells_;
       std::map<int, int> cell_map_;
-      // std::map<int, std::array<double, 2>> id_to_center_;
       std::map<int, std::vector<double>> id_to_center_;
       boundary::inputs::InputBase* input_;
       int Sgn_(double v);
@@ -107,16 +96,10 @@ This class stores a map of all boundary cells with necessary geometry informatio
       int Parity_(int side_index);
       int Q_;
       double initial_cell_size_;
-      // double x_max_;
-      // double x_min_;
-      // double y_max_;
-      // double y_min_;
       std::vector<double> mins_;
       std::vector<double> maxes_;
       int max_depth_;
       int max_solver_depth_;
-      // double num_x_;
-      // double num_y_;
   };
 }
 

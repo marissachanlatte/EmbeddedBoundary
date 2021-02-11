@@ -64,10 +64,6 @@ double SquareGeometry::YMax(){
 };
 
 
-// double SquareGeometry::InitialCellSize(){
-//   return 1.0;
-// };
-
 int SquareGeometry::MaxDepth(){
   return 4;
 };

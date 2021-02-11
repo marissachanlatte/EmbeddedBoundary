@@ -70,10 +70,6 @@ double LineGeometry::YMax(){
 };
 
 
-// double LineGeometry::InitialCellSize(){
-//   return .25;
-// };
-
 int LineGeometry::MaxDepth(){
   return 4;
 };

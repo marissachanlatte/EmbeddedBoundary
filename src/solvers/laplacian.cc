@@ -10,11 +10,7 @@ namespace solvers {
 Laplacian::Laplacian(boundary::geometry::Boundary geometry){
   depth_ = geometry.MaxSolverDepth();
   num_x_ = std::pow(2, depth_);
-  // num_x_ = geometry.NumX();
-  // num_y_ = geometry.NumY();
-  // matrix_.resize(num_x_*num_y_, num_x_*num_y_);
   matrix_.resize(std::pow(num_x_, 2), std::pow(num_x_, 2));
-  // rhs_ = Eigen::VectorXd::Zero(num_x_*num_y_);
   rhs_ = Eigen::VectorXd::Zero(std::pow(num_x_, 2));
   BuildMatrix(geometry);
 };

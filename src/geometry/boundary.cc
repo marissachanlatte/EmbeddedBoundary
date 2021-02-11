@@ -17,10 +17,6 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   input_ = input;
   // Set global variables
   Q_ = input->QOrder();
-  // mins[0] = input->XMin();
-  // x_max_ = input->XMax();
-  // y_min_ = input->YMin();
-  // y_max_ = input->YMax();
   mins_.push_back(input->XMin());
   mins_.push_back(input->YMin());
   maxes_.push_back(input->XMax());
@@ -28,24 +24,10 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   initial_cell_size_ = maxes_[0] - mins_[0];
   max_depth_ = input->MaxDepth();
   max_solver_depth_ = input->MaxSolverDepth();
-  // num_x_ = int(std::abs(maxes_[0] - mins_[0])/initial_cell_size_);
-  // num_y_ = int(std::abs(maxes_[1] - mins_[1])/initial_cell_size_);
 
-  // Check that cell size evenly divides x & y
-  // if ((std::fmod(std::abs(maxes_[0] - mins_[0]), initial_cell_size_) != 0) ||
-  //    (std::fmod(std::abs(maxes_[1] - mins_[1]), initial_cell_size_) != 0)) {
-  //      throw "Cell size does not evenly divide domain.";
-  //    }
   SetupMesh_(initial_cell_size_, mins_[1], maxes_[1], mins_[0], maxes_[0]);
   RecursiveCalculateMoments_(1, initial_cell_size_);
   PropagateUp_();
-  // ToDo: Change this to iterate through only terminal cells
-  // for (std::map<int, geo_info>::iterator it=boundary_cells_.begin();
-  //      it != boundary_cells_.end(); it++){
-  //       CalculateMoments_(it->first, initial_cell_size_);
-  //      }
-
-
 };
 
 void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
@@ -118,8 +100,6 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
   // Iterate through all cells
   double y_curr = y_min;
   double y_next = y_min + cell_size;
-  // int id_count = 0;
-  // int global_id = 0;
   while (y_next <= y_max){
     double x_curr = x_min;
     double x_next = x_curr + cell_size;
@@ -171,14 +151,10 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
 
       if (is_boundary){
         // add to cell map 
-        // cell_map_.insert(std::pair<int, int>(global_id, 2));
         cell_map_.insert(std::pair<int, int>(key, 2));
         // make struct with tag and id
         geo_info cell;
         cell.irregular = true;
-        // cell.id = global_id;
-        // update id count
-        // id_count += 1;
         helpers::Point cell_center = helpers::Point(center);
         // resize vectors
         cell.normal_derivatives.resize(Q_+1);
@@ -261,14 +237,10 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
       }
 
       // Else add to cell map
-      //else {cell_map_.insert(std::pair<int, int>(global_id, *std::min_element(inside.begin(), inside.end())));}
       else {cell_map_.insert(std::pair<int, int>(key, *std::min_element(inside.begin(), inside.end())));}
 
       // Add id to cell center map
       id_to_center_.insert(std::pair<int, std::vector<double>>(key, center));
-
-      // // Update global id
-      // global_id += 1;
 
       // Go to next cell
       x_next += cell_size;
@@ -446,13 +418,11 @@ void Boundary::CalculateMoments_(int key, double cell_size){
         // set d_plus and d_minus
         if (d == 0){
           // calculate d_plus
-          // ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[2];
           ptv_bd_length = boundary_cells_[key].vol_frac_1d[2];
           double fixed_ptve_x = cell_center[0] + cell_size/2;
           d_plus = CalcD_(ptv_bd_length, fixed_ptve_x, cell_center, q, d, plus_vec, cell_size);
 
           // calculate d_minus
-          // ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[0];
           ntve_bd_length = boundary_cells_[key].vol_frac_1d[0];
           double fixed_ntve_x = cell_center[0] - cell_size/2;
           d_minus = CalcD_(ntve_bd_length, fixed_ntve_x, cell_center, q,
@@ -460,14 +430,12 @@ void Boundary::CalculateMoments_(int key, double cell_size){
         }
         else if (d == 1){
           // calculate d_plus
-          // ptv_bd_length = boundary_cells_[cell_center].vol_frac_1d[1];
           ptv_bd_length = boundary_cells_[key].vol_frac_1d[1];
           double fixed_ptve_y = cell_center[1] + cell_size/2;
           d_plus = CalcD_(ptv_bd_length, fixed_ptve_y, cell_center, q,
                                  d, plus_vec, cell_size);
 
           // calculate d_minus
-          // ntve_bd_length = boundary_cells_[cell_center].vol_frac_1d[3];
           ntve_bd_length = boundary_cells_[key].vol_frac_1d[3];
           double fixed_ntve_y = cell_center[1] - cell_size/2;
           d_minus = CalcD_(ntve_bd_length, fixed_ntve_y, cell_center, q,
@@ -480,8 +448,6 @@ void Boundary::CalculateMoments_(int key, double cell_size){
             if (s1 + s2 >= S || s1 + s2 < 1){
               continue;
             }
-            // s_sum += (boundary_cells_[cell_center].normal_derivatives[s1][s2][d]
-            //           *boundary_cells_[cell_center].boundary_moments[q[0] + s1][q[1] + s2]);
             s_sum += (boundary_cells_[key].normal_derivatives[s1][s2][d]
                       *boundary_cells_[key].boundary_moments[q[0] + s1][q[1] + s2]);
           }
@@ -491,7 +457,6 @@ void Boundary::CalculateMoments_(int key, double cell_size){
           lhs(it, q_minus_e[0]) = q[d];
         }
         // M_B Unknowns (stored based on value of q[0
-        // lhs(it, q_mag + q[0]) = -boundary_cells_[cell_center].normal_derivatives[0][0][d];
         lhs(it, q_mag + q[0]) = -boundary_cells_[key].normal_derivatives[0][0][d];
         rho(it) = d_plus - d_minus + s_sum;
       }
@@ -502,11 +467,9 @@ void Boundary::CalculateMoments_(int key, double cell_size){
 
     // Unpack V and B
     for (int i = 0; i < q_mag; i++){
-      // boundary_cells_[cell_center].volume_moments[i][q_mag - 1 - i] = v_and_b(i);
       boundary_cells_[key].volume_moments[i][q_mag - 1 - i] = v_and_b(i);
     }
     for (int i = 0; i < q_mag + 1; i++){
-      // boundary_cells_[cell_center].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
       boundary_cells_[key].boundary_moments[i][q_mag - i] = v_and_b(q_mag + i);
     }
   }
@@ -623,13 +586,6 @@ std::vector<double> Boundary::Maxes(){
 int Boundary::MaxSolverDepth(){
   return max_solver_depth_;
 }
-// double Boundary::NumX(){
-//   return num_x_;
-// }
-
-// double Boundary::NumY(){
-//   return num_y_;
-// }
 
 } // namespace geometry
 
