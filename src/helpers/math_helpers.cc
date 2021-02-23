@@ -105,8 +105,6 @@ static int MortonKey(std::vector<double> coords, int depth, std::vector<double> 
   return key;
 }
 
-
-
 }
 
 }

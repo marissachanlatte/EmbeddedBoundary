@@ -37,8 +37,6 @@ public:
   virtual double YMin() = 0;
   /// Domain maximum in the y direction.
   virtual double YMax() = 0;
-  // /// Size of cells (assumes square cells).
-  // virtual double InitialCellSize() = 0;
   /// Max number of geometric refinements 
   /* total cells = (2^depth)^2
   */

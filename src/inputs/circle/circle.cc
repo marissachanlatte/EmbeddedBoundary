@@ -77,10 +77,6 @@ double CircleGeometry::YMax(){
 };
 
 
-// double CircleGeometry::InitialCellSize(){
-//   return .25;
-// };
-
 int CircleGeometry::MaxDepth() {
   return 3;
 };

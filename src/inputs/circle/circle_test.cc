@@ -78,10 +78,6 @@ double CircleTestGeometry::YMax(){
 };
 
 
-// double CircleTestGeometry::InitialCellSize(){
-//   return .25;
-// };
-
 int CircleTestGeometry::MaxDepth(){
   return 3;
 };
