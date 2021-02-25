@@ -232,7 +232,9 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
             }
           }
         }
-        // add center to map
+        cell.cell_center = center;
+        cell.cell_size = cell_size;
+        // add cell to map
         boundary_cells_.insert(std::pair<int, geo_info>(key, cell));
       }
 

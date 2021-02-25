@@ -17,8 +17,6 @@ This struct contains all geometry information for a given cell
   struct geo_info {
     /// tells if cell is irregular or not
     bool irregular;
-    // /// id to index into vector with more cell information
-    // int id;
     /// derivatives of the normal to the boundary
     std::vector<std::vector<std::vector<double>>> normal_derivatives;
     /// 1d volume fraction for boundary cell edges (left, up, right, down)
@@ -27,6 +25,10 @@ This struct contains all geometry information for a given cell
     std::vector<std::vector<double>> volume_moments;
     /// boundary moments
     std::vector<std::vector<double>> boundary_moments;
+    /// cell center
+    std::vector<double> cell_center;
+    /// cell size
+    double cell_size;
   };
 
 /// A class describing the boundary geometry.
