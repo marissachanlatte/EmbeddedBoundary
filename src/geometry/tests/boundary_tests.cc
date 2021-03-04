@@ -40,7 +40,9 @@ TEST(BoundaryTests, IsBoundaryCell){
 TEST(BoundaryTests, BoundaryCells){
   boundary::inputs::LineGeometry input;
   Boundary line_boundary = Boundary(&input);
+  std::cout << "Test 0" << std::endl;
   std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  std::cout << "Test 1" << std::endl;
   EXPECT_EQ(boundary_cells.size(), 15);
   EXPECT_TRUE(boundary_cells[1].irregular);
   EXPECT_TRUE(boundary_cells[111].irregular);
