@@ -1,6 +1,6 @@
 #include "normals/normals.h"
 #include "inputs/input_base.h"
-#include "helpers/math_helpers.cc"
+#include "helpers/math_helpers.h"
 
 #include <cmath>
 #include <vector>

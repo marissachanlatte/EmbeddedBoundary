@@ -1,3 +1,4 @@
+#include "helpers/math_helpers.h"
 #include "helpers/geometry_objects.h"
 #include <vector>
 #include <algorithm>
@@ -8,12 +9,11 @@ namespace boundary{
 
 namespace helpers{
 
-static const int factorials[] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
 
 /**
 A function to caculate the factorial of an integer
 */
-static int Factorial(int alpha){
+int Factorial(int alpha){
   // Since alpha will typically be small, using a lookup table for speed
   if (alpha < 10)
     return factorials[alpha];
@@ -24,7 +24,7 @@ static int Factorial(int alpha){
 /**
 A function to calculate the multi-index factorial value of a vector of integers
 */
-static int MultiIndexFactorial(std::vector<int> alpha){
+int MultiIndexFactorial(std::vector<int> alpha){
   int total = 1;
   for(std::vector<int>::iterator it = alpha.begin(); it != alpha.end(); ++it){
     total *= Factorial(*it);
@@ -35,7 +35,7 @@ static int MultiIndexFactorial(std::vector<int> alpha){
 /**
 A function to calculate the multi-index binomial coefficient of two vectors of integers
 */
-static int MultiIndexBinomial(std::vector<int> alpha,
+int MultiIndexBinomial(std::vector<int> alpha,
                                    std::vector<int> beta){
   std::vector<int> difference;
   std::transform(alpha.begin(), alpha.end(), beta.begin(),
@@ -48,7 +48,7 @@ static int MultiIndexBinomial(std::vector<int> alpha,
 /** 
 A function that normalizes a point to between 0 and 1 
 */
-static std::vector<double> NormalizeVector(std::vector<double> coords, std::vector<double> maxes,
+std::vector<double> NormalizeVector(std::vector<double> coords, std::vector<double> maxes,
                                           std::vector<double> mins){
   std::vector<double> normalized_vector;
   int dim = coords.size();
@@ -62,7 +62,7 @@ static std::vector<double> NormalizeVector(std::vector<double> coords, std::vect
 /** 
  A function to map points in [0, 1]^n to the integers
  */
-static std::vector<int> IntegerMap(std::vector<double> scaled_coords, int depth){
+std::vector<int> IntegerMap(std::vector<double> scaled_coords, int depth){
   // Vector of indices
   std::vector<int> indices;
   // Cell size
@@ -77,7 +77,7 @@ static std::vector<int> IntegerMap(std::vector<double> scaled_coords, int depth)
 /**
 A function to generate keys from Z Morton Order
 */
-static int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
+int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
                      std::vector<double> mins){
   int dim = coords.size();
   // scale coordinates to 0 - 1

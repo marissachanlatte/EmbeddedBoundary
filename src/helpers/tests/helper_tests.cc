@@ -1,4 +1,4 @@
-#include "helpers/math_helpers.cc"
+#include "helpers/math_helpers.h"
 #include "helpers/geometry_objects.h"
 
 #include "gtest/gtest.h"

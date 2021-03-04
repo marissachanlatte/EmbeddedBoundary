@@ -1,6 +1,6 @@
 #include "geometry/boundary.h"
 #include "helpers/geometry_objects.h"
-#include "helpers/math_helpers.cc"
+#include "helpers/math_helpers.h"
 #include "normals/normals.h"
 
 #include <array>
@@ -196,7 +196,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
             if ((corners[corner][0] - corners[(corner+1)%4][0]) == 0){ // horizontal
               // find the intersection of x=corners[i, 0]
               std::vector<double> y_values = input_->BoundaryFunction(corners[corner][0]);
-              double y;
+              double y = 0;
               if (y_values.size() == 1){
                 y = input_->BoundaryFunction(corners[corner][0])[0];
               }
@@ -217,7 +217,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
             else { // vertical
               // find intersection of y=corners[i, 1]
               std::vector<double> x_values = input_->BoundaryInverse(corners[corner][1]);
-              double x;
+              double x = 0;
               if (x_values.size() == 1){
                 x = input_->BoundaryFunction(corners[corner][0])[0];
               }
@@ -278,6 +278,7 @@ double Boundary::WhichValue(std::vector<double> values, double first_bound, doub
   else {
     throw std::invalid_argument("No change between bounds.");
   }
+  return 1;
 };
 
 

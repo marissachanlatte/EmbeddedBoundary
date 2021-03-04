@@ -1,5 +1,5 @@
 #include "solvers/laplacian.h"
-#include "helpers/math_helpers.cc"
+#include "helpers/math_helpers.h"
 
 #include <iostream>
 

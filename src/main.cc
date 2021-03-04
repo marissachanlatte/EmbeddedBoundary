@@ -5,7 +5,7 @@
 #include "normals/normals.h"
 #include "geometry/boundary.h"
 #include "solvers/laplacian.h"
-#include "helpers/math_helpers.cc"
+#include "helpers/math_helpers.h"
 
 #include <stack>
 #include <vector>
