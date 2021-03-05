@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Don't use e.g. GNU extension (like -std=gnu++11) for portability
 set(CMAKE_CXX_EXTENSIONS OFF)
+# Set compiler 
+set(CMAKE_CXX_COMPILER "g++")
+
+add_compile_options(-Wall -Wextra)
 
 ### DEPENDENCIES #####################################################
 FIND_PACKAGE(Eigen3 3.3)
