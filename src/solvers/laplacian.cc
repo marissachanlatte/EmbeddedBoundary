@@ -76,10 +76,13 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
           }
 
         }
-        // boundary flux - use Neumann boundary conditions which gives a prescribed flux
-        // rhs_[global_id] += 1*scaling_factor;
+        // boundary flux - use Direchlet boundary conditions which gives a prescribed flux
+        // f(theta) = sin(theta)
+        // convert to polar coords 
+        // double theta = std::atan(cell_center[1]/cell_center[0]);
 
-        // Set RHS
+        // // Set RHS
+        // rhs_[matrix_id] = std::sin(theta);
         rhs_[matrix_id] = 1;
       }
       // If interior, five point stencil
