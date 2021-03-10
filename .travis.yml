@@ -12,7 +12,7 @@ addons:
 
 language: cpp
 
-compiler: clang
+compiler: clang++
 
 before_install:
  - CXX=clang++
