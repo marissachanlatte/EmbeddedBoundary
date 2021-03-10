@@ -6,17 +6,16 @@ addons:
       - george-edison55-precise-backports
       - ubuntu-toolchain-r-test
     packages:
-      - g++-8
       - cmake-data
       - cmake
       - lcov
 
 language: cpp
 
-compiler: gcc
+compiler: clang
 
 before_install:
- - CXX=g++-8
+ - CXX=clang++
  # Install Eigen 3.3.4 
  - wget https://gitlab.com/libeigen/eigen/-/archive/3.3.4/eigen-3.3.4.tar.gz -O /tmp/eigen-3.3.4.tar.gz
  - tar -C /tmp -xzf /tmp/eigen-3.3.4.tar.gz
