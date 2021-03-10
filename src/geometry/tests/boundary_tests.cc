@@ -83,6 +83,8 @@ TEST(BoundaryTests, VolFrac1D){
   EXPECT_EQ(second_vol_frac[1], 0);
   EXPECT_EQ(second_vol_frac[2], .25);
   EXPECT_EQ(second_vol_frac[3], .25);
+}
+TEST(BoundaryTests, VolFrac1dCircle){
   boundary::inputs::CircleTestGeometry circle;
   Boundary circle_boundary = Boundary(&circle);
   std::map<int, geo_info> circle_cells = circle_boundary.BoundaryCells();
