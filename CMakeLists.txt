@@ -15,6 +15,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set compiler 
 set(CMAKE_CXX_COMPILER "g++")
 
+#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize-memory-track-origins -fPIE -pie")
+#set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize-memory-track-origins -fPIE -pie")
 add_compile_options(-Wall -Wextra)
 
 ### DEPENDENCIES #####################################################
@@ -95,4 +97,4 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   else()
     target_link_libraries(coverage_config INTERFACE --coverage)
   endif()
-endif(CODE_COVERAGE)
+endif()

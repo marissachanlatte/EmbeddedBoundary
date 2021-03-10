@@ -40,9 +40,7 @@ TEST(BoundaryTests, IsBoundaryCell){
 TEST(BoundaryTests, BoundaryCells){
   boundary::inputs::LineGeometry input;
   Boundary line_boundary = Boundary(&input);
-  std::cout << "Test 0" << std::endl;
   std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
-  std::cout << "Test 1" << std::endl;
   EXPECT_EQ(boundary_cells.size(), 15);
   EXPECT_TRUE(boundary_cells[1].irregular);
   EXPECT_TRUE(boundary_cells[111].irregular);
@@ -126,8 +124,6 @@ TEST(BoundaryTests, VolumeMoments){
   boundary::inputs::CircleTestGeometry circle_input;
   Boundary circle_boundary = Boundary(&circle_input);
   std::map<int, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
-  std::cout << circle_boundary_cells.count(1) << std::endl;
-  std::cout << circle_boundary_cells[1].volume_moments[0][0] << std::endl;
   EXPECT_NEAR(circle_boundary_cells[1].volume_moments[0][0], 3.14, 5e-2);
 }
 

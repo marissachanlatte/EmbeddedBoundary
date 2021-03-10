@@ -25,13 +25,9 @@ Boundary::Boundary(boundary::inputs::InputBase* input){
   max_depth_ = input->MaxDepth();
   max_solver_depth_ = input->MaxSolverDepth();
 
-  std::cout << "Test 00" << std::endl;
   SetupMesh_(initial_cell_size_, mins_[1], maxes_[1], mins_[0], maxes_[0]);
-  std::cout << "Test 01" << std::endl;
   RecursiveCalculateMoments_(1, initial_cell_size_);
-  std::cout << "Test 02" << std::endl;
   PropagateUp_();
-  std::cout << "Test 03" << std::endl;
 };
 
 void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
@@ -71,12 +67,14 @@ void Boundary::PropagateUp_(){
             for (int i = 0; i < q_mag + 1; i++){  // Volume moments
               // Check if child is on boundary
               if (boundary_cells_.count(child_key)){
+                // Propagate volume moments
                 if (i < q_mag){boundary_cells_[key].volume_moments[i][q_mag - 1 - i] += boundary_cells_[child_key].volume_moments[i][q_mag - 1 - i];}
+                // Propagate boundary moments
                 boundary_cells_[key].boundary_moments[i][q_mag - i] += boundary_cells_[child_key].boundary_moments[i][q_mag - i];
               }
               // If child cell is interior add whole volume
               else {
-                if (cell_map_[child_key] == 1){
+                if (cell_map_[child_key] == 1 && (i < q_mag)){
                   boundary_cells_[key].volume_moments[i][q_mag - 1 - i] += child_cell_volume;
                 }
               }

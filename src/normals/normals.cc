@@ -62,11 +62,12 @@ double Normal::PartialNormalizedGradient(std::vector<int> p_order,
                        std::bind(std::multiplies<int>(),
                        std::placeholders::_1, 2));
         // all together
+        std::vector<int> sum_order;
         std::transform(new_order.begin(), new_order.end(), two_unit.begin(),
-                       std::back_inserter(new_order), std::plus<int>());
+                        std::back_inserter(sum_order), std::plus<int>());
         partial_l += binom
-                     * Normal::NormalDerivative(r_order, dim, a_point,input)
-                     * input->BoundaryDerivatives(a_point, new_order);
+                     * Normal::NormalDerivative(r_order, dim, a_point, input)
+                     * input->BoundaryDerivatives(a_point, sum_order);
       }
     }
   }
