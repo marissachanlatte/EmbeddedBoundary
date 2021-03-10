@@ -6,6 +6,7 @@ addons:
       - george-edison55-precise-backports
       - ubuntu-toolchain-r-test
     packages:
+      - clang-10
       - cmake-data
       - cmake
       - lcov
@@ -15,7 +16,7 @@ language: cpp
 compiler: clang
 
 before_install:
- # - CXX=clang
+ - CXX=clang++-10
  # Install Eigen 3.3.4 
  - wget https://gitlab.com/libeigen/eigen/-/archive/3.3.4/eigen-3.3.4.tar.gz -O /tmp/eigen-3.3.4.tar.gz
  - tar -C /tmp -xzf /tmp/eigen-3.3.4.tar.gz
@@ -31,7 +32,7 @@ before_install:
  - sudo wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
  - sudo tar xf release-1.8.0.tar.gz
  - cd googletest-release-1.8.0
- - sudo CXX=clang++ cmake -DBUILD_SHARED_LIBS=ON .
+ - sudo cmake -DBUILD_SHARED_LIBS=ON .
  - sudo make
  - sudo cp -a googletest/include/gtest /usr/include
  - sudo cp -a googlemock/include/gmock /usr/include
