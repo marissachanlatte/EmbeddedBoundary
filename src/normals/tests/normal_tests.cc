@@ -16,7 +16,8 @@ class NormalTest : public ::testing::Test{
 
 TEST(NormalTest, ComputeNormal){
   boundary::inputs::LineGeometry line;
-  boundary::helpers::Point a_point = boundary::helpers::Point(1, 1);
+  std::vector<double> a_point_coords{1, 1};
+  boundary::helpers::Point a_point = boundary::helpers::Point(a_point_coords);
   double test_array[2] = {-std::sqrt(2)/2, std::sqrt(2)/2};
   std::array<double, 2> normal = boundary::normals::Normal::ComputeNormal(a_point, &line);
 
@@ -24,7 +25,8 @@ TEST(NormalTest, ComputeNormal){
   EXPECT_THAT(test_array[1], testing::DoubleNear(normal[1], 1e-10));
 
   boundary::inputs::CircleGeometry circle;
-  boundary::helpers::Point second_point = boundary::helpers::Point(1, 0);
+  std::vector<double> second_point_coords{1, 0};
+  boundary::helpers::Point second_point = boundary::helpers::Point(second_point_coords);
   std::array<double, 2> circle_normal = boundary::normals::Normal::ComputeNormal(second_point, &circle);
   EXPECT_FLOAT_EQ(1, circle_normal[0]);
   EXPECT_FLOAT_EQ(0, circle_normal[1]);
@@ -32,7 +34,8 @@ TEST(NormalTest, ComputeNormal){
 
 TEST(NormalTest, NormalDerivative){
   boundary::inputs::LineGeometry line;
-  boundary::helpers::Point a_point = boundary::helpers::Point(1, 1);
+  std::vector<double> a_point_coords{1, 1};
+  boundary::helpers::Point a_point = boundary::helpers::Point(a_point_coords);
   std::vector<int> p_order1{0, 0};
   double derivative1 = boundary::normals::Normal::NormalDerivative(p_order1, 1, a_point, &line);
   EXPECT_THAT(-std::sqrt(2)/2, testing::DoubleNear(derivative1, 1e-10));

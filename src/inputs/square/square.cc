@@ -64,9 +64,15 @@ double SquareGeometry::YMax(){
 };
 
 
-double SquareGeometry::CellSize(){
-  return 1.0;
+int SquareGeometry::MaxDepth(){
+  return 4;
 };
+
+
+int SquareGeometry::MaxSolverDepth(){
+  return 4;
+}
+
 
 int SquareGeometry::QOrder(){
   return 1; // Q order

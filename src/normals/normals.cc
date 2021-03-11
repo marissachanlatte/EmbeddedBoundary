@@ -1,6 +1,6 @@
 #include "normals/normals.h"
 #include "inputs/input_base.h"
-#include "helpers/math_helpers.cc"
+#include "helpers/math_helpers.h"
 
 #include <cmath>
 #include <vector>
@@ -21,7 +21,9 @@ std::array<double, 2> Normal::ComputeNormal(helpers::Point a_point,
   double dx = input->BoundaryDerivatives(a_point, x_unit);
   double dy = input->BoundaryDerivatives(a_point, y_unit);
   double normalization = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
-  std::array<double, 2> gradient = {dx/normalization, dy/normalization};
+  std::array<double, 2> gradient;
+  if (normalization == 0){gradient = {0, 0};}
+  else { gradient = {dx/normalization, dy/normalization};}
   return gradient;
 }
 
@@ -62,11 +64,12 @@ double Normal::PartialNormalizedGradient(std::vector<int> p_order,
                        std::bind(std::multiplies<int>(),
                        std::placeholders::_1, 2));
         // all together
+        std::vector<int> sum_order;
         std::transform(new_order.begin(), new_order.end(), two_unit.begin(),
-                       std::back_inserter(new_order), std::plus<int>());
+                        std::back_inserter(sum_order), std::plus<int>());
         partial_l += binom
-                     * Normal::NormalDerivative(r_order, dim, a_point,input)
-                     * input->BoundaryDerivatives(a_point, new_order);
+                     * Normal::NormalDerivative(r_order, dim, a_point, input)
+                     * input->BoundaryDerivatives(a_point, sum_order);
       }
     }
   }
@@ -105,7 +108,9 @@ double Normal::NormalDerivative(std::vector<int> p_order, int dim,
   std::transform(p_order.begin(), p_order.end(), unit.begin(),
                  std::back_inserter(unit_added), std::plus<int>());
   double partial_n = input->BoundaryDerivatives(a_point, unit_added) - deriv_sums;
-  return partial_n/Normal::NormalizedGradient(a_point, input);
+  double normalized_gradient = Normal::NormalizedGradient(a_point, input);
+  if (normalized_gradient == 0){return 0;}
+  else {return partial_n/Normal::NormalizedGradient(a_point, input);}
 };
 
 } // namespace normals

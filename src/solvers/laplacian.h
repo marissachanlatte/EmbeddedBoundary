@@ -33,10 +33,12 @@ namespace solvers {
         void BuildMatrix(boundary::geometry::Boundary geometry);
         /// Assigns value to matrix, skipping if entry doesn't exist
         void SafeMatrixAssign(int i_index, int j_index, double value);
-        /// Number of cells in x direction
+        /// Number of cells in one direction
         int num_x_;
+        /// Maximum Solver Depth
+        int depth_;
         /// Number of cells in y direction
-        int num_y_; 
+        // int num_y_; 
   };
 
 } // namespace solvers

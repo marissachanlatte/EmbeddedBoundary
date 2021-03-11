@@ -9,17 +9,22 @@ namespace boundary {
 namespace helpers {
 
 /// A Class describing a point
-/** This class represents a two dimensional point
+/** This class represents a d-dimensional point
 */
   class Point{
     public:
       Point();
-      Point(double first_dim, double second_dim);
+      /// A constructor using a vector of the coordinates of the point
+      Point(std::vector<double> coords);
       ~Point() = default;
       Point operator + (const Point &a_point);
-      double x_val;
-      double y_val;
-      //int MortonOrder(); will implement later using Phil's code
+      /// Returns the d value of the point
+      double value(int d) const;
+    private:
+      /// The dimension of the point
+      int _dim;
+      /// A vector of the coordinates of the point
+      std::vector<double> _coords;
   };
 
 } // namespace helpers
