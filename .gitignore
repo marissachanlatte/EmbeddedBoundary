@@ -10,3 +10,6 @@ bin/*
 
 # Ignore iPython Checkpoints
 .ipynb_checkpoints/
+
+# Ignore pycache
+.pyc
