@@ -24,6 +24,8 @@ public:
   virtual double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) = 0;
   /// The inverse of the boundary function.
   virtual std::vector<double> BoundaryInverse(double y_value) = 0;
+  /// Returns the value of the derivative at the boundary
+  virtual double NeumannCondition(double x_value, double y_value) = 0;
   /// A function returning whether or not a point is inside or outside the
   /// boundary.
   /* It returns 0 for exterior, 1 for interior, 2 for on boundary.

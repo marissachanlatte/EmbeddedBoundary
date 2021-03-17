@@ -28,6 +28,11 @@ std::vector<double> SquareGeometry::BoundaryInverse(double y_value){
 };
 
 
+double SquareGeometry::NeumannCondition(double x_value, double y_value){
+  return 0;
+}
+
+
 int SquareGeometry::Inside(std::array<double, 2> point){
   if (point[0] < 1.0 && point[0] > -1.0 && point[1] < 1.0 && point[1] > -1.0){
     return 1;
@@ -45,22 +50,22 @@ int SquareGeometry::Inside(std::array<double, 2> point){
 
 
 double SquareGeometry::XMin(){
-  return -2.0; // domain min
+  return -1.0; // domain min
 };
 
 
 double SquareGeometry::XMax(){
-  return 2.0; // domain max
+  return 1.0; // domain max
 };
 
 
 double SquareGeometry::YMin(){
-  return -2.0; // domain min
+  return -1.0; // domain min
 };
 
 
 double SquareGeometry::YMax(){
-  return 2.0; // domain max
+  return 1.0; // domain max
 };
 
 

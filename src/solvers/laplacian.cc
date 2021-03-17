@@ -1,22 +1,25 @@
 #include "solvers/laplacian.h"
 #include "helpers/math_helpers.h"
 
+#define _USE_MATH_DEFINES
+ 
 #include <iostream>
+#include <cmath>
 
 namespace boundary {
 
 namespace solvers {
 
-Laplacian::Laplacian(boundary::geometry::Boundary geometry){
+Laplacian::Laplacian(boundary::inputs::InputBase* input, boundary::geometry::Boundary geometry){
   depth_ = geometry.MaxSolverDepth();
   num_x_ = std::pow(2, depth_);
   matrix_.resize(std::pow(num_x_, 2), std::pow(num_x_, 2));
   rhs_ = Eigen::VectorXd::Zero(std::pow(num_x_, 2));
-  BuildMatrix(geometry);
+  BuildMatrix(input, geometry);
 };
 
 
-void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
+void Laplacian::BuildMatrix(boundary::inputs::InputBase* input, boundary::geometry::Boundary geometry){
   double cell_size = geometry.InitialCellSize()/std::pow(2, depth_);
   // Get cell map
   std::map<int, int> cell_map = geometry.CellMap();
@@ -76,15 +79,14 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
           }
 
         }
-        // boundary flux - use Direchlet boundary conditions which gives a prescribed flux
-        // f(theta) = sin(theta)
-        // convert to polar coords 
-        // double theta = std::atan(cell_center[1]/cell_center[0]);
+        // boundary flux - Neumann condition, boundary flux == y
+        double neumann_condition = input->NeumannCondition(cell_center[0], cell_center[1]);
+        rhs_[matrix_id] += -scaling_factor*neumann_condition;
 
-        // // Set RHS
-        // rhs_[matrix_id] = std::sin(theta);
-        rhs_[matrix_id] = 1;
+        // RHS == x^2 + y^2
+        // rhs_[matrix_id] += std::pow(cell_center[0], 2) + std::pow(cell_center[1], 2);
       }
+
       // If interior, five point stencil
       else if (covered_id == 1){
         SafeMatrixAssign(matrix_id, geometry.IJToGlobal(i + 1, j, depth_), -1/std::pow(cell_size, 2));
@@ -92,13 +94,13 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
         SafeMatrixAssign(matrix_id, geometry.IJToGlobal(i, j + 1, depth_), -1/std::pow(cell_size, 2));
         SafeMatrixAssign(matrix_id, geometry.IJToGlobal(i, j - 1, depth_), -1/std::pow(cell_size, 2));
         SafeMatrixAssign(matrix_id, matrix_id, 4/std::pow(cell_size, 2));
-
-        // Set RHS
-        rhs_[matrix_id] = 1;
+        
+        // RHS == x^2 + y^2
+        // rhs_[matrix_id] += std::pow(cell_center[0], 2) + std::pow(cell_center[1], 2);
       }
       // If exterior set to 0
       else if (covered_id == 0){
-        SafeMatrixAssign(matrix_id, matrix_id, 1);
+        // SafeMatrixAssign(matrix_id, matrix_id, 1);
       }
     }
   }

@@ -44,6 +44,11 @@ std::vector<double> CircleGeometry::BoundaryInverse(double y_value){
 };
 
 
+double CircleGeometry::NeumannCondition(double x_value, double y_value){
+  return y_value;
+};
+
+
 int CircleGeometry::Inside(std::array<double, 2> point){
   if ((std::pow(point[0], 2) + std::pow(point[1], 2)) > 1){
     return 0;
@@ -78,12 +83,12 @@ double CircleGeometry::YMax(){
 
 
 int CircleGeometry::MaxDepth() {
-  return 3;
+  return 4;
 };
 
 
 int CircleGeometry::MaxSolverDepth(){
-  return 3;
+  return 4;
 }
 
 

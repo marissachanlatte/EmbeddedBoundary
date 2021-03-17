@@ -17,7 +17,8 @@ namespace solvers {
     public:
       Laplacian();
       /// Constructor for laplacian, takes in a geometry.
-      Laplacian(boundary::geometry::Boundary geometry);
+      Laplacian(boundary::inputs::InputBase* input, 
+                boundary::geometry::Boundary geometry);
       /// Default destructor
       ~Laplacian() = default;
       /// Solves linear system
@@ -30,7 +31,8 @@ namespace solvers {
         /// Right hand side of linear system
         Eigen::VectorXd rhs_;
         /// Builds appropriate matrix given geometry
-        void BuildMatrix(boundary::geometry::Boundary geometry);
+        void BuildMatrix(boundary::inputs::InputBase* input, 
+                         boundary::geometry::Boundary geometry);
         /// Assigns value to matrix, skipping if entry doesn't exist
         void SafeMatrixAssign(int i_index, int j_index, double value);
         /// Number of cells in one direction

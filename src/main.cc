@@ -1,5 +1,6 @@
 #include "inputs/line/line.h"
 #include "inputs/circle/circle.h"
+#include "inputs/circle/circle_test.h"
 #include "inputs/square/square.h"
 #include "helpers/geometry_objects.h"
 #include "normals/normals.h"
@@ -82,8 +83,9 @@ void writeSolution(Eigen::VectorXd solution, boundary::geometry::Boundary bounda
 }
 
 
-Eigen::VectorXd makeLaplacian(boundary::geometry::Boundary boundary){
-  boundary::solvers::Laplacian laplacian = boundary::solvers::Laplacian(boundary);
+Eigen::VectorXd makeLaplacian(boundary::inputs::InputBase* input, 
+                              boundary::geometry::Boundary boundary){
+  boundary::solvers::Laplacian laplacian = boundary::solvers::Laplacian(input, boundary);
   Eigen::VectorXd solution = laplacian.solve();
   return solution;
 }
@@ -97,10 +99,10 @@ int main(){
   std::map<int, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
   std::map<int, int> cell_map = boundary.CellMap();
   // Make laplacian
-  // Eigen::VectorXd solution = makeLaplacian(boundary);
+  Eigen::VectorXd solution = makeLaplacian(&input, boundary);
   // Write to file
-  // writeSolution(solution, boundary);
-  writeGeometry(cell_map, boundary_cells, boundary);
+  writeSolution(solution, boundary);
+  // writeGeometry(cell_map, boundary_cells, boundary);
   return 0;
 }
 

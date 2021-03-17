@@ -19,6 +19,7 @@ class CircleGeometry : public InputBase{
     std::vector<double> BoundaryFunction(double x_value) override;
     double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) override;
     std::vector<double> BoundaryInverse(double y_value) override;
+    double NeumannCondition(double x_value, double y_value) override;
     int Inside(std::array<double, 2> point) override;
     double XMin() override;
     double XMax() override;

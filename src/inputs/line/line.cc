@@ -37,6 +37,11 @@ std::vector<double> LineGeometry::BoundaryInverse(double y_value){
 };
 
 
+double LineGeometry::NeumannCondition(double x_value, double y_value){
+  return 0;
+};
+
+
 int LineGeometry::Inside(std::array<double, 2> point){
   if (point[0] < point[1]){
     return 0;
