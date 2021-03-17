@@ -13,7 +13,7 @@ namespace boundary {
 
 namespace geometry {
 
-Boundary::Boundary(boundary::inputs::InputBase* input){
+Boundary::Boundary(boundary::inputs::GeometryInputBase* input){
   input_ = input;
   // Set global variables
   Q_ = input->QOrder();
@@ -284,7 +284,7 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
                               std::array<double, 2> upper_left,
                               std::array<double, 2> upper_right,
                               std::array<double, 2> lower_right,
-                              boundary::inputs::InputBase* input){
+                              boundary::inputs::GeometryInputBase* input){
   // put into array with inside values
   std::vector<int> inside{input->Inside(lower_left),
                           input->Inside(upper_left),

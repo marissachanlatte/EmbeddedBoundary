@@ -1,7 +1,7 @@
-#ifndef EMBEDDED_BOUNDARY_SRC_INPUTS_SQUARE_SQUARE_H
-#define EMBEDDED_BOUNDARY_SRC_INPUTS_SQUARE_SQUARE_H
+#ifndef EMBEDDED_BOUNDARY_SRC_INPUTS_GEOMETRIES_LINE_LINE_H
+#define EMBEDDED_BOUNDARY_SRC_INPUTS_GEOMETRIES_LINE_LINE_H
 
-#include "inputs/input_base.h"
+#include "inputs/geometries/geometry_input_base.h"
 #include "helpers/geometry_objects.h"
 
 #include <vector>
@@ -12,14 +12,13 @@ namespace boundary {
 namespace inputs {
 
 
-/// An input file representing the square [-1, 1] x [-1, 1]
-class SquareGeometry : public InputBase{
+/// An input file representing the line x=y
+class LineGeometry : public GeometryInputBase{
   public:
-    ~SquareGeometry() = default;
+    ~LineGeometry() = default;
     std::vector<double> BoundaryFunction(double x_value) override;
     double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) override;
     std::vector<double> BoundaryInverse(double y_value) override;
-    double NeumannCondition(double x_value, double y_value) override;
     int Inside(std::array<double, 2> point) override;
     double XMin() override;
     double XMax() override;
@@ -35,4 +34,4 @@ class SquareGeometry : public InputBase{
 
 } // namespace boundary
 
-#endif // EMBEDDED_BOUNDARY_SRC_INPUTS_SQUARE_SQUARE_H
+#endif // EMBEDDED_BOUNDARY_SRC_INPUTS_LINE_LINE_H

@@ -1,6 +1,6 @@
 #include "normals/normals.h"
-#include "inputs/line/line.h"
-#include "inputs/circle/circle.h"
+#include "inputs/geometries/line/line.h"
+#include "inputs/geometries/circle/circle.h"
 #include "helpers/geometry_objects.h"
 
 #include <gtest/gtest.h>
@@ -13,6 +13,7 @@ class NormalTest : public ::testing::Test{
   protected:
     NormalTest();
 };
+
 
 TEST(NormalTest, ComputeNormal){
   boundary::inputs::LineGeometry line;

@@ -1,5 +1,5 @@
 #include "solvers/laplacian.h"
-#include "inputs/circle/circle_test.h"
+#include "inputs/geometries/circle/circle_test.h"
 #include "geometry/boundary.h"
 
 #include "gtest/gtest.h"

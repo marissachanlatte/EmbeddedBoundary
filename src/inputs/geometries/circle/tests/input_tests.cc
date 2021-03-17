@@ -1,4 +1,4 @@
- #include "inputs/circle/circle_test.h"
+ #include "inputs/geometries/circle/circle_test.h"
  #include "helpers/geometry_objects.h"
 
  #include "gtest/gtest.h"

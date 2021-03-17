@@ -10,7 +10,7 @@ namespace boundary {
 
 namespace solvers {
 
-Laplacian::Laplacian(boundary::inputs::InputBase* input, boundary::geometry::Boundary geometry){
+Laplacian::Laplacian(boundary::inputs::SolverInputBase* input, boundary::geometry::Boundary geometry){
   depth_ = geometry.MaxSolverDepth();
   num_x_ = std::pow(2, depth_);
   matrix_.resize(std::pow(num_x_, 2), std::pow(num_x_, 2));
@@ -19,7 +19,7 @@ Laplacian::Laplacian(boundary::inputs::InputBase* input, boundary::geometry::Bou
 };
 
 
-void Laplacian::BuildMatrix(boundary::inputs::InputBase* input, boundary::geometry::Boundary geometry){
+void Laplacian::BuildMatrix(boundary::inputs::SolverInputBase* input, boundary::geometry::Boundary geometry){
   double cell_size = geometry.InitialCellSize()/std::pow(2, depth_);
   // Get cell map
   std::map<int, int> cell_map = geometry.CellMap();
@@ -79,7 +79,7 @@ void Laplacian::BuildMatrix(boundary::inputs::InputBase* input, boundary::geomet
           }
 
         }
-        // boundary flux - Neumann condition, boundary flux == y
+        // Boundary Flux - Neumann Condition
         double neumann_condition = input->NeumannCondition(cell_center[0], cell_center[1]);
         rhs_[matrix_id] += -scaling_factor*neumann_condition;
 

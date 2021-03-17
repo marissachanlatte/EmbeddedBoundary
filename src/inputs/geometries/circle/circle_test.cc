@@ -1,4 +1,4 @@
-#include "inputs/circle/circle.h"
+#include "inputs/geometries/circle/circle_test.h"
 #include "helpers/geometry_objects.h"
 
 #include <vector>
@@ -9,14 +9,15 @@ namespace boundary {
 
 namespace inputs {
 
-std::vector<double> CircleGeometry::BoundaryFunction(double x_value){
+std::vector<double> CircleTestGeometry::BoundaryFunction(double x_value){
   std::vector<double> y_values;
   y_values.push_back(std::sqrt(1 - std::pow(x_value, 2)));
   y_values.push_back(-std::sqrt(1 - std::pow(x_value, 2)));
   return y_values;
 };
 
-double CircleGeometry::BoundaryDerivatives(helpers::Point a_point,
+
+double CircleTestGeometry::BoundaryDerivatives(helpers::Point a_point,
                                          std::vector<int> degree){
   if (degree[0] == 0 && degree[1] == 0){
     return std::pow(a_point.value(1), 2) + std::pow(a_point.value(0), 2) - 1;
@@ -36,7 +37,7 @@ double CircleGeometry::BoundaryDerivatives(helpers::Point a_point,
 };
 
 
-std::vector<double> CircleGeometry::BoundaryInverse(double y_value){
+std::vector<double> CircleTestGeometry::BoundaryInverse(double y_value){
   std::vector<double> x_values;
   x_values.push_back(std::sqrt(1 - std::pow(y_value, 2)));
   x_values.push_back(-std::sqrt(1 - std::pow(y_value, 2)));
@@ -44,12 +45,7 @@ std::vector<double> CircleGeometry::BoundaryInverse(double y_value){
 };
 
 
-double CircleGeometry::NeumannCondition(double x_value, double y_value){
-  return y_value;
-};
-
-
-int CircleGeometry::Inside(std::array<double, 2> point){
+int CircleTestGeometry::Inside(std::array<double, 2> point){
   if ((std::pow(point[0], 2) + std::pow(point[1], 2)) > 1){
     return 0;
   }
@@ -62,37 +58,37 @@ int CircleGeometry::Inside(std::array<double, 2> point){
 };
 
 
-double CircleGeometry::XMin(){
+double CircleTestGeometry::XMin(){
   return -1.0; // domain min
 };
 
 
-double CircleGeometry::XMax(){
+double CircleTestGeometry::XMax(){
   return 1.0; // domain max
 };
 
 
-double CircleGeometry::YMin(){
+double CircleTestGeometry::YMin(){
   return -1.0; // domain min
 };
 
 
-double CircleGeometry::YMax(){
+double CircleTestGeometry::YMax(){
   return 1.0; // domain max
 };
 
 
-int CircleGeometry::MaxDepth() {
-  return 4;
+int CircleTestGeometry::MaxDepth(){
+  return 3;
 };
 
 
-int CircleGeometry::MaxSolverDepth(){
-  return 4;
-}
+int CircleTestGeometry::MaxSolverDepth(){
+  return 3;
+};
 
 
-int CircleGeometry::QOrder(){
+int CircleTestGeometry::QOrder(){
   return 1; // Q order
 }
 } // namespace inputs

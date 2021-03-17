@@ -1,4 +1,4 @@
-#include "inputs/line/line.h"
+#include "inputs/geometries/line/line.h"
 #include "helpers/geometry_objects.h"
 
 #include <vector>
@@ -34,11 +34,6 @@ std::vector<double> LineGeometry::BoundaryInverse(double y_value){
   std::vector<double> x_values;
   x_values.push_back(y_value);
   return x_values;
-};
-
-
-double LineGeometry::NeumannCondition(double x_value, double y_value){
-  return 0;
 };
 
 
@@ -79,11 +74,9 @@ int LineGeometry::MaxDepth(){
   return 4;
 };
 
-
 int LineGeometry::MaxSolverDepth(){
   return 3;
-}
-
+};
 
 int LineGeometry::QOrder(){
   return 1; // Q order

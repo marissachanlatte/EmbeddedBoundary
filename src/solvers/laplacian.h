@@ -2,6 +2,7 @@
 #define EMBEDDED_BOUNDARY_SOLVERS_LAPLACIAN_H
 
 #include "geometry/boundary.h"
+#include "inputs/equations/solver_input_base.h"
 
 #include <Eigen/Sparse>
 #include <Eigen/SparseLU>
@@ -17,7 +18,7 @@ namespace solvers {
     public:
       Laplacian();
       /// Constructor for laplacian, takes in a geometry.
-      Laplacian(boundary::inputs::InputBase* input, 
+      Laplacian(boundary::inputs::SolverInputBase* input, 
                 boundary::geometry::Boundary geometry);
       /// Default destructor
       ~Laplacian() = default;
@@ -31,7 +32,7 @@ namespace solvers {
         /// Right hand side of linear system
         Eigen::VectorXd rhs_;
         /// Builds appropriate matrix given geometry
-        void BuildMatrix(boundary::inputs::InputBase* input, 
+        void BuildMatrix(boundary::inputs::SolverInputBase* input, 
                          boundary::geometry::Boundary geometry);
         /// Assigns value to matrix, skipping if entry doesn't exist
         void SafeMatrixAssign(int i_index, int j_index, double value);

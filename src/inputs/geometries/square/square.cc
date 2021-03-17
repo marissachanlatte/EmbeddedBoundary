@@ -1,4 +1,4 @@
-#include "inputs/square/square.h"
+#include "inputs/geometries/square/square.h"
 #include "helpers/geometry_objects.h"
 
 #include <vector>
@@ -26,11 +26,6 @@ std::vector<double> SquareGeometry::BoundaryInverse(double y_value){
   x_values.push_back(0.0);
   return x_values;
 };
-
-
-double SquareGeometry::NeumannCondition(double x_value, double y_value){
-  return 0;
-}
 
 
 int SquareGeometry::Inside(std::array<double, 2> point){

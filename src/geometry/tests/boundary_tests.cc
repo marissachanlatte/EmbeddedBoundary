@@ -1,6 +1,6 @@
 #include "geometry/boundary.h"
-#include "inputs/line/line.h"
-#include "inputs/circle/circle_test.h"
+#include "inputs/geometries/line/line.h"
+#include "inputs/geometries/circle/circle_test.h"
 
 #include "gtest/gtest.h"
 #include <array>

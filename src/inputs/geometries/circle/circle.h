@@ -1,7 +1,7 @@
-#ifndef EMBEDDED_BOUNDARY_SRC_INPUTS_CIRCLE_CIRCLE_TEST_H
-#define EMBEDDED_BOUNDARY_SRC_INPUTS_CIRCLE_CIRCLE_TEST_H
+#ifndef EMBEDDED_BOUNDARY_SRC_INPUTS_GEOMETRIES_CIRCLE_CIRCLE_H
+#define EMBEDDED_BOUNDARY_SRC_INPUTS_GEOMETRIES_CIRCLE_CIRCLE_H
 
-#include "inputs/input_base.h"
+#include "inputs/geometries/geometry_input_base.h"
 #include "helpers/geometry_objects.h"
 
 #include <vector>
@@ -13,13 +13,12 @@ namespace inputs {
 
 
 /// An input file representing the Circle 0 = x^2 + y^2 - 1
-class CircleTestGeometry : public InputBase{
+class CircleGeometry : public GeometryInputBase{
   public:
-    ~CircleTestGeometry() = default;
+    ~CircleGeometry() = default;
     std::vector<double> BoundaryFunction(double x_value) override;
     double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) override;
     std::vector<double> BoundaryInverse(double y_value) override;
-    double NeumannCondition(double x_value, double y_value) override;
     int Inside(std::array<double, 2> point) override;
     double XMin() override;
     double XMax() override;
@@ -34,4 +33,4 @@ class CircleTestGeometry : public InputBase{
 
 } // namespace boundary
 
-#endif // EMBEDDED_BOUNDARY_SRC_INPUTS_CIRCLE_CIRCLE_TEST_H
+#endif // EMBEDDED_BOUNDARY_SRC_INPUTS_GEOMETRY_CIRCLE_CIRCLE_H

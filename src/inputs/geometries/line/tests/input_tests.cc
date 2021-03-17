@@ -1,4 +1,4 @@
-#include "inputs/line/line.h"
+#include "inputs/geometries/line/line.h"
 #include "helpers/geometry_objects.h"
 
 #include "gtest/gtest.h"

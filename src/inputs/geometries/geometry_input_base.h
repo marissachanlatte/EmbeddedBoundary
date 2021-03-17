@@ -1,5 +1,5 @@
-#ifndef EMBEDDED_BOUNDARY_INPUT_INPUT_BASE_H
-#define EMBEDDED_BOUNDARY_INPUT_INPUT_BASE_H
+#ifndef EMBEDDED_BOUNDARY_INPUT_GEOMETRY_INPUT_BASE_H
+#define EMBEDDED_BOUNDARY_INPUT_GEOMETRY_INPUT_BASE_H
 
 #include "helpers/geometry_objects.h"
 
@@ -15,17 +15,15 @@ namespace inputs {
 All input files are based on this class which
 contains all relevant input geometry information.
 */
-class InputBase {
+class GeometryInputBase {
 public:
-  virtual ~InputBase() = default;
+  virtual ~GeometryInputBase() = default;
   /// The function describing the boundary.
   virtual std::vector<double> BoundaryFunction(double x_value) = 0;
   /// The derivatives of the boundary function.
   virtual double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) = 0;
   /// The inverse of the boundary function.
   virtual std::vector<double> BoundaryInverse(double y_value) = 0;
-  /// Returns the value of the derivative at the boundary
-  virtual double NeumannCondition(double x_value, double y_value) = 0;
   /// A function returning whether or not a point is inside or outside the
   /// boundary.
   /* It returns 0 for exterior, 1 for interior, 2 for on boundary.
@@ -54,4 +52,4 @@ public:
 
 } // namespace boundary
 
-#endif // EMBEDDED_BOUNDARY_INPUT_INPUT_BASE_H
+#endif // EMBEDDED_BOUNDARY_INPUT_GEOMETRY_INPUT_BASE_H

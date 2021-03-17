@@ -1,7 +1,8 @@
-#include "inputs/line/line.h"
-#include "inputs/circle/circle.h"
-#include "inputs/circle/circle_test.h"
-#include "inputs/square/square.h"
+#include "inputs/geometries/line/line.h"
+#include "inputs/geometries/circle/circle.h"
+#include "inputs/geometries/circle/circle_test.h"
+#include "inputs/geometries/square/square.h"
+#include "inputs/equations/laplace_neumann.h"
 #include "helpers/geometry_objects.h"
 #include "normals/normals.h"
 #include "geometry/boundary.h"
@@ -83,7 +84,7 @@ void writeSolution(Eigen::VectorXd solution, boundary::geometry::Boundary bounda
 }
 
 
-Eigen::VectorXd makeLaplacian(boundary::inputs::InputBase* input, 
+Eigen::VectorXd makeLaplacian(boundary::inputs::SolverInputBase* input, 
                               boundary::geometry::Boundary boundary){
   boundary::solvers::Laplacian laplacian = boundary::solvers::Laplacian(input, boundary);
   Eigen::VectorXd solution = laplacian.solve();
@@ -93,13 +94,14 @@ Eigen::VectorXd makeLaplacian(boundary::inputs::InputBase* input,
 
 int main(){
   // Read in input
-  boundary::inputs::CircleGeometry input;
+  boundary::inputs::CircleGeometry geometry_input;
   // Make geometry
-  boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&input);
+  boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&geometry_input);
   std::map<int, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
   std::map<int, int> cell_map = boundary.CellMap();
   // Make laplacian
-  Eigen::VectorXd solution = makeLaplacian(&input, boundary);
+  boundary::inputs::LaplaceNeumann solver_input;
+  Eigen::VectorXd solution = makeLaplacian(&solver_input, boundary);
   // Write to file
   writeSolution(solution, boundary);
   // writeGeometry(cell_map, boundary_cells, boundary);
