@@ -20,6 +20,8 @@ public:
   virtual ~SolverInputBase() = default;
   /// Returns the value of the derivative at the boundary
   virtual double NeumannCondition(double x_value, double y_value) = 0;
+  /// Returns the value of the right hand side for a given point
+  virtual double RightHandSide(double x_value, double y_value) = 0;
 };
 
 } // namespace inputs

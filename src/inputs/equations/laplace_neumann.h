@@ -17,6 +17,7 @@ class LaplaceNeumann : public SolverInputBase{
   public:
     ~LaplaceNeumann() = default;
     double NeumannCondition(double x_value, double y_value) override;
+    double RightHandSide(double x_value, double y_value) override;
 };
 
 } // namespace inputs

@@ -13,6 +13,11 @@ double LaplaceNeumann::NeumannCondition(double x_value, double y_value){
   return y_value;
 };
 
+
+double LaplaceNeumann::RightHandSide(double x_value, double y_value){
+  return 0;
+};
+
 } // namespace inputs
 
 } // namespace boundary

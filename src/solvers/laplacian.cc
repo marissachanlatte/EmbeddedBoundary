@@ -83,8 +83,8 @@ void Laplacian::BuildMatrix(boundary::inputs::SolverInputBase* input, boundary::
         double neumann_condition = input->NeumannCondition(cell_center[0], cell_center[1]);
         rhs_[matrix_id] += -scaling_factor*neumann_condition;
 
-        // RHS == x^2 + y^2
-        // rhs_[matrix_id] += std::pow(cell_center[0], 2) + std::pow(cell_center[1], 2);
+        // Assign Right Hand Side
+        rhs_[matrix_id] += input->RightHandSide(cell_center[0], cell_center[1]);
       }
 
       // If interior, five point stencil
@@ -95,8 +95,8 @@ void Laplacian::BuildMatrix(boundary::inputs::SolverInputBase* input, boundary::
         SafeMatrixAssign(matrix_id, geometry.IJToGlobal(i, j - 1, depth_), -1/std::pow(cell_size, 2));
         SafeMatrixAssign(matrix_id, matrix_id, 4/std::pow(cell_size, 2));
         
-        // RHS == x^2 + y^2
-        // rhs_[matrix_id] += std::pow(cell_center[0], 2) + std::pow(cell_center[1], 2);
+        // Assign Right Hand Side
+        rhs_[matrix_id] += input->RightHandSide(cell_center[0], cell_center[1]);
       }
       // If exterior set to 0
       else if (covered_id == 0){
