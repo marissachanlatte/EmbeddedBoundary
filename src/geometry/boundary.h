@@ -60,6 +60,8 @@ This class stores a map of all boundary cells with necessary geometry informatio
       int IJToGlobal(int x_index, int y_index, int depth);
       /// Given a cell and an edge, returns (i, j) index of neighboring cell
       std::array<int, 2> NeighborCell(int i_index, int j_index, int edge);
+      /// Given a cell and an edge, returns center of neighboring cell
+      std::vector<double> IJToCenter(int i_index, int j_index, int depth);
       /// Given a cell edge and normal returns what pair to interpolate with to find partial edge center
       std::array<std::array<int, 2>, 2> InterpolationPair(int i, int j, double nx, double ny, int side_index);
       int MaxSolverDepth();

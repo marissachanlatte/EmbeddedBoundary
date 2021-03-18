@@ -504,6 +504,15 @@ std::array<int, 2> Boundary::NeighborCell(int i_index, int j_index, int edge){
 }
 
 
+std::vector<double> Boundary::IJToCenter(int i_index, int j_index, int depth){
+  int num_x = std::pow(2, depth);
+  double cell_size = (maxes_[0] - mins_[0])/num_x;
+  std::vector<double> cell_center{mins_[0] + i_index*cell_size + cell_size/2, 
+                                  mins_[1] + j_index*cell_size + cell_size/2};
+  return cell_center;
+}
+
+
 int Boundary::Sgn_(double v){
     // branchless sign function.
     // https://helloacm.com/how-to-implement-the-sgn-function-in-c/
