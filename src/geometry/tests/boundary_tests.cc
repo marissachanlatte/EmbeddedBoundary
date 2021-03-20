@@ -129,6 +129,17 @@ TEST(BoundaryTests, VolumeMoments){
   EXPECT_NEAR(circle_boundary_cells[1].volume_moments[0][0], 3.14, 5e-2);
 }
 
+TEST(BoundaryTests, BoundaryMoments){
+  boundary::inputs::LineGeometry input;
+  Boundary line_boundary = Boundary(&input);
+  std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  EXPECT_FLOAT_EQ(boundary_cells[1].boundary_moments[0][0], std::sqrt(8));
+
+  boundary::inputs::CircleTestGeometry circle_input;
+  Boundary circle_boundary = Boundary(&circle_input);
+  std::map<int, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
+  EXPECT_NEAR(circle_boundary_cells[1].boundary_moments[0][0], 2*3.14, 5e-2);
+}
 
 TEST(BoundaryTests, DomainLimits){
   boundary::inputs::LineGeometry input;
