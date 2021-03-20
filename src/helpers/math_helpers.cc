@@ -77,7 +77,7 @@ std::vector<int> IntegerMap(std::vector<double> scaled_coords, int depth){
 /**
 A function to generate keys from Z Morton Order
 */
-int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
+double MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
                      std::vector<double> mins){
   int dim = coords.size();
   // scale coordinates to 0 - 1
@@ -85,7 +85,7 @@ int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
   // Use mesh spacing to map to integers
   std::vector<int> mesh_mapped = IntegerMap(scaled, depth);
   // Initialize key
-  int key = 0;
+  double key = 0;
   // Keep track of number of digits of key
   int digit = 0;
   // Loop through depths

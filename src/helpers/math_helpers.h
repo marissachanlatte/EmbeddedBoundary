@@ -41,7 +41,7 @@ std::vector<int> IntegerMap(std::vector<double> scaled_coords, int depth);
 /**
 A function to generate keys from Z Morton Order
 */
-int MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
+double MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
                      std::vector<double> mins);
 
 }

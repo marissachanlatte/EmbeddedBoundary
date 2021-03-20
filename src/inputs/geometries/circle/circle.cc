@@ -78,12 +78,12 @@ double CircleGeometry::YMax(){
 
 
 int CircleGeometry::MaxDepth() {
-  return 4;
+  return 6;
 };
 
 
 int CircleGeometry::MaxSolverDepth() {
-  return 4;
+  return 6;
 };
 
 

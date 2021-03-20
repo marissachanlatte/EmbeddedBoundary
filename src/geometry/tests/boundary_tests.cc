@@ -40,7 +40,7 @@ TEST(BoundaryTests, IsBoundaryCell){
 TEST(BoundaryTests, BoundaryCells){
   boundary::inputs::LineGeometry input;
   Boundary line_boundary = Boundary(&input);
-  std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  std::map<double, geo_info> boundary_cells = line_boundary.BoundaryCells();
   EXPECT_EQ(boundary_cells.size(), 15);
   EXPECT_TRUE(boundary_cells[1].irregular);
   EXPECT_TRUE(boundary_cells[111].irregular);
@@ -52,7 +52,7 @@ TEST(BoundaryTests, BoundaryCells){
 TEST(BoundaryTests, Normals){
   boundary::inputs::LineGeometry input;
   Boundary line_boundary = Boundary(&input);
-  std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  std::map<double, geo_info> boundary_cells = line_boundary.BoundaryCells();
   std::vector<std::vector<std::vector<double>>> first_normals = boundary_cells[1000000].normal_derivatives;
   EXPECT_FLOAT_EQ(first_normals[0][0][0], -0.70710678);
   EXPECT_FLOAT_EQ(first_normals[0][0][1], 0.70710678);
@@ -67,7 +67,7 @@ TEST(BoundaryTests, Normals){
 TEST(BoundaryTests, VolFrac1D){
   boundary::inputs::LineGeometry input;
   Boundary line_boundary = Boundary(&input);
-  std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  std::map<double, geo_info> boundary_cells = line_boundary.BoundaryCells();
   std::array<double, 4> first_vol_frac = boundary_cells[1000000].vol_frac_1d;
   EXPECT_EQ(first_vol_frac[0], 0);
   EXPECT_EQ(first_vol_frac[1], 0);
@@ -87,7 +87,7 @@ TEST(BoundaryTests, VolFrac1D){
 TEST(BoundaryTests, VolFrac1dCircle){
   boundary::inputs::CircleTestGeometry circle;
   Boundary circle_boundary = Boundary(&circle);
-  std::map<int, geo_info> circle_cells = circle_boundary.BoundaryCells();
+  std::map<double, geo_info> circle_cells = circle_boundary.BoundaryCells();
   std::array<double, 4> first_circle_frac = circle_cells[1000010].vol_frac_1d;
   EXPECT_FLOAT_EQ(first_circle_frac[0], 0);
   EXPECT_FLOAT_EQ(first_circle_frac[1], 0.16143783);
@@ -112,7 +112,7 @@ TEST(BoundaryTests, WhichValue){
 TEST(BoundaryTests, NormalDerivatives){
   boundary::inputs::CircleTestGeometry circle;
   Boundary circle_boundary = Boundary(&circle);
-  std::map<int, geo_info> boundary_cells = circle_boundary.BoundaryCells();
+  std::map<double, geo_info> boundary_cells = circle_boundary.BoundaryCells();
   EXPECT_FLOAT_EQ(0.58123819, boundary_cells[1101000].normal_derivatives[0][0][0]);
   EXPECT_FLOAT_EQ(-0.81373347, boundary_cells[1101000].normal_derivatives[0][0][1]);
 }
@@ -120,24 +120,24 @@ TEST(BoundaryTests, NormalDerivatives){
 TEST(BoundaryTests, VolumeMoments){
   boundary::inputs::LineGeometry input;
   Boundary line_boundary = Boundary(&input);
-  std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  std::map<double, geo_info> boundary_cells = line_boundary.BoundaryCells();
   EXPECT_FLOAT_EQ(boundary_cells[1].volume_moments[0][0], 2);
 
   boundary::inputs::CircleTestGeometry circle_input;
   Boundary circle_boundary = Boundary(&circle_input);
-  std::map<int, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
+  std::map<double, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
   EXPECT_NEAR(circle_boundary_cells[1].volume_moments[0][0], 3.14, 5e-2);
 }
 
 TEST(BoundaryTests, BoundaryMoments){
   boundary::inputs::LineGeometry input;
   Boundary line_boundary = Boundary(&input);
-  std::map<int, geo_info> boundary_cells = line_boundary.BoundaryCells();
+  std::map<double, geo_info> boundary_cells = line_boundary.BoundaryCells();
   EXPECT_FLOAT_EQ(boundary_cells[1].boundary_moments[0][0], std::sqrt(8));
 
   boundary::inputs::CircleTestGeometry circle_input;
   Boundary circle_boundary = Boundary(&circle_input);
-  std::map<int, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
+  std::map<double, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
   EXPECT_NEAR(circle_boundary_cells[1].boundary_moments[0][0], 2*3.14, 5e-2);
 }
 

@@ -24,9 +24,9 @@ Laplacian::Laplacian(boundary::inputs::SolverInputBase* input, boundary::geometr
 void Laplacian::BuildMatrix(boundary::inputs::SolverInputBase* input, boundary::geometry::Boundary geometry){
   double cell_size = geometry.InitialCellSize()/std::pow(2, depth_);
   // Get cell map
-  std::map<int, int> cell_map = geometry.CellMap();
+  std::map<double, int> cell_map = geometry.CellMap();
   // Get geometry information
-  std::map<int, geometry::geo_info> geometry_info = geometry.BoundaryCells();
+  std::map<double, geometry::geo_info> geometry_info = geometry.BoundaryCells();
   // Iterate through all cells
   for (int i = 0; i < num_x_; i++){ // y-index
     for (int j = 0; j < num_x_; j++){ // x-index

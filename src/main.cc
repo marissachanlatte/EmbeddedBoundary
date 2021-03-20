@@ -101,9 +101,9 @@ void operatorTesting(boundary::geometry::Boundary geometry){
   // Loop through all cells at given depth
   double cell_size = geometry.InitialCellSize()/num_x_;
   // Get cell map
-  std::map<int, int> cell_map = geometry.CellMap();
+  std::map<double, int> cell_map = geometry.CellMap();
   // Get geometry information
-  std::map<int, boundary::geometry::geo_info> geometry_info = geometry.BoundaryCells();
+  std::map<double, boundary::geometry::geo_info> geometry_info = geometry.BoundaryCells();
   // Output file
   std::ofstream laplace_out;
   laplace_out.open ("../outputs/laplace_out.txt");
@@ -117,7 +117,7 @@ void operatorTesting(boundary::geometry::Boundary geometry){
                                       geometry.YMin() + i*cell_size + cell_size/2};
       
       // Boundary Flag
-      int key = boundary::helpers::MortonKey(cell_center, depth_, geometry.Maxes(), geometry.Mins());
+      double key = boundary::helpers::MortonKey(cell_center, depth_, geometry.Maxes(), geometry.Mins());
       int covered_id = cell_map[key];
 
       // Volume Fraction & Laplacian

@@ -30,13 +30,13 @@ Boundary::Boundary(boundary::inputs::GeometryInputBase* input){
   PropagateUp_();
 };
 
-void Boundary::RecursiveCalculateMoments_(int key, double cell_size){
+void Boundary::RecursiveCalculateMoments_(double key, double cell_size){
   // Check if child exists. If it does, check for their children... 
   bool has_child = false;
   for (int it = 0; it < 4; it++){
     // Iterating through all four possible child cells
     // TODO: Fix for arbitrary dim
-    int new_key = 100*key + (it&1) + (it > 1)*10;
+    double new_key = 100*key + (it&1) + (it > 1)*10;
     if (boundary_cells_.count(new_key)){
       has_child = true;
       RecursiveCalculateMoments_(new_key, cell_size/2);
@@ -55,14 +55,14 @@ void Boundary::PropagateUp_(){
     double child_cell_volume = std::pow(initial_cell_size_/std::pow(2, depth + 1), 2);
     // Iterate through all cells at this level
     for (int it=0; it < (1 << n); it++){
-      int key = std::pow(10, n);
+      double key = std::pow(10, n);
       for (int jt=0; jt < n; jt++){
         key += ((it>>jt)&1)*std::pow(10, jt);
       }
       // If a boundary cell, sum up all children
       if (boundary_cells_.count(key)){
         for (int it = 0; it < 4; it++){ // Loop through children 
-          int child_key = 100*key + (it&1) + (it > 1)*10;
+          double child_key = 100*key + (it&1) + (it > 1)*10;
           for (int q_mag = Q_; q_mag >= 0; q_mag--){ // Loop through q order
             for (int i = 0; i < q_mag + 1; i++){  // Volume moments
               // Check if child is on boundary
@@ -84,7 +84,7 @@ void Boundary::PropagateUp_(){
         // If child below solver max level, delete
         if (depth >= max_solver_depth_){
           for (int it = 0; it < 4; it++){ // Loop through children 
-            int child_key = 100*key + (it&1) + (it > 1)*10;
+            double child_key = 100*key + (it&1) + (it > 1)*10;
             // Delete child
             boundary_cells_.erase(child_key);
           }
@@ -117,7 +117,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
       std::vector<double> center {x_curr + cell_size/2, y_curr + cell_size/2};
 
       // calculate Morton key
-      int key = helpers::MortonKey(center, depth, maxes_, mins_);
+      double key = helpers::MortonKey(center, depth, maxes_, mins_);
 
       std::vector<int> inside{input_->Inside(corners[0]),
                               input_->Inside(corners[1]),
@@ -144,7 +144,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
       else {
         // Check if any of the child cells are boundary cells
         for (int it = 0; it < 4; it++){ // Loop through children 
-          int child_key = 100*key + (it&1) + (it > 1)*10;
+          double child_key = 100*key + (it&1) + (it > 1)*10;
           if (cell_map_[child_key] == 2){
             is_boundary = true;
           }
@@ -153,7 +153,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
 
       if (is_boundary){
         // add to cell map 
-        cell_map_.insert(std::pair<int, int>(key, 2));
+        cell_map_.insert(std::pair<double, int>(key, 2));
         // make struct with tag and id
         geo_info cell;
         cell.irregular = true;
@@ -237,14 +237,14 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
         cell.cell_center = center;
         cell.cell_size = cell_size;
         // add cell to map
-        boundary_cells_.insert(std::pair<int, geo_info>(key, cell));
+        boundary_cells_.insert(std::pair<double, geo_info>(key, cell));
       }
 
       // Else add to cell map
-      else {cell_map_.insert(std::pair<int, int>(key, *std::min_element(inside.begin(), inside.end())));}
+      else {cell_map_.insert(std::pair<double, int>(key, *std::min_element(inside.begin(), inside.end())));}
 
       // Add id to cell center map
-      id_to_center_.insert(std::pair<int, std::vector<double>>(key, center));
+      id_to_center_.insert(std::pair<double, std::vector<double>>(key, center));
 
       // Go to next cell
       x_next += cell_size;
@@ -342,7 +342,7 @@ bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
 };
 
 
-std::map<int, geo_info> Boundary::BoundaryCells(){
+std::map<double, geo_info> Boundary::BoundaryCells(){
   return boundary_cells_;
 };
 
@@ -398,7 +398,7 @@ double Boundary::CalcD_(double bd_length,
 };
 
 
-void Boundary::CalculateMoments_(int key, double cell_size){
+void Boundary::CalculateMoments_(double key, double cell_size){
   std::vector<double> cell_center = id_to_center_[key];
   for (int q_mag = Q_; q_mag >= 0; q_mag--){
     Eigen::VectorXf rho = Eigen::VectorXf::Zero(2*(q_mag + 1));
@@ -481,7 +481,7 @@ void Boundary::CalculateMoments_(int key, double cell_size){
 };
 
 
-std::vector<double> Boundary::IDtoCenter(int id){
+std::vector<double> Boundary::IDtoCenter(double id){
   return id_to_center_[id];
 };
 
@@ -557,7 +557,7 @@ std::array<std::array<int, 2>, 2> Boundary::InterpolationPair(int i, int j, doub
 }
 
 
-std::map<int, int> Boundary::CellMap(){
+std::map<double, int> Boundary::CellMap(){
   return cell_map_;
 };
 

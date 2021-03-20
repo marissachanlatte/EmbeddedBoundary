@@ -48,14 +48,15 @@ This class stores a map of all boundary cells with necessary geometry informatio
                                  std::array<double, 2> upper_right,
                                  std::array<double, 2> upper_left,
                                  boundary::inputs::GeometryInputBase* input);
-      std::map<int, geo_info> BoundaryCells();
+      /// Returns Boundary Cell Map
+      std::map<double, geo_info> BoundaryCells();
       /// Tells whether a cell is 0 - exterior, 1 - interior, or 2 - boundary
-      std::map<int, int> CellMap();
+      std::map<double, int> CellMap();
       static double WhichValue(std::vector<double> values,
                          double first_bound,
                          double second_bound);
       /// Given a cell ID, returns cell center
-      std::vector<double> IDtoCenter(int id);
+      std::vector<double> IDtoCenter(double id);
       /// Given an IJ index, returns global index for a certain depth
       int IJToGlobal(int x_index, int y_index, int depth);
       /// Given a cell and an edge, returns (i, j) index of neighboring cell
@@ -76,8 +77,8 @@ This class stores a map of all boundary cells with necessary geometry informatio
     private:
 
       void SetupMesh_(double cell_size, double y_min, double y_max, double x_min, double x_max);
-      void CalculateMoments_(int key, double cell_size);
-      void RecursiveCalculateMoments_(int key, double cell_size);
+      void CalculateMoments_(double key, double cell_size);
+      void RecursiveCalculateMoments_(double key, double cell_size);
       void PropagateUp_();
       double DIntegral_(double beginning,
                         double end,
@@ -91,9 +92,9 @@ This class stores a map of all boundary cells with necessary geometry informatio
                     int d,
                     std::array<int, 2> which_d,
                     double cell_size);
-      std::map<int, geo_info> boundary_cells_;
-      std::map<int, int> cell_map_;
-      std::map<int, std::vector<double>> id_to_center_;
+      std::map<double, geo_info> boundary_cells_;
+      std::map<double, int> cell_map_;
+      std::map<double, std::vector<double>> id_to_center_;
       boundary::inputs::GeometryInputBase* input_;
       int Sgn_(double v);
       std::array<int, 2> ProjectedNormal_(int side_index, double nx, double ny);
