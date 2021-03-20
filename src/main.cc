@@ -85,12 +85,12 @@ void writeSolution(Eigen::VectorXd solution, boundary::geometry::Boundary bounda
 
 /// Function Phi for Testing
 double phi(std::vector<double> point){
-  return 1/16*(std::pow(point[0], 2) + std::pow(point[1], 2));
+  return 1.0/16*std::pow((std::pow(point[0], 2) + std::pow(point[1], 2)), 2);
 }
 
 /// BC for Phi for Testing
 double neumannCondition(std::vector<double> point){
-  return 1/4;
+  return 1.0/4;
 }
 
 
@@ -99,7 +99,7 @@ void operatorTesting(boundary::geometry::Boundary geometry){
   int depth_ = geometry.MaxSolverDepth();
   int num_x_ = std::pow(2, depth_);
   // Loop through all cells at given depth
-  double cell_size = geometry.InitialCellSize()/std::pow(2, depth_);
+  double cell_size = geometry.InitialCellSize()/num_x_;
   // Get cell map
   std::map<int, int> cell_map = geometry.CellMap();
   // Get geometry information
@@ -135,11 +135,11 @@ void operatorTesting(boundary::geometry::Boundary geometry){
         std::vector<double> left_center = geometry.IJToCenter(i - 1, j, depth_);
         std::vector<double> up_center = geometry.IJToCenter(i, j + 1, depth_);
         std::vector<double> down_center = geometry.IJToCenter(i, j - 1, depth_);
-        laplacian += 1/std::pow(cell_size, 2)*(4*phi(cell_center)
-                                               - phi(right_center)
-                                               - phi(left_center)
-                                               - phi(up_center)
-                                               - phi(down_center));
+        laplacian += 1/std::pow(cell_size, 2)*(-4*phi(cell_center)
+                                               + phi(right_center)
+                                               + phi(left_center)
+                                               + phi(up_center)
+                                               + phi(down_center));
         }
       // Boundary
       else if (covered_id == 2){
@@ -162,29 +162,41 @@ void operatorTesting(boundary::geometry::Boundary geometry){
           // if full edge, then apply appropriate part of 5 pt stencil
           if (edge_lengths[edge] == cell_size){
             // add contributions to laplacian
-            laplacian += scaling_factor*(phi(neighbor_center) - phi(cell_center));
+            laplacian += phi(neighbor_center) - phi(cell_center);
           }
-          // no edge, no flux -- ?
-          else if (edge_lengths[edge] == 0){
-            // add contributions to laplacian
-            laplacian += scaling_factor*(phi(neighbor_center) - phi(cell_center));
-          }
+          // no edge, no flux 
+          else if (edge_lengths[edge] == 0){}
           // partial edge, linearly interpolate 
           else {
-            // get aperature
-            double aperature = geometry_info[key].boundary_moments[0][0];
-            // this cell & neighbor
-            laplacian += aperature*(1 + aperature)/2*scaling_factor*(phi(neighbor_center) - phi(cell_center));
+            if ((i==0) && (j==0)){
+              std::cout << "cell center " << cell_center[0] << " " << cell_center[1] << std::endl;
+            }
+            // get aperture
+            double aperture = edge_lengths[edge]/cell_size;
             // interpolate with inside value
             std::array<std::array<int, 2>, 2> inter_pair = geometry.InterpolationPair(i, j, normal[0], normal[1], edge);
             // centers
             std::vector<double> first_pair_center = geometry.IJToCenter(inter_pair[0][0], inter_pair[0][1], depth_);
             std::vector<double> second_pair_center = geometry.IJToCenter(inter_pair[1][0], inter_pair[1][1], depth_);
-            laplacian += aperature*(1 + aperature)/2*scaling_factor*(phi(second_pair_center) - phi(first_pair_center));
+            laplacian += aperture*((1 + aperture)/2*(phi(neighbor_center) - phi(cell_center))
+                                  +(1 - aperture)/2*(phi(second_pair_center) - phi(first_pair_center)));
+            if ((i==0) && (j==0)){
+              std::cout << "adding edge " << edge << std::endl;
+              std::cout << "lap " << laplacian << std::endl;
+            }
           }
         }
         // Boundary Flux
-        laplacian += -scaling_factor*neumannCondition(cell_center);
+        laplacian += -neumannCondition(cell_center)*geometry_info[key].boundary_moments[0][0];
+        if ((i==0) && (j==0)){
+          std::cout << "adding bc " << laplacian << std::endl;
+        }
+        
+        // Scale by volume moment
+        laplacian *= scaling_factor;
+        if ((i==0) && (j==0)){
+          std::cout << "scaling " << laplacian << std::endl;
+        }
       }
 
       // Write to CSV

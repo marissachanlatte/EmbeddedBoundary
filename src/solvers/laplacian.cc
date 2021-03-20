@@ -10,6 +10,8 @@ namespace boundary {
 
 namespace solvers {
 
+/// WARNING: THIS FILE IS DEPRECATED. USE TESTING SCRIPT IN MAIN TO TEST LAPLACIAN
+
 Laplacian::Laplacian(boundary::inputs::SolverInputBase* input, boundary::geometry::Boundary geometry){
   depth_ = geometry.MaxSolverDepth();
   num_x_ = std::pow(2, depth_);
@@ -47,7 +49,6 @@ void Laplacian::BuildMatrix(boundary::inputs::SolverInputBase* input, boundary::
         std::vector<double> normal = normal_derivatives[0][0];
         // iterate through cell edges (left, up, right, down)
         for (int edge = 0; edge < 4; edge++){
-          
           // find neighboring cell through this edge
           std::array<int, 2> neighbor_idx = geometry.NeighborCell(i, j, edge);
           // if full edge, then apply appropriate part of 5 pt stencil
@@ -56,12 +57,8 @@ void Laplacian::BuildMatrix(boundary::inputs::SolverInputBase* input, boundary::
                              scaling_factor);
             SafeMatrixAssign(matrix_id, matrix_id, -scaling_factor);
           }
-          // no edge, no flux
-          else if (edge_lengths[edge] == 0){
-            SafeMatrixAssign(matrix_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1], depth_), 
-                             scaling_factor);
-            SafeMatrixAssign(matrix_id, matrix_id, -scaling_factor);
-          }
+          // no edge, no flux -- ?
+          else if (edge_lengths[edge] == 0){}
           // partial edge, linearly interpolate 
           else {
             // get aperature
