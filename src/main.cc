@@ -1,5 +1,7 @@
 #include "inputs/geometries/line/line.h"
 #include "inputs/geometries/circle/circle.h"
+#include "inputs/geometries/ellipse/ellipse.h"
+#include "inputs/geometries/ellipse/ellipse_flip.h"
 #include "inputs/geometries/circle/circle_test.h"
 #include "inputs/geometries/square/square.h"
 #include "inputs/equations/laplace_neumann.h"
@@ -86,15 +88,18 @@ void writeSolution(Eigen::VectorXd solution, boundary::geometry::Boundary bounda
 /// Function Phi for Testing
 double phi(std::vector<double> point){
   return 1.0/16*std::pow((std::pow(point[0], 2) + std::pow(point[1], 2)), 2);
+  //return point[1];
 }
 
 /// BC for Phi for Testing
 double neumannCondition(std::vector<double> point){
   return 1.0/4;
+  //double theta = std::atan2(point[0], point[1]);
+  //return std::sin(theta);
 }
 
 
-/// Outputs laplacian, volume fractions, cell centers, boundary flag, and cell size as CSV file
+/// Outputs laplacian, volume fractions, boundary length, cell centers, boundary flag, and cell size as CSV file
 void operatorTesting(boundary::geometry::Boundary geometry){
   int depth_ = geometry.MaxSolverDepth();
   int num_x_ = std::pow(2, depth_);
@@ -108,7 +113,7 @@ void operatorTesting(boundary::geometry::Boundary geometry){
   std::ofstream laplace_out;
   laplace_out.open ("../outputs/laplace_out.txt");
   // Headers
-  laplace_out << "Covered ID,Cell Size,CenterX,CenterY,Volume Fraction,Laplacian" << std::endl;
+  laplace_out << "Covered ID,Cell Size,CenterX,CenterY,Boundary Length,Volume Fraction,Laplacian" << std::endl;
   // Iterate through all cells
   for (int i = 0; i < num_x_; i++){ // y-index
     for (int j = 0; j < num_x_; j++){ // x-index
@@ -120,16 +125,14 @@ void operatorTesting(boundary::geometry::Boundary geometry){
       double key = boundary::helpers::MortonKey(cell_center, depth_, geometry.Maxes(), geometry.Mins());
       int covered_id = cell_map[key];
 
-      // Volume Fraction & Laplacian
+      // Boundary Length & Volume Fraction & Laplacian
+      double boundary_length = 0;
       double volume_fraction = 0;
       double laplacian = 0;
       
-      // Exterior
-      if (covered_id == 0){
-        volume_fraction = 0;
-        laplacian = 0;}
+      // Exterior stays 0
       // Interior
-      else if (covered_id == 1){
+      if (covered_id == 1){
         volume_fraction = 1;
         std::vector<double> right_center = geometry.IJToCenter(i + 1, j, depth_);
         std::vector<double> left_center = geometry.IJToCenter(i - 1, j, depth_);
@@ -146,8 +149,8 @@ void operatorTesting(boundary::geometry::Boundary geometry){
         double volume_moment = geometry_info[key].volume_moments[0][0];
         // Set Volume Fraction
         volume_fraction = volume_moment/std::pow(cell_size, 2);
+
         // Calculate Laplacian
-        double scaling_factor = 1/volume_moment;
         // edge lengths
         std::array<double, 4> edge_lengths = geometry_info[key].vol_frac_1d;
         // normals
@@ -168,9 +171,6 @@ void operatorTesting(boundary::geometry::Boundary geometry){
           else if (edge_lengths[edge] == 0){}
           // partial edge, linearly interpolate 
           else {
-            if ((i==0) && (j==0)){
-              std::cout << "cell center " << cell_center[0] << " " << cell_center[1] << std::endl;
-            }
             // get aperture
             double aperture = edge_lengths[edge]/cell_size;
             // interpolate with inside value
@@ -180,27 +180,18 @@ void operatorTesting(boundary::geometry::Boundary geometry){
             std::vector<double> second_pair_center = geometry.IJToCenter(inter_pair[1][0], inter_pair[1][1], depth_);
             laplacian += aperture*((1 + aperture)/2*(phi(neighbor_center) - phi(cell_center))
                                   +(1 - aperture)/2*(phi(second_pair_center) - phi(first_pair_center)));
-            if ((i==0) && (j==0)){
-              std::cout << "adding edge " << edge << std::endl;
-              std::cout << "lap " << laplacian << std::endl;
-            }
           }
         }
         // Boundary Flux
-        laplacian += -neumannCondition(cell_center)*geometry_info[key].boundary_moments[0][0];
-        if ((i==0) && (j==0)){
-          std::cout << "adding bc " << laplacian << std::endl;
-        }
+        boundary_length = geometry_info[key].boundary_moments[0][0];
+        laplacian += neumannCondition(cell_center)*boundary_length;
         
         // Scale by volume moment
-        laplacian *= scaling_factor;
-        if ((i==0) && (j==0)){
-          std::cout << "scaling " << laplacian << std::endl;
-        }
+        laplacian *= 1/volume_moment;
       }
 
       // Write to CSV
-      laplace_out << covered_id << "," << cell_size << "," << cell_center[0] << "," << cell_center[1] << "," << volume_fraction << "," << laplacian << std::endl;
+      laplace_out << covered_id << "," << cell_size << "," << cell_center[0] << "," << cell_center[1] << "," << boundary_length << "," << volume_fraction << "," << laplacian << std::endl;
     }
   }
   laplace_out.close();
@@ -217,7 +208,7 @@ Eigen::VectorXd makeLaplacian(boundary::inputs::SolverInputBase* input,
 
 int main(){
   // Read in input
-  boundary::inputs::CircleGeometry geometry_input;
+  boundary::inputs::EllipseGeometry geometry_input;
   // Make geometry
   boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&geometry_input);
   operatorTesting(boundary);
