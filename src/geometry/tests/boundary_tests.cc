@@ -1,6 +1,7 @@
 #include "geometry/boundary.h"
 #include "inputs/geometries/line/line.h"
 #include "inputs/geometries/circle/circle_test.h"
+#include "inputs/geometries/ellipse/ellipse.h"
 
 #include "gtest/gtest.h"
 #include <array>
@@ -127,6 +128,11 @@ TEST(BoundaryTests, VolumeMoments){
   Boundary circle_boundary = Boundary(&circle_input);
   std::map<double, geo_info> circle_boundary_cells = circle_boundary.BoundaryCells();
   EXPECT_NEAR(circle_boundary_cells[1].volume_moments[0][0], 3.14, 5e-2);
+
+  boundary::inputs::EllipseGeometry ellipse_input;
+  Boundary ellipse_boundary = Boundary(&ellipse_input);
+  std::map<double, geo_info> ellipse_boundary_cells = ellipse_boundary.BoundaryCells();
+  EXPECT_NEAR(ellipse_boundary_cells[1].volume_moments[0][0], std::sqrt(1.0/2)*3.14, 5e-2);
 }
 
 TEST(BoundaryTests, BoundaryMoments){

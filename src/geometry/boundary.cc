@@ -180,6 +180,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
                                                             2, cell_center, input_);
           }
         }
+
         // Compute 1d volume fractions and store in cell
         for (int corner=0; corner < 4; corner++){
           // iterate four edges to determine which ones intersect boundary
@@ -234,6 +235,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
             }
           }
         }
+        
         cell.cell_center = center;
         cell.cell_size = cell_size;
         // add cell to map
@@ -356,7 +358,6 @@ double Boundary::DIntegral_(double beginning, double end, std::array<int, 2> q,
 
 double Boundary::CalcD_(double bd_length,
               double fixed_value,
-              // std::array<double, 2> cell_center,
               std::vector<double> cell_center,
               std::array<int, 2> q,
               int d,
@@ -373,7 +374,13 @@ double Boundary::CalcD_(double bd_length,
     // TODO: fix this to be more general
     std::array<double, 2> corner = {cell_center[0] + cell_size/2*which_d[0],
                                     cell_center[1] + cell_size/2*which_d[1]};
-    std::vector<double> int_values = input_->BoundaryInverse(fixed_value);
+    std::vector<double> int_values;
+    if (d == 0){
+      int_values = input_->BoundaryFunction(fixed_value);
+    }
+    else if (d == 1){
+      int_values = input_->BoundaryInverse(fixed_value);
+    }
     double intersection;
     if (int_values.size() == 1){
       intersection = int_values[0];
@@ -385,7 +392,7 @@ double Boundary::CalcD_(double bd_length,
                                 cell_center[d_op] + cell_size/2);
     }
     if (input_->Inside(corner)){
-          d_pm = DIntegral_(intersection, corner[d_op], q, d, fixed_value);
+      d_pm = DIntegral_(intersection, corner[d_op], q, d, fixed_value);
     }
     else {
       d_pm = DIntegral_(corner[d_op] - cell_size, intersection, q, d, fixed_value);
@@ -464,6 +471,7 @@ void Boundary::CalculateMoments_(double key, double cell_size){
         // M_B Unknowns (stored based on value of q[0
         lhs(it, q_mag + q[0]) = -boundary_cells_[key].normal_derivatives[0][0][d];
         rho(it) = d_plus - d_minus + s_sum;
+         
       }
     }
 
