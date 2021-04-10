@@ -216,14 +216,17 @@ Eigen::VectorXd makeLaplacian(boundary::inputs::SolverInputBase* input,
 void checkInput(boundary::inputs::GeometryInputBase* input){
   // Check domain is square
   if ((input->XMax() - input->XMin()) != (input->YMax() - input->YMin())){
-    throw "Domain must be square.";
+    throw "Input Error: Domain must be square.";
+  }
+  if (input->MaxSolverDepth() > input->MaxDepth()){
+    throw "Input Error: MaxSolverDepth can't be greater than MaxDepth.";
   }
 }
 
 int main(){
   // Read in input
   boundary::inputs::CircleTestGeometry geometry_input;
-  
+
   try {
     checkInput(&geometry_input);
   }
