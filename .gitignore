@@ -13,3 +13,11 @@ bin/*
 
 # Ignore pycache
 .pyc
+__pycache__/
+
+# Ignore .vscode
+.vscode/
+
+# Ignore compiled doxygen
+docs/html/
+docs/latex/
