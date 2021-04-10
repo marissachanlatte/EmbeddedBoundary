@@ -489,9 +489,9 @@ void Boundary::CalculateMoments_(double key, double cell_size){
 };
 
 
-std::vector<double> Boundary::IDtoCenter(double id){
-  return id_to_center_[id];
-};
+// std::vector<double> Boundary::IDToCenter(double id){
+//   return id_to_center_[id];
+// };
 
 
 int Boundary::IJToGlobal(int i_index, int j_index, int depth){
