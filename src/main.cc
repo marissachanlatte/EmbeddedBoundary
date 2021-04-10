@@ -88,14 +88,14 @@ void writeSolution(Eigen::VectorXd solution, boundary::geometry::Boundary bounda
 /// Function Phi for Testing
 double phi(std::vector<double> point){
   return 1.0/16*std::pow((std::pow(point[0], 2) + std::pow(point[1], 2)), 2);
-  //return point[1];
 }
 
 /// BC for Phi for Testing
 double neumannCondition(std::vector<double> point){
-  return 1.0/4;
-  //double theta = std::atan2(point[0], point[1]);
-  //return std::sin(theta);
+  double r = std::sqrt(std::pow(point[0], 2) + std::pow(point[1], 2));
+  std::cout << "bd condition " << 1.0/4*std::pow(r, 3) << std::endl;
+  return 1.0/4*std::pow(r, 3);
+  // return 1.0/4;
 }
 
 
@@ -184,7 +184,14 @@ void operatorTesting(boundary::geometry::Boundary geometry){
         }
         // Boundary Flux
         boundary_length = geometry_info[key].boundary_moments[0][0];
-        laplacian += neumannCondition(cell_center)*boundary_length;
+        // Neumann Condition should be applied at midpoint of front, not cell center
+        // std::cout << "Cell Center " << cell_center[0] << " " << cell_center[1] << std::endl;
+        // std::cout << "First Boundary Moment 1, 0 " << geometry_info[key].boundary_moments[1][0] << std::endl;
+        // std::cout << "First Boundary Moment 1, 1 " << geometry_info[key].boundary_moments[1][1] << std::endl;
+        // std::cout << "First Boundary Moment 0, 1 " << geometry_info[key].boundary_moments[0 ][1] << std::endl;
+        std::vector<double> boundary_midpoint{cell_center[0] + geometry_info[key].boundary_moments[1][0]*boundary_length,
+                                              cell_center[1] + geometry_info[key].boundary_moments[0][1]*boundary_length};
+        laplacian += neumannCondition(boundary_midpoint)*boundary_length;
         
         // Scale by volume moment
         laplacian *= 1/volume_moment;
@@ -205,10 +212,25 @@ Eigen::VectorXd makeLaplacian(boundary::inputs::SolverInputBase* input,
   return solution;
 }
 
+/// Checks input for suitability
+void checkInput(boundary::inputs::GeometryInputBase* input){
+  // Check domain is square
+  if ((input->XMax() - input->XMin()) != (input->YMax() - input->YMin())){
+    throw "Domain must be square.";
+  }
+}
 
 int main(){
   // Read in input
-  boundary::inputs::EllipseGeometry geometry_input;
+  boundary::inputs::CircleTestGeometry geometry_input;
+  
+  try {
+    checkInput(&geometry_input);
+  }
+  catch (const char* msg){
+    std::cerr << msg << std::endl;
+  }
+
   // Make geometry
   boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&geometry_input);
   operatorTesting(boundary);
