@@ -93,7 +93,6 @@ double phi(std::vector<double> point){
 /// BC for Phi for Testing
 double neumannCondition(std::vector<double> point){
   double r = std::sqrt(std::pow(point[0], 2) + std::pow(point[1], 2));
-  std::cout << "bd condition " << 1.0/4*std::pow(r, 3) << std::endl;
   return 1.0/4*std::pow(r, 3);
   // return 1.0/4;
 }
@@ -113,7 +112,7 @@ void operatorTesting(boundary::geometry::Boundary geometry){
   std::ofstream laplace_out;
   laplace_out.open ("../outputs/laplace_out.txt");
   // Headers
-  laplace_out << "Covered ID,Cell Size,CenterX,CenterY,Boundary Length,Volume Fraction,Laplacian" << std::endl;
+  laplace_out << "Covered ID,Cell Size,CenterX,CenterY,Boundary Length,Boundary NormalX, Boundary NormalY,Volume Fraction,FirstX,FirstY,Laplacian" << std::endl;
   // Iterate through all cells
   for (int i = 0; i < num_x_; i++){ // y-index
     for (int j = 0; j < num_x_; j++){ // x-index
@@ -129,6 +128,10 @@ void operatorTesting(boundary::geometry::Boundary geometry){
       double boundary_length = 0;
       double volume_fraction = 0;
       double laplacian = 0;
+      double first_x = 0;
+      double first_y = 0;
+      double boundary_normal_x = 0;
+      double boundary_normal_y = 0;
       
       // Exterior stays 0
       // Interior
@@ -149,13 +152,20 @@ void operatorTesting(boundary::geometry::Boundary geometry){
         double volume_moment = geometry_info[key].volume_moments[0][0];
         // Set Volume Fraction
         volume_fraction = volume_moment/std::pow(cell_size, 2);
-
+        // Set Boundary Length
+        boundary_length = geometry_info[key].boundary_moments[0][0];
         // Calculate Laplacian
         // edge lengths
         std::array<double, 4> edge_lengths = geometry_info[key].vol_frac_1d;
         // normals
         std::vector<std::vector<std::vector<double>>> normal_derivatives = geometry_info[key].normal_derivatives;
         std::vector<double> normal = normal_derivatives[0][0];
+        boundary_normal_x = normal[0];
+        boundary_normal_y = normal[1];
+        // first boundary moments
+        first_x = geometry_info[key].boundary_moments[1][0];
+        first_y = geometry_info[key].boundary_moments[0][1];
+        std::vector<double> boundary_midpoint{first_x/boundary_length, first_y/boundary_length};
         // iterate through cell edges (left, up, right, down)
         for (int edge = 0; edge < 4; edge++){
           // find index of neighbor
@@ -183,14 +193,7 @@ void operatorTesting(boundary::geometry::Boundary geometry){
           }
         }
         // Boundary Flux
-        boundary_length = geometry_info[key].boundary_moments[0][0];
         // Neumann Condition should be applied at midpoint of front, not cell center
-        // std::cout << "Cell Center " << cell_center[0] << " " << cell_center[1] << std::endl;
-        // std::cout << "First Boundary Moment 1, 0 " << geometry_info[key].boundary_moments[1][0] << std::endl;
-        // std::cout << "First Boundary Moment 1, 1 " << geometry_info[key].boundary_moments[1][1] << std::endl;
-        // std::cout << "First Boundary Moment 0, 1 " << geometry_info[key].boundary_moments[0 ][1] << std::endl;
-        std::vector<double> boundary_midpoint{cell_center[0] + geometry_info[key].boundary_moments[1][0]*boundary_length,
-                                              cell_center[1] + geometry_info[key].boundary_moments[0][1]*boundary_length};
         laplacian += neumannCondition(boundary_midpoint)*boundary_length;
         
         // Scale by volume moment
@@ -198,7 +201,7 @@ void operatorTesting(boundary::geometry::Boundary geometry){
       }
 
       // Write to CSV
-      laplace_out << covered_id << "," << cell_size << "," << cell_center[0] << "," << cell_center[1] << "," << boundary_length << "," << volume_fraction << "," << laplacian << std::endl;
+      laplace_out << covered_id << "," << cell_size << "," << cell_center[0] << "," << cell_center[1] << "," << boundary_length << "," << boundary_normal_x << "," << boundary_normal_y << "," << volume_fraction << "," << first_x << "," << first_y << "," << laplacian << std::endl;
     }
   }
   laplace_out.close();
@@ -225,7 +228,7 @@ void checkInput(boundary::inputs::GeometryInputBase* input){
 
 int main(){
   // Read in input
-  boundary::inputs::CircleTestGeometry geometry_input;
+  boundary::inputs::EllipseGeometry geometry_input;
 
   try {
     checkInput(&geometry_input);
