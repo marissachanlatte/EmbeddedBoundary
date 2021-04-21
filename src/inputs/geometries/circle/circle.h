@@ -11,7 +11,6 @@ namespace boundary {
 
 namespace inputs {
 
-
 /// An input file representing the Circle 0 = x^2 + y^2 - 1
 class CircleGeometry : public GeometryInputBase{
   public:
