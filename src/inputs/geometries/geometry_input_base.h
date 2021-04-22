@@ -15,6 +15,12 @@ namespace inputs {
 All input files are based on this class which
 contains all relevant input geometry information.
 */
+
+#ifndef DEPTH
+#define DEPTH 3
+#endif // Depth Macro
+const int depth = DEPTH; 
+
 class GeometryInputBase {
 public:
   virtual ~GeometryInputBase() = default;
