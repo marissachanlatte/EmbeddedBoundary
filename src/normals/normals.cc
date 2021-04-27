@@ -23,7 +23,7 @@ std::array<double, 2> Normal::ComputeNormal(helpers::Point a_point,
   double normalization = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
   std::array<double, 2> gradient;
   if (normalization == 0){gradient = {0, 0};}
-  else { gradient = {dx/normalization, dy/normalization};}
+  else {gradient = {dx/normalization, dy/normalization};}
   return gradient;
 }
 
