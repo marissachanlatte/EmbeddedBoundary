@@ -86,12 +86,12 @@ double EllipseFlipGeometry::YMax(){
 
 
 int EllipseFlipGeometry::MaxDepth() {
-  return 3;
+  return depth;
 };
 
 
 int EllipseFlipGeometry::MaxSolverDepth() {
-  return 3;
+  return depth;
 };
 
 
