@@ -3,6 +3,7 @@
 #include "inputs/geometries/ellipse/ellipse.h"
 #include "inputs/geometries/ellipse/ellipse_flip.h"
 #include "inputs/geometries/circle/circle_test.h"
+#include "inputs/geometries/circle/circle_shift.h"
 #include "inputs/geometries/square/square.h"
 #include "inputs/equations/laplace_neumann.h"
 #include "inputs/equations/cos_sin_neumann.h"
@@ -91,10 +92,9 @@ double phi(std::vector<double> point){
 }
 
 /// BC for Phi for Testing
-double neumannCondition(std::vector<double> point){
+double neumannCondition(std::vector<double> point, std::vector<double> normal){
   double r = std::sqrt(std::pow(point[0], 2) + std::pow(point[1], 2));
-  return 1.0/4*std::pow(r, 3);
-  // return 1.0/4;
+  return (normal[0]*point[0] + normal[1]*point[1])*1.0/4*std::pow(r, 2);
 }
 
 
@@ -194,7 +194,7 @@ void operatorTesting(boundary::geometry::Boundary geometry){
         }
         // Boundary Flux
         // Neumann Condition should be applied at midpoint of front, not cell center
-        laplacian += neumannCondition(boundary_midpoint)*boundary_length;
+        laplacian += neumannCondition(boundary_midpoint, normal)*boundary_length;
         
         // Scale by volume moment
         laplacian *= 1/volume_moment;
@@ -228,7 +228,7 @@ void checkInput(boundary::inputs::GeometryInputBase* input){
 
 int main(){
   // Read in input
-  boundary::inputs::EllipseGeometry geometry_input;
+  boundary::inputs::EllipseFlipGeometry geometry_input;
 
   try {
     checkInput(&geometry_input);
@@ -240,14 +240,6 @@ int main(){
   // Make geometry
   boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&geometry_input);
   operatorTesting(boundary);
-  // std::map<int, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
-  // std::map<int, int> cell_map = boundary.CellMap();
-  // // Make laplacian
-  // boundary::inputs::LaplaceNeumann solver_input;
-  // Eigen::VectorXd solution = makeLaplacian(&solver_input, boundary);
-  // // Write to file
-  // writeSolution(solution, boundary);
-  // // writeGeometry(cell_map, boundary_cells, boundary);
   return 0;
 }
 
