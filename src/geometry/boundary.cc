@@ -192,7 +192,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
           }
           else { // change from corner to corner, indicating boundary cuts through
             // check if edge is horizontal or vertical
-            if ((corners[corner][0] - corners[(corner+1)%4][0]) == 0){ // horizontal
+            if ((corners[corner][0] - corners[(corner+1)%4][0]) == 0){ // vertical
               // find the intersection of x=corners[i, 0]
               std::vector<double> y_values = input_->BoundaryFunction(corners[corner][0]);
               double y = 0;
@@ -204,7 +204,6 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
                 // Robustness TODO: fix this in the case that both values are in cell
                 y = WhichValue(y_values, corners[corner][1], corners[(corner+1)%4][1]);
               }
-
               double edge_inside = abs(y - corners[corner][1]);
               if (inside[corner]){
                 cell.vol_frac_1d[corner] = edge_inside;
@@ -213,7 +212,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
                 cell.vol_frac_1d[corner] = cell_size - edge_inside;
               }
             }
-            else { // vertical
+            else { // horizontal
               // find intersection of y=corners[i, 1]
               std::vector<double> x_values = input_->BoundaryInverse(corners[corner][1]);
               double x = 0;
@@ -235,7 +234,6 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
             }
           }
         }
-        
         cell.cell_center = center;
         cell.cell_size = cell_size;
         // add cell to map
@@ -401,6 +399,7 @@ double Boundary::CalcD_(double bd_length,
   else {
     d_pm = 0;
   }
+  
   return d_pm;
 };
 
@@ -470,14 +469,13 @@ void Boundary::CalculateMoments_(double key, double cell_size){
         }
         // M_B Unknowns (stored based on value of q[0
         lhs(it, q_mag + q[0]) = -boundary_cells_[key].normal_derivatives[0][0][d];
-        rho(it) = d_plus - d_minus + s_sum;
-         
+        rho(it) = d_plus - d_minus + s_sum;       
       }
     }
 
+
     // Solve
     Eigen::VectorXf v_and_b = lhs.colPivHouseholderQr().solve(rho);
-
     // Unpack V and B
     for (int i = 0; i < q_mag; i++){
       boundary_cells_[key].volume_moments[i][q_mag - 1 - i] = v_and_b(i);
@@ -487,11 +485,6 @@ void Boundary::CalculateMoments_(double key, double cell_size){
     }
   }
 };
-
-
-// std::vector<double> Boundary::IDToCenter(double id){
-//   return id_to_center_[id];
-// };
 
 
 int Boundary::IJToGlobal(int i_index, int j_index, int depth){
