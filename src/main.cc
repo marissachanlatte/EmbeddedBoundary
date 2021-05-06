@@ -141,12 +141,12 @@ void operatorTesting(boundary::geometry::Boundary geometry){
         std::vector<double> left_center = geometry.IJToCenter(i - 1, j, depth_);
         std::vector<double> up_center = geometry.IJToCenter(i, j + 1, depth_);
         std::vector<double> down_center = geometry.IJToCenter(i, j - 1, depth_);
-        laplacian += 1/std::pow(cell_size, 2)*(-4*phi(cell_center)
+        laplacian = 1/std::pow(cell_size, 2)*(-4*phi(cell_center)
                                                + phi(right_center)
                                                + phi(left_center)
                                                + phi(up_center)
                                                + phi(down_center));
-        }
+         }
       // Boundary
       else if (covered_id == 2){
         double volume_moment = geometry_info[key].volume_moments[0][0];
@@ -229,7 +229,7 @@ void checkInput(boundary::inputs::GeometryInputBase* input){
 
 int main(){
   // Read in input
-  boundary::inputs::CircleShiftGeometry geometry_input;
+  boundary::inputs::EllipseFlipGeometry geometry_input;
 
   try {
     checkInput(&geometry_input);
