@@ -165,7 +165,8 @@ void operatorTesting(boundary::geometry::Boundary geometry){
         // first boundary moments
         first_x = geometry_info[key].boundary_moments[1][0];
         first_y = geometry_info[key].boundary_moments[0][1];
-        std::vector<double> boundary_midpoint{first_x/boundary_length, first_y/boundary_length};
+        std::vector<double> boundary_midpoint{first_x/boundary_length + cell_center[0], 
+                                              first_y/boundary_length + cell_center[1]};
         // iterate through cell edges (left, up, right, down)
         for (int edge = 0; edge < 4; edge++){
           // find index of neighbor
@@ -228,7 +229,7 @@ void checkInput(boundary::inputs::GeometryInputBase* input){
 
 int main(){
   // Read in input
-  boundary::inputs::EllipseFlipGeometry geometry_input;
+  boundary::inputs::CircleShiftGeometry geometry_input;
 
   try {
     checkInput(&geometry_input);
