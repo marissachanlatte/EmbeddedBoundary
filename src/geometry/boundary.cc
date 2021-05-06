@@ -348,9 +348,11 @@ std::map<double, geo_info> Boundary::BoundaryCells(){
 
 
 double Boundary::DIntegral_(double beginning, double end, std::array<int, 2> q,
-                            int index, double fixed_value){
+                            int index, double fixed_value, std::vector<double> cell_center){
   double next_plus = q[(index + 1) % 2] + 1;
-  return std::pow(fixed_value, q[index])*(1/(next_plus))*(std::pow(end, next_plus) - std::pow(beginning, next_plus));
+  return std::pow(fixed_value - cell_center[index], q[index]) // fixed integral
+        *(1/(next_plus))*(std::pow(end - cell_center[(index+1)%2], next_plus) 
+                        - std::pow(beginning - cell_center[(index+1)%2], next_plus));
 };
 
 
@@ -366,7 +368,7 @@ double Boundary::CalcD_(double bd_length,
   if (bd_length == cell_size){
     d_pm = DIntegral_(cell_center[d_op] - cell_size/2,
                             cell_center[d_op] + cell_size/2,
-                            q, d, fixed_value);
+                            q, d, fixed_value, cell_center);
   }
   else if (bd_length > 0){
     // TODO: fix this to be more general
@@ -390,10 +392,10 @@ double Boundary::CalcD_(double bd_length,
                                 cell_center[d_op] + cell_size/2);
     }
     if (input_->Inside(corner)){
-      d_pm = DIntegral_(intersection, corner[d_op], q, d, fixed_value);
+      d_pm = DIntegral_(intersection, corner[d_op], q, d, fixed_value, cell_center);
     }
     else {
-      d_pm = DIntegral_(corner[d_op] - cell_size, intersection, q, d, fixed_value);
+      d_pm = DIntegral_(corner[d_op] - cell_size, intersection, q, d, fixed_value, cell_center);
     }
   }
   else {

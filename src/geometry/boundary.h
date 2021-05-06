@@ -82,7 +82,8 @@ This class stores a map of all boundary cells with necessary geometry informatio
                         double end,
                         std::array<int, 2> q,
                         int index,
-                        double fixed_value);
+                        double fixed_value,
+                        std::vector<double> cell_center);
       double CalcD_(double bd_length,
                     double fixed_value,
                     std::vector<double> cell_center,
