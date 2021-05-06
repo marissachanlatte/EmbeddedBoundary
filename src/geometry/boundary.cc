@@ -540,6 +540,7 @@ int Boundary::Parity_(int side_index){
 
 
 std::array<std::array<int, 2>, 2> Boundary::InterpolationPair(int i, int j, double nx, double ny, int side_index){
+  // Remember i->y and j->x
   // want to move along projected direction of negative normal.
   std::array<int, 2> steps = ProjectedNormal_(side_index, -nx, -ny);
   

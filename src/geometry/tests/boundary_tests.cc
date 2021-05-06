@@ -1,6 +1,7 @@
 #include "geometry/boundary.h"
 #include "inputs/geometries/line/line.h"
 #include "inputs/geometries/circle/circle_test.h"
+#include "inputs/geometries/circle/circle_shift.h"
 #include "inputs/geometries/ellipse/ellipse.h"
 
 #include "gtest/gtest.h"
@@ -133,6 +134,11 @@ TEST(BoundaryTests, VolumeMoments){
   Boundary ellipse_boundary = Boundary(&ellipse_input);
   std::map<double, geo_info> ellipse_boundary_cells = ellipse_boundary.BoundaryCells();
   EXPECT_NEAR(ellipse_boundary_cells[1].volume_moments[0][0], std::sqrt(1.0/2)*3.14, 5e-2);
+
+  // boundary::inputs::CircleShiftGeometry circle_shift_input;
+  // Boundary circle_shift_boundary = Boundary(&circle_shift_input);
+  // std::map<double, geo_info> circle_shift_boundary_cells = circle_shift_boundary.BoundaryCells();
+  // EXPECT_NEAR(circle_shift_boundary_cells[1].volume_moments[0][0], 3.14, 5e-2);
 }
 
 TEST(BoundaryTests, BoundaryMoments){
@@ -183,6 +189,20 @@ TEST(BoundaryTests, IJToGlobal){
   EXPECT_EQ(circle_boundary.IJToGlobal(2, 3, 3), 19);
 }
 
+
+TEST(BoundaryTests, IJToCenter){
+  boundary::inputs::CircleTestGeometry input;
+  Boundary circle_boundary = Boundary(&input);
+  std::vector<double> center1 = circle_boundary.IJToCenter(1, 2, 3);
+  EXPECT_EQ(center1[0], -0.375);
+  EXPECT_EQ(center1[1], -0.625);
+  std::vector<double> center2 = circle_boundary.IJToCenter(4, 5, 3);
+  EXPECT_EQ(center2[0], 0.375);
+  EXPECT_EQ(center2[1], 0.125);
+  std::vector<double> center3 = circle_boundary.IJToCenter(2, 1, 2);
+  EXPECT_EQ(center3[0], -0.25);
+  EXPECT_EQ(center3[1], 0.25);
+}
 
 TEST(BoundaryTests, InterpolationPair){
   boundary::inputs::CircleTestGeometry input;
