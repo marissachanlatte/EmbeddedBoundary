@@ -12,7 +12,7 @@ namespace boundary {
 
 namespace solvers {
 
-/// A Class Computing the Laplacian
+/// A Class Solving Laplace's Equation
 
   class Laplacian{
     public:
