@@ -24,6 +24,8 @@ namespace solvers {
       ~Laplacian() = default;
       /// Solves linear system
       Eigen::VectorXd solve();
+      Eigen::VectorXd makeLaplacian(boundary::inputs::SolverInputBase* input, 
+                                    boundary::geometry::Boundary boundary);
       
     
     private:

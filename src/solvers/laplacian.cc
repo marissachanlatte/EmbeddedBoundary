@@ -120,6 +120,15 @@ Eigen::VectorXd Laplacian::solve(){
   return solution;
 };
 
+
+Eigen::VectorXd Laplacian::makeLaplacian(boundary::inputs::SolverInputBase* input, 
+                              boundary::geometry::Boundary boundary){
+  Laplacian laplacian = Laplacian(input, boundary);
+  Eigen::VectorXd solution = laplacian.solve();
+  return solution;
+};
+
+
 } // namespace solvers
 
 } // namespace boundary
