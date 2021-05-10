@@ -105,6 +105,19 @@ double MortonKey(std::vector<double> coords, int depth, std::vector<double> maxe
   return key;
 }
 
+/** 
+A function to take the Moore-Penrose Pseudo-Inverse as recommended by Eigen developers
+Adapated from https://gist.github.com/pshriwise/67c2ae78e5db3831da38390a8b2a209f
+*/
+Eigen::MatrixXf PseudoInverse(const Eigen::MatrixXf &a){
+  double epsilon = std::numeric_limits<double>::epsilon();
+	Eigen::JacobiSVD<Eigen::MatrixXf> svd(a ,Eigen::ComputeFullU | Eigen::ComputeFullV);
+  // For a non-square matrix
+  // Eigen::JacobiSVD< _Matrix_Type_ > svd(a ,Eigen::ComputeThinU | Eigen::ComputeThinV);
+	double tolerance = epsilon * std::max(a.cols(), a.rows()) *svd.singularValues().array().abs()(0);
+	return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
 }
 
-}
+} // helpers
+
+} // boundary

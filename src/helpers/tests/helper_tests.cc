@@ -93,6 +93,19 @@ TEST(HelperTest, MortonKey){
   EXPECT_EQ(key3, 1100001);
 }
 
+TEST(HelperTest, PseudoInverse){
+  Eigen::Matrix3f m;
+  m << 0.35881576, 0.24369805, 0.11186812,
+       0.16504056, 0.194529,   0.14723024,
+       0.38576903, 0.28590848, 0.68305778;
+  Eigen::Matrix3f test_inverse;
+  test_inverse << 5.73623901, -8.49728908,  0.89209962,
+                 -3.53445779, 12.76002046, -2.17151127,
+                 -1.76021991, -0.54198504,  1.86910846;
+  Eigen::Matrix3f inverse = PseudoInverse(m);
+  EXPECT_TRUE(inverse.isApprox(test_inverse));
+}
+
 }
 
 }

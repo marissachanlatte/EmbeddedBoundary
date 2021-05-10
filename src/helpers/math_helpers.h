@@ -2,6 +2,7 @@
 #define MATH_HELPERS_H
 
 #include <vector>
+#include <Eigen/Dense>
 
 namespace boundary{
 
@@ -44,6 +45,16 @@ A function to generate keys from Z Morton Order
 double MortonKey(std::vector<double> coords, int depth, std::vector<double> maxes,
                      std::vector<double> mins);
 
-}
-}
+
+/** 
+A function to take the Moore-Penrose Pseudo-Inverse as recommended by Eigen developers
+Adapated from https://gist.github.com/pshriwise/67c2ae78e5db3831da38390a8b2a209f
+*/
+Eigen::MatrixXf PseudoInverse(const Eigen::MatrixXf &a);
+
+
+} // namespace helpers
+
+} // namespace boundary
+
 #endif // MATH_HELPERS_H
