@@ -1,30 +1,31 @@
 #include "solvers/laplacian.h"
+#include "solvers/laplace_operator_ho.h"
 #include "inputs/geometries/circle/circle_test.h"
+#include "helpers/math_helpers.h"
 #include "geometry/boundary.h"
 
 #include "gtest/gtest.h"
 #include <iostream>
 
-// TEST(LaplaceTest, Symmetry){
-//   // Read in input
-//   boundary::inputs::CircleTestGeometry input;
-//   // Make geometry
-//   boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&input);
-//   std::map<int, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
-//   std::map<int, int> cell_map = boundary.CellMap();
-//   double cell_size = boundary.InitialCellSize();
-//   // Make laplacian
-//   boundary::solvers::Laplacian laplacian = boundary::solvers::Laplacian(&input, boundary);
-//   Eigen::VectorXd solution = laplacian.solve();
-//   // Check symmetry
-//   int n = std::sqrt(solution.size());
-//   int depth = input.MaxSolverDepth();
-//   for (int i = 0; i < n; i ++){
-//     for (int j = 0; j < (i + 1); j++){
-//       EXPECT_NEAR(solution[boundary.IJToGlobal(i, j, depth)], solution[boundary.IJToGlobal(j, i, depth)], 1e-5);
-//       EXPECT_NEAR(solution[boundary.IJToGlobal(i, j, depth)], solution[boundary.IJToGlobal(i, n - j - 1, depth)], 1e-5);
-//       EXPECT_NEAR(solution[boundary.IJToGlobal(i, j, depth)], solution[boundary.IJToGlobal(n - i - 1, j, depth)], 1e-5);
-//     }
-//   }
-// }
+TEST(HOOperatorTest, Neighborhood){
+    // Input
+    boundary::inputs::CircleTestGeometry input;
+    // Make Geometry
+    boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&input);
+    boundary::solvers::LaplaceOperatorHO laplace_operator = boundary::solvers::LaplaceOperatorHO(boundary);
+    std::vector<double> center_coords{-0.625, -0.625};
+    std::vector<double> neighbor_list = laplace_operator.Neighborhood(center_coords, .25);
+    std::vector<double> first_neighbor{-0.375, -0.625};
+    double first_key = boundary::helpers::MortonKey(first_neighbor, 3, boundary.Maxes(), boundary.Mins());
+    EXPECT_TRUE(std::count(neighbor_list.begin(), neighbor_list.end(), first_key));
+    std::vector<double> second_neighbor{-0.625, 0.125};
+    double second_key = boundary::helpers::MortonKey(second_neighbor, 3, boundary.Maxes(), boundary.Mins());
+    EXPECT_TRUE(std::count(neighbor_list.begin(), neighbor_list.end(), second_key));
+    std::vector<double> third_neighbor{-0.875, -0.875};
+    double third_key = boundary::helpers::MortonKey(third_neighbor, 3, boundary.Maxes(), boundary.Mins());
+    EXPECT_FALSE(std::count(neighbor_list.begin(), neighbor_list.end(), third_key));
+
+
+}
+
 
