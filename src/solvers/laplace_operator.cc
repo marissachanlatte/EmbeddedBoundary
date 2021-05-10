@@ -17,7 +17,7 @@ LaplaceOperator::LaplaceOperator(boundary::geometry::Boundary geometry){
   // Get cell map
   std::map<double, int> cell_map = geometry.CellMap();
   // Get geometry information
-  std::map<double, boundary::geometry::geo_info> geometry_info = geometry.BoundaryCells();
+  std::map<double, geometry::geo_info> geometry_info = geometry.BoundaryCells();
   // Output file
   std::ofstream laplace_out;
   laplace_out.open ("../outputs/laplace_out.txt");
@@ -31,7 +31,7 @@ LaplaceOperator::LaplaceOperator(boundary::geometry::Boundary geometry){
                                       geometry.YMin() + i*cell_size + cell_size/2};
       
       // Boundary Flag
-      double key = boundary::helpers::MortonKey(cell_center, depth_, geometry.Maxes(), geometry.Mins());
+      double key = helpers::MortonKey(cell_center, depth_, geometry.Maxes(), geometry.Mins());
       int covered_id = cell_map[key];
 
       // Boundary Length & Volume Fraction & Laplacian

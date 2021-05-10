@@ -19,15 +19,15 @@ std::vector<double> EllipseFlipGeometry::BoundaryFunction(double x_value){
 double EllipseFlipGeometry::BoundaryDerivatives(helpers::Point a_point,
                                          std::vector<int> degree){
   if (degree[0] == 0 && degree[1] == 0){
-    return 2*std::pow(a_point.value(0), 2) + std::pow(a_point.value(1), 2) - 1;
+    return 2*std::pow(a_point.val(0), 2) + std::pow(a_point.val(1), 2) - 1;
   }
 
   else if (degree[0] == 0 && degree[1] == 1){ 
-    return 2*a_point.value(1);
+    return 2*a_point.val(1);
   }
 
   else if (degree[0] == 1 && degree[1] == 0){
-    return 4*a_point.value(0);
+    return 4*a_point.val(0);
   }
 
   else if (degree[0] == 0 && degree[1] == 2){
@@ -52,11 +52,11 @@ std::vector<double> EllipseFlipGeometry::BoundaryInverse(double y_value){
 };
 
 
-int EllipseFlipGeometry::Inside(std::array<double, 2> point){
-  if ((2*std::pow(point[0], 2) + std::pow(point[1], 2)) > 1){
+int EllipseFlipGeometry::Inside(helpers::Point a_point){
+  if ((2*std::pow(a_point.val(0), 2) + std::pow(a_point.val(1), 2)) > 1){
     return 0;
   }
-  else if ((2*std::pow(point[0], 2) + std::pow(point[1], 2)) < 1){
+  else if ((2*std::pow(a_point.val(0), 2) + std::pow(a_point.val(1), 2)) < 1){
     return 1;
   }
   else {

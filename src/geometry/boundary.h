@@ -37,16 +37,15 @@ This class stores a map of all boundary cells with necessary geometry informatio
 */
   class Boundary{
     public:
+      /// Default Constructor
+      Boundary();
       /// Constructor
       /**
       Iterates through all cells in geometry and adds boundary cells to map
       */
       Boundary(boundary::inputs::GeometryInputBase* input);
       /// Determines if a cell is a boundary cell
-      static bool IsBoundaryCell(std::array<double, 2> lower_left,
-                                 std::array<double, 2> lower_right,
-                                 std::array<double, 2> upper_right,
-                                 std::array<double, 2> upper_left,
+      static bool IsBoundaryCell(std::vector<int> inside,
                                  boundary::inputs::GeometryInputBase* input);
       /// Returns Boundary Cell Map
       std::map<double, geo_info> BoundaryCells();

@@ -14,28 +14,37 @@ namespace geometry {
 
 TEST(BoundaryTests, IsBoundaryCell){
   boundary::inputs::LineGeometry input;
-  std::array<double, 2> lower_left = {-1, -1};
-  std::array<double, 2> lower_right = {-.75, -1};
-  std::array<double, 2> upper_right = {-.75, -.75};
-  std::array<double, 2> upper_left = {-1, -.75};
-  bool is_boundary = Boundary::IsBoundaryCell(lower_left, lower_right,
-                                    upper_right, upper_left, &input);
+  std::vector<double> lower_left{-1, -1};
+  std::vector<double> lower_right{-.75, -1};
+  std::vector<double> upper_right{-.75, -.75};
+  std::vector<double> upper_left{-1, -.75};
+  std::vector<int> inside1{input.Inside(helpers::Point(lower_left)),
+                           input.Inside(helpers::Point(lower_right)),
+                           input.Inside(helpers::Point(upper_right)),
+                           input.Inside(helpers::Point(upper_left))};
+  bool is_boundary = Boundary::IsBoundaryCell(inside1, &input);
   EXPECT_TRUE(is_boundary);
 
-  std::array<double, 2> lower_left2 = {-1, .75};
-  std::array<double, 2> lower_right2 = {-.75, .75};
-  std::array<double, 2> upper_right2 = {-.75, 1};
-  std::array<double, 2> upper_left2 = {-1, 1};
-  bool is_boundary2 = Boundary::IsBoundaryCell(lower_left2, lower_right2,
-                                    upper_right2, upper_left2, &input);
+  std::vector<double> lower_left2 = {-1, .75};
+  std::vector<double> lower_right2 = {-.75, .75};
+  std::vector<double> upper_right2 = {-.75, 1};
+  std::vector<double> upper_left2 = {-1, 1};
+  std::vector<int> inside2{input.Inside(helpers::Point(lower_left2)),
+                           input.Inside(helpers::Point(lower_right2)),
+                           input.Inside(helpers::Point(upper_right2)),
+                           input.Inside(helpers::Point(upper_left2))};
+  bool is_boundary2 = Boundary::IsBoundaryCell(inside2, &input);
   EXPECT_FALSE(is_boundary2);
 
-  std::array<double, 2> lower_left3 = {-.75, -1};
-  std::array<double, 2> lower_right3 = {-.5, -1};
-  std::array<double, 2> upper_right3 = {-.5, -.75};
-  std::array<double, 2> upper_left3 = {-.75, -.75};
-  bool is_boundary3 = Boundary::IsBoundaryCell(lower_left3, lower_right3,
-                                    upper_right3, upper_left3, &input);
+  std::vector<double> lower_left3 = {-.75, -1};
+  std::vector<double> lower_right3 = {-.5, -1};
+  std::vector<double> upper_right3 = {-.5, -.75};
+  std::vector<double> upper_left3 = {-.75, -.75};
+  std::vector<int> inside3{input.Inside(helpers::Point(lower_left3)),
+                           input.Inside(helpers::Point(lower_right3)),
+                           input.Inside(helpers::Point(upper_right3)),
+                           input.Inside(helpers::Point(upper_left3))};
+  bool is_boundary3 = Boundary::IsBoundaryCell(inside3, &input);
   EXPECT_FALSE(is_boundary3);
 }
 

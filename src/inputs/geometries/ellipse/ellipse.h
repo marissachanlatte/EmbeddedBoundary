@@ -19,7 +19,7 @@ class EllipseGeometry : public GeometryInputBase{
     std::vector<double> BoundaryFunction(double x_value) override;
     double BoundaryDerivatives(helpers::Point a_point, std::vector<int> degree) override;
     std::vector<double> BoundaryInverse(double y_value) override;
-    int Inside(std::array<double, 2> point) override;
+    int Inside(helpers::Point point) override;
     double XMin() override;
     double XMax() override;
     double YMin() override;

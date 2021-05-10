@@ -13,6 +13,8 @@ namespace boundary {
 
 namespace geometry {
 
+Boundary::Boundary(){};
+
 Boundary::Boundary(boundary::inputs::GeometryInputBase* input){
   input_ = input;
   // Set global variables
@@ -107,12 +109,14 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
     double x_next = x_curr + cell_size;
     while (x_next <= x_max){
       // corners of cell
-      std::array<std::array<double, 2>, 4> corners;
-      corners[0] = {x_curr, y_curr}; // lower left
-      corners[1] = {x_curr, y_next}; // upper left
-      corners[2] = {x_next, y_next}; // upper right
-      corners[3] = {x_next, y_curr}; // lower right
-
+      std::vector<double> ll{x_curr, y_curr};
+      std::vector<double> ul{x_curr, y_next};
+      std::vector<double> ur{x_next, y_next};
+      std::vector<double> lr{x_next, y_curr};
+      std::array<helpers::Point, 4> corners{helpers::Point(ll), 
+                                            helpers::Point(ul),
+                                            helpers::Point(ur),
+                                            helpers::Point(lr)};
       // cell center
       std::vector<double> center {x_curr + cell_size/2, y_curr + cell_size/2};
 
@@ -137,8 +141,7 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
       bool is_boundary = false;
       if (depth == max_depth_){
         // Check if four corners are inside or outside boundary
-        is_boundary = IsBoundaryCell(corners[0], corners[1],
-                                     corners[2], corners[3], input_);
+        is_boundary = IsBoundaryCell(inside, input_);
       }
 
       else {
@@ -192,19 +195,19 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
           }
           else { // change from corner to corner, indicating boundary cuts through
             // check if edge is horizontal or vertical
-            if ((corners[corner][0] - corners[(corner+1)%4][0]) == 0){ // vertical
+            if ((corners[corner].val(0) - corners[(corner+1)%4].val(0)) == 0){ // vertical
               // find the intersection of x=corners[i, 0]
-              std::vector<double> y_values = input_->BoundaryFunction(corners[corner][0]);
+              std::vector<double> y_values = input_->BoundaryFunction(corners[corner].val(0));
               double y = 0;
               if (y_values.size() == 1){
-                y = input_->BoundaryFunction(corners[corner][0])[0];
+                y = input_->BoundaryFunction(corners[corner].val(0))[0];
               }
               else if (y_values.size() == 2){
                 // choose the value that is in the cell
                 // Robustness TODO: fix this in the case that both values are in cell
-                y = WhichValue(y_values, corners[corner][1], corners[(corner+1)%4][1]);
+                y = WhichValue(y_values, corners[corner].val(1), corners[(corner+1)%4].val(1));
               }
-              double edge_inside = abs(y - corners[corner][1]);
+              double edge_inside = abs(y - corners[corner].val(1));
               if (inside[corner]){
                 cell.vol_frac_1d[corner] = edge_inside;
               }
@@ -214,17 +217,17 @@ void Boundary::SetupMesh_(double cell_size, double y_min, double y_max, double x
             }
             else { // horizontal
               // find intersection of y=corners[i, 1]
-              std::vector<double> x_values = input_->BoundaryInverse(corners[corner][1]);
+              std::vector<double> x_values = input_->BoundaryInverse(corners[corner].val(1));
               double x = 0;
               if (x_values.size() == 1){
-                x = input_->BoundaryFunction(corners[corner][0])[0];
+                x = input_->BoundaryFunction(corners[corner].val(0))[0];
               }
               else if (x_values.size() == 2){
                 // choose the value that is in the cell
                 // Robustness TODO: fix this in the case that both values are in cell
-                x = WhichValue(x_values, corners[corner][0], corners[(corner+1)%4][0]);
+                x = WhichValue(x_values, corners[corner].val(0), corners[(corner+1)%4].val(0));
               }
-              double edge_inside = abs(x - corners[corner][0]);
+              double edge_inside = abs(x - corners[corner].val(0));
               if (inside[corner]){
                 cell.vol_frac_1d[corner] = edge_inside;
               }
@@ -280,16 +283,8 @@ double Boundary::WhichValue(std::vector<double> values, double first_bound, doub
 };
 
 
-bool Boundary::IsBoundaryCell(std::array<double, 2> lower_left,
-                              std::array<double, 2> upper_left,
-                              std::array<double, 2> upper_right,
-                              std::array<double, 2> lower_right,
+bool Boundary::IsBoundaryCell(std::vector<int> inside,
                               boundary::inputs::GeometryInputBase* input){
-  // put into array with inside values
-  std::vector<int> inside{input->Inside(lower_left),
-                          input->Inside(upper_left),
-                          input->Inside(upper_right),
-                          input->Inside(lower_right)};
   // try changing all 2s to 0s and see if they are all the same
   int it_prev = inside[0];
       if (it_prev == 2){
@@ -372,8 +367,9 @@ double Boundary::CalcD_(double bd_length,
   }
   else if (bd_length > 0){
     // TODO: fix this to be more general
-    std::array<double, 2> corner = {cell_center[0] + cell_size/2*which_d[0],
+    std::vector<double> corner_coords{cell_center[0] + cell_size/2*which_d[0],
                                     cell_center[1] + cell_size/2*which_d[1]};
+    helpers::Point corner = helpers::Point(corner_coords);
     std::vector<double> int_values;
     if (d == 0){
       int_values = input_->BoundaryFunction(fixed_value);
@@ -392,10 +388,10 @@ double Boundary::CalcD_(double bd_length,
                                 cell_center[d_op] + cell_size/2);
     }
     if (input_->Inside(corner)){
-      d_pm = DIntegral_(intersection, corner[d_op], q, d, fixed_value, cell_center);
+      d_pm = DIntegral_(intersection, corner.val(d_op), q, d, fixed_value, cell_center);
     }
     else {
-      d_pm = DIntegral_(corner[d_op] - cell_size, intersection, q, d, fixed_value, cell_center);
+      d_pm = DIntegral_(corner.val(d_op) - cell_size, intersection, q, d, fixed_value, cell_center);
     }
   }
   else {

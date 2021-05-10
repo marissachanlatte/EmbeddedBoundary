@@ -20,7 +20,7 @@ Point::Point(std::vector<double> coords){
   _dim = coords.size();
 }
 
-double Point::value(int d) const {
+double Point::val(int d) const {
   return _coords[d];
 }
 
@@ -29,7 +29,7 @@ Point Point::operator + (const Point &a_point){
   std::vector<double> result;
   // Loop over dimension
   for (int d = 0; d < _dim; d++){
-    result.push_back(_coords[d] + a_point.value(d));
+    result.push_back(_coords[d] + a_point.val(d));
   }
   return Point(result);
 }

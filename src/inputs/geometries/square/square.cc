@@ -28,14 +28,14 @@ std::vector<double> SquareGeometry::BoundaryInverse(double y_value){
 };
 
 
-int SquareGeometry::Inside(std::array<double, 2> point){
-  if (point[0] < 1.0 && point[0] > -1.0 && point[1] < 1.0 && point[1] > -1.0){
+int SquareGeometry::Inside(helpers::Point a_point){
+  if (a_point.val(0) < 1.0 && a_point.val(0) > -1.0 && a_point.val(1) < 1.0 && a_point.val(1) > -1.0){
     return 1;
   }
-  else if ((point[0] == 1.0 && point[1] <= 1.0 && point[1] >= -1.0) ||
-           (point[1] == 1.0 && point[0] <= 1.0 && point[0] >= -1.0) || 
-           (point[1] == -1.0 && point[0] <= 1.0 && point[0] >= -1.0) || 
-           (point[0] == -1.0 && point[1] <= 1.0 && point[1] >= -1.0)){
+  else if ((a_point.val(0) == 1.0 && a_point.val(1) <= 1.0 && a_point.val(1) >= -1.0) ||
+           (a_point.val(1) == 1.0 && a_point.val(0) <= 1.0 && a_point.val(0) >= -1.0) || 
+           (a_point.val(1) == -1.0 && a_point.val(0) <= 1.0 && a_point.val(0) >= -1.0) || 
+           (a_point.val(0) == -1.0 && a_point.val(1) <= 1.0 && a_point.val(1) >= -1.0)){
     return 2;
   }
   else {

@@ -34,7 +34,7 @@ public:
   /// boundary.
   /* It returns 0 for exterior, 1 for interior, 2 for on boundary.
   */
-  virtual int Inside(std::array<double, 2> point) = 0;
+  virtual int Inside(helpers::Point a_point) = 0;
   /// Domain minimum in the x direction.
   virtual double XMin() = 0;
   /// Domain maximum in the x direction.

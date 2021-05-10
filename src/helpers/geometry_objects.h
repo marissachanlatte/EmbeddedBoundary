@@ -19,7 +19,7 @@ namespace helpers {
       ~Point() = default;
       Point operator + (const Point &a_point);
       /// Returns the d value of the point
-      double value(int d) const;
+      double val(int d) const;
     private:
       /// The dimension of the point
       int _dim;

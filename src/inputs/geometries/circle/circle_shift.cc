@@ -24,11 +24,11 @@ std::vector<double> CircleShiftGeometry::BoundaryFunction(double x_value){
 double CircleShiftGeometry::BoundaryDerivatives(helpers::Point a_point,
                                          std::vector<int> degree){
   if (degree[0] == 0 && degree[1] == 0){
-    return std::pow(a_point.value(0) + x_shift, 2) + std::pow(a_point.value(1) + y_shift, 2) - radius_sqd;
+    return std::pow(a_point.val(0) + x_shift, 2) + std::pow(a_point.val(1) + y_shift, 2) - radius_sqd;
   }
 
   else if (degree[0] + degree[1] == 1){
-    return 2*(degree[0]*(a_point.value(0) + x_shift) + degree[1]*(a_point.value(1) + y_shift));
+    return 2*(degree[0]*(a_point.val(0) + x_shift) + degree[1]*(a_point.val(1) + y_shift));
   }
 
   else if ((degree[0] == 2 && degree[1] == 0) || (degree[0] == 0 && degree[1] == 2)){
@@ -49,11 +49,11 @@ std::vector<double> CircleShiftGeometry::BoundaryInverse(double y_value){
 };
 
 
-int CircleShiftGeometry::Inside(std::array<double, 2> point){
-  if ((std::pow(point[0] + x_shift, 2) + std::pow(point[1] + y_shift, 2)) > radius_sqd){
+int CircleShiftGeometry::Inside(helpers::Point a_point){
+  if ((std::pow(a_point.val(0) + x_shift, 2) + std::pow(a_point.val(1) + y_shift, 2)) > radius_sqd){
     return 0;
   }
-  else if ((std::pow(point[0] + x_shift, 2) + std::pow(point[1] + y_shift, 2)) < radius_sqd){
+  else if ((std::pow(a_point.val(0) + x_shift, 2) + std::pow(a_point.val(1) + y_shift, 2)) < radius_sqd){
     return 1;
   }
   else {

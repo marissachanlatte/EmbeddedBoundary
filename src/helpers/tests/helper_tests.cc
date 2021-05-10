@@ -45,14 +45,14 @@ TEST(HelperTest, PointAddition){
   Point beta = Point(beta_coords);
   Point sum = alpha + beta;
 
-  EXPECT_EQ(11, sum.value(0));
-  EXPECT_EQ(11, sum.value(1));
+  EXPECT_EQ(11, sum.val(0));
+  EXPECT_EQ(11, sum.val(1));
 }
 
 
 TEST(HelperTest, InitializePoint){
   Point test = Point();
-  EXPECT_TRUE(std::isnan(test.value(0)));
+  EXPECT_TRUE(std::isnan(test.val(0)));
 }
 
 
