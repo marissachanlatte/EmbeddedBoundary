@@ -1,10 +1,17 @@
-#include "inputs/line/line.h"
-#include "inputs/circle/circle.h"
-#include "inputs/square/square.h"
+#include "inputs/geometries/line/line.h"
+#include "inputs/geometries/circle/circle.h"
+#include "inputs/geometries/ellipse/ellipse.h"
+#include "inputs/geometries/ellipse/ellipse_flip.h"
+#include "inputs/geometries/circle/circle_test.h"
+#include "inputs/geometries/circle/circle_shift.h"
+#include "inputs/geometries/square/square.h"
+#include "inputs/equations/laplace_neumann.h"
+#include "inputs/equations/cos_sin_neumann.h"
 #include "helpers/geometry_objects.h"
 #include "normals/normals.h"
 #include "geometry/boundary.h"
 #include "solvers/laplacian.h"
+#include "solvers/laplace_operator.h"
 #include "helpers/math_helpers.h"
 
 #include <stack>
@@ -14,7 +21,6 @@
 #include <fstream>
 #include <Eigen/Dense>
 
-// TODO: Rewrite for adaptive mesh
 void writeGeometry(std::map<int, int> cell_map, std::map<int, boundary::geometry::geo_info> boundary_cells,
                    boundary::geometry::Boundary boundary){
   // Points map
@@ -81,26 +87,31 @@ void writeSolution(Eigen::VectorXd solution, boundary::geometry::Boundary bounda
   output.close();
 }
 
-
-Eigen::VectorXd makeLaplacian(boundary::geometry::Boundary boundary){
-  boundary::solvers::Laplacian laplacian = boundary::solvers::Laplacian(boundary);
-  Eigen::VectorXd solution = laplacian.solve();
-  return solution;
+/// Checks input for suitability
+void checkInput(boundary::inputs::GeometryInputBase* input){
+  // Check domain is square
+  if ((input->XMax() - input->XMin()) != (input->YMax() - input->YMin())){
+    throw "Input Error: Domain must be square.";
+  }
+  if (input->MaxSolverDepth() > input->MaxDepth()){
+    throw "Input Error: MaxSolverDepth can't be greater than MaxDepth.";
+  }
 }
-
 
 int main(){
   // Read in input
-  boundary::inputs::CircleGeometry input;
+  boundary::inputs::EllipseFlipGeometry geometry_input;
+
+  try {
+    checkInput(&geometry_input);
+  }
+  catch (const char* msg){
+    std::cerr << msg << std::endl;
+  }
+
   // Make geometry
-  boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&input);
-  std::map<int, boundary::geometry::geo_info> boundary_cells = boundary.BoundaryCells();
-  std::map<int, int> cell_map = boundary.CellMap();
-  // Make laplacian
-  // Eigen::VectorXd solution = makeLaplacian(boundary);
-  // Write to file
-  // writeSolution(solution, boundary);
-  writeGeometry(cell_map, boundary_cells, boundary);
+  boundary::geometry::Boundary boundary = boundary::geometry::Boundary(&geometry_input);
+  boundary::solvers::LaplaceOperator laplace_operator = boundary::solvers::LaplaceOperator(boundary);
   return 0;
 }
 

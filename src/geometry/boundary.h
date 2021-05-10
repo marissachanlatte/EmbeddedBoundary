@@ -1,7 +1,7 @@
 #ifndef EMBEDDED_BOUNDARY_GEOMETRY_BOUNDARY_H
 #define EMBEDDED_BOUNDARY_GEOMETRY_BOUNDARY_H
 
-#include "inputs/input_base.h"
+#include "inputs/geometries/geometry_input_base.h"
 
 #include <array>
 #include <map>
@@ -41,25 +41,26 @@ This class stores a map of all boundary cells with necessary geometry informatio
       /**
       Iterates through all cells in geometry and adds boundary cells to map
       */
-      Boundary(boundary::inputs::InputBase* input);
+      Boundary(boundary::inputs::GeometryInputBase* input);
       /// Determines if a cell is a boundary cell
       static bool IsBoundaryCell(std::array<double, 2> lower_left,
                                  std::array<double, 2> lower_right,
                                  std::array<double, 2> upper_right,
                                  std::array<double, 2> upper_left,
-                                 boundary::inputs::InputBase* input);
-      std::map<int, geo_info> BoundaryCells();
+                                 boundary::inputs::GeometryInputBase* input);
+      /// Returns Boundary Cell Map
+      std::map<double, geo_info> BoundaryCells();
       /// Tells whether a cell is 0 - exterior, 1 - interior, or 2 - boundary
-      std::map<int, int> CellMap();
+      std::map<double, int> CellMap();
       static double WhichValue(std::vector<double> values,
                          double first_bound,
                          double second_bound);
-      /// Given a cell ID, returns cell center
-      std::vector<double> IDtoCenter(int id);
       /// Given an IJ index, returns global index for a certain depth
       int IJToGlobal(int x_index, int y_index, int depth);
       /// Given a cell and an edge, returns (i, j) index of neighboring cell
       std::array<int, 2> NeighborCell(int i_index, int j_index, int edge);
+      /// Given a cell and an edge, returns center of neighboring cell
+      std::vector<double> IJToCenter(int i_index, int j_index, int depth);
       /// Given a cell edge and normal returns what pair to interpolate with to find partial edge center
       std::array<std::array<int, 2>, 2> InterpolationPair(int i, int j, double nx, double ny, int side_index);
       int MaxSolverDepth();
@@ -74,14 +75,15 @@ This class stores a map of all boundary cells with necessary geometry informatio
     private:
 
       void SetupMesh_(double cell_size, double y_min, double y_max, double x_min, double x_max);
-      void CalculateMoments_(int key, double cell_size);
-      void RecursiveCalculateMoments_(int key, double cell_size);
+      void CalculateMoments_(double key, double cell_size);
+      void RecursiveCalculateMoments_(double key, double cell_size);
       void PropagateUp_();
       double DIntegral_(double beginning,
                         double end,
                         std::array<int, 2> q,
                         int index,
-                        double fixed_value);
+                        double fixed_value,
+                        std::vector<double> cell_center);
       double CalcD_(double bd_length,
                     double fixed_value,
                     std::vector<double> cell_center,
@@ -89,10 +91,10 @@ This class stores a map of all boundary cells with necessary geometry informatio
                     int d,
                     std::array<int, 2> which_d,
                     double cell_size);
-      std::map<int, geo_info> boundary_cells_;
-      std::map<int, int> cell_map_;
-      std::map<int, std::vector<double>> id_to_center_;
-      boundary::inputs::InputBase* input_;
+      std::map<double, geo_info> boundary_cells_;
+      std::map<double, int> cell_map_;
+      std::map<double, std::vector<double>> id_to_center_;
+      boundary::inputs::GeometryInputBase* input_;
       int Sgn_(double v);
       std::array<int, 2> ProjectedNormal_(int side_index, double nx, double ny);
       int Parity_(int side_index);

@@ -1,5 +1,5 @@
 #include "normals/normals.h"
-#include "inputs/input_base.h"
+#include "inputs/geometries/geometry_input_base.h"
 #include "helpers/math_helpers.h"
 
 #include <cmath>
@@ -13,7 +13,7 @@ namespace boundary {
 namespace normals {
 
 std::array<double, 2> Normal::ComputeNormal(helpers::Point a_point,
-                               boundary::inputs::InputBase* input){
+                               boundary::inputs::GeometryInputBase* input){
 
   std::vector<int> x_unit{1, 0};
   std::vector<int> y_unit{0, 1};
@@ -23,12 +23,12 @@ std::array<double, 2> Normal::ComputeNormal(helpers::Point a_point,
   double normalization = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
   std::array<double, 2> gradient;
   if (normalization == 0){gradient = {0, 0};}
-  else { gradient = {dx/normalization, dy/normalization};}
+  else {gradient = {dx/normalization, dy/normalization};}
   return gradient;
 }
 
 double Normal::NormalizedGradient(helpers::Point a_point,
-                          boundary::inputs::InputBase* input){
+                          boundary::inputs::GeometryInputBase* input){
 
   std::vector<int> x_unit{1, 0};
   std::vector<int> y_unit{0, 1};
@@ -40,7 +40,7 @@ double Normal::NormalizedGradient(helpers::Point a_point,
 
 double Normal::PartialNormalizedGradient(std::vector<int> p_order,
                                  helpers::Point a_point,
-                                 boundary::inputs::InputBase* input){
+                                 boundary::inputs::GeometryInputBase* input){
   double partial_l = 0;
   for (int dim = 1; dim < 3; dim++){ // hard coded for DIM == 2
     std::vector<int> unit {0, 0};
@@ -79,7 +79,7 @@ double Normal::PartialNormalizedGradient(std::vector<int> p_order,
 
 double Normal::NormalDerivative(std::vector<int> p_order, int dim,
                         helpers::Point a_point,
-                        boundary::inputs::InputBase* input){
+                        boundary::inputs::GeometryInputBase* input){
   if (p_order[0] == 0 && p_order[1] == 0){
     return Normal::ComputeNormal(a_point, input)[dim - 1];
   }

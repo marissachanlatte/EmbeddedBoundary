@@ -1,27 +1,32 @@
 #include "solvers/laplacian.h"
 #include "helpers/math_helpers.h"
 
+#define _USE_MATH_DEFINES
+ 
 #include <iostream>
+#include <cmath>
 
 namespace boundary {
 
 namespace solvers {
 
-Laplacian::Laplacian(boundary::geometry::Boundary geometry){
+/// WARNING: THIS FILE IS DEPRECATED. USE TESTING SCRIPT IN MAIN TO TEST LAPLACIAN
+
+Laplacian::Laplacian(boundary::inputs::SolverInputBase* input, boundary::geometry::Boundary geometry){
   depth_ = geometry.MaxSolverDepth();
   num_x_ = std::pow(2, depth_);
   matrix_.resize(std::pow(num_x_, 2), std::pow(num_x_, 2));
   rhs_ = Eigen::VectorXd::Zero(std::pow(num_x_, 2));
-  BuildMatrix(geometry);
+  BuildMatrix(input, geometry);
 };
 
 
-void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
+void Laplacian::BuildMatrix(boundary::inputs::SolverInputBase* input, boundary::geometry::Boundary geometry){
   double cell_size = geometry.InitialCellSize()/std::pow(2, depth_);
   // Get cell map
-  std::map<int, int> cell_map = geometry.CellMap();
+  std::map<double, int> cell_map = geometry.CellMap();
   // Get geometry information
-  std::map<int, geometry::geo_info> geometry_info = geometry.BoundaryCells();
+  std::map<double, geometry::geo_info> geometry_info = geometry.BoundaryCells();
   // Iterate through all cells
   for (int i = 0; i < num_x_; i++){ // y-index
     for (int j = 0; j < num_x_; j++){ // x-index
@@ -44,7 +49,6 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
         std::vector<double> normal = normal_derivatives[0][0];
         // iterate through cell edges (left, up, right, down)
         for (int edge = 0; edge < 4; edge++){
-          
           // find neighboring cell through this edge
           std::array<int, 2> neighbor_idx = geometry.NeighborCell(i, j, edge);
           // if full edge, then apply appropriate part of 5 pt stencil
@@ -53,12 +57,8 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
                              scaling_factor);
             SafeMatrixAssign(matrix_id, matrix_id, -scaling_factor);
           }
-          // no edge, no flux
-          else if (edge_lengths[edge] == 0){
-            SafeMatrixAssign(matrix_id, geometry.IJToGlobal(neighbor_idx[0], neighbor_idx[1], depth_), 
-                             scaling_factor);
-            SafeMatrixAssign(matrix_id, matrix_id, -scaling_factor);
-          }
+          // no edge, no flux -- ?
+          else if (edge_lengths[edge] == 0){}
           // partial edge, linearly interpolate 
           else {
             // get aperature
@@ -76,15 +76,14 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
           }
 
         }
-        // boundary flux - use Direchlet boundary conditions which gives a prescribed flux
-        // f(theta) = sin(theta)
-        // convert to polar coords 
-        // double theta = std::atan(cell_center[1]/cell_center[0]);
+        // Boundary Flux - Neumann Condition
+        double neumann_condition = input->NeumannCondition(cell_center[0], cell_center[1]);
+        rhs_[matrix_id] += -scaling_factor*neumann_condition;
 
-        // // Set RHS
-        // rhs_[matrix_id] = std::sin(theta);
-        rhs_[matrix_id] = 1;
+        // Assign Right Hand Side
+        rhs_[matrix_id] += input->RightHandSide(cell_center[0], cell_center[1]);
       }
+
       // If interior, five point stencil
       else if (covered_id == 1){
         SafeMatrixAssign(matrix_id, geometry.IJToGlobal(i + 1, j, depth_), -1/std::pow(cell_size, 2));
@@ -92,13 +91,13 @@ void Laplacian::BuildMatrix(boundary::geometry::Boundary geometry){
         SafeMatrixAssign(matrix_id, geometry.IJToGlobal(i, j + 1, depth_), -1/std::pow(cell_size, 2));
         SafeMatrixAssign(matrix_id, geometry.IJToGlobal(i, j - 1, depth_), -1/std::pow(cell_size, 2));
         SafeMatrixAssign(matrix_id, matrix_id, 4/std::pow(cell_size, 2));
-
-        // Set RHS
-        rhs_[matrix_id] = 1;
+        
+        // Assign Right Hand Side
+        rhs_[matrix_id] += input->RightHandSide(cell_center[0], cell_center[1]);
       }
       // If exterior set to 0
       else if (covered_id == 0){
-        SafeMatrixAssign(matrix_id, matrix_id, 1);
+        // SafeMatrixAssign(matrix_id, matrix_id, 1);
       }
     }
   }
@@ -120,6 +119,15 @@ Eigen::VectorXd Laplacian::solve(){
   solution = solver.solve(rhs_); 
   return solution;
 };
+
+
+Eigen::VectorXd Laplacian::makeLaplacian(boundary::inputs::SolverInputBase* input, 
+                              boundary::geometry::Boundary boundary){
+  Laplacian laplacian = Laplacian(input, boundary);
+  Eigen::VectorXd solution = laplacian.solve();
+  return solution;
+};
+
 
 } // namespace solvers
 
