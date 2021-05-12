@@ -14,6 +14,8 @@ LaplaceOperatorHO::LaplaceOperatorHO(boundary::geometry::Boundary geometry){
   geometry_ = geometry;
   cell_map_ = geometry.CellMap();
   geometry_info_ = geometry.BoundaryCells();
+  Q_ = geometry_.Q();
+  num_q_ = (Q_ + 1)*(Q_ + 2)/2;
 }
 
 void LaplaceOperatorHO::ComputeAndPrint(){
@@ -35,7 +37,10 @@ void LaplaceOperatorHO::ComputeAndPrint(){
                                       geometry_.YMin() + i*cell_size + cell_size/2};
       
       // Boundary Flag
-      double key = boundary::helpers::MortonKey(cell_center, depth_, geometry_.Maxes(), geometry_.Mins());
+      double key = boundary::helpers::MortonKey(cell_center, 
+                                                depth_, 
+                                                geometry_.Maxes(), 
+                                                geometry_.Mins());
       int covered_id = cell_map[key];
 
       // Boundary Length & Volume Fraction & Laplacian
@@ -51,35 +56,19 @@ void LaplaceOperatorHO::ComputeAndPrint(){
       // Interior & Boundary
       if (covered_id > 0){
         double volume_moment = geometry_info_[key].volume_moments[0][0];
-        // // Set Volume Fraction
-        // volume_fraction = volume_moment/std::pow(cell_size, 2);
-        // // Set Boundary Length
-        // boundary_length = geometry_info[key].boundary_moments[0][0];
-        // // Calculate Laplacian
-        // // edge lengths
-        // std::array<double, 4> edge_lengths = geometry_info[key].vol_frac_1d;
-        // // normals
-        // std::vector<std::vector<std::vector<double>>> normal_derivatives = geometry_info[key].normal_derivatives;
-        // std::vector<double> normal = normal_derivatives[0][0];
-        // boundary_normal_x = normal[0];
-        // boundary_normal_y = normal[1];
-        // // first boundary moments
-        // first_x = geometry_info[key].boundary_moments[1][0];
-        // first_y = geometry_info[key].boundary_moments[0][1];
-        // std::vector<double> boundary_midpoint{first_x/boundary_length + cell_center[0], 
-        //                                       first_y/boundary_length + cell_center[1]};
         // iterate through cell edges (left, up, right, down)
-        for (int edge = 0; edge < 4; edge++){
-          
+        // Find Neighbors
+        std::vector<double> neighbors = Neighborhood(cell_center, cell_size);
+        for (int edge = 0; edge < 4; edge++){         
           // Construct G
-          Eigen::MatrixXf G;
+          Eigen::RowVectorXf G = ComputeG(edge, key);
           // Construct W
-          Eigen::MatrixXf W;
+          Eigen::MatrixXf W = ComputeW(cell_center, cell_size, neighbors);
           // Construct M
           // M is the matrix of volume moments of the neighbors normalized
-          Eigen::MatrixXf M = ComputeM(cell_center, cell_size);
+          Eigen::MatrixXf M = ComputeM(cell_center, cell_size, neighbors);
           // Multiply together to get S (Eq. 23)
-          // Eigen::VectorXf S = G*helpers::PseudoInverse(W*M)*W;
+          Eigen::VectorXf S = G*helpers::PseudoInverse(W*M)*W;
           // TODO: Why is S a vector? how do we convert to a double for laplacian?
           // laplacian += S;
         }
@@ -108,20 +97,19 @@ double LaplaceOperatorHO::Phi(std::vector<double> point){
 
 
 /// BC for Phi for Testing
-double LaplaceOperatorHO::NeumannCondition(std::vector<double> point, std::vector<double> normal){
+double LaplaceOperatorHO::NeumannCondition(std::vector<double> point, 
+                                           std::vector<double> normal){
   double r = std::sqrt(std::pow(point[0], 2) + std::pow(point[1], 2));
   return (normal[0]*point[0] + normal[1]*point[1])*1.0/4*std::pow(r, 2);
 };
 
 /// Compute matrix M given cell center
-Eigen::MatrixXf LaplaceOperatorHO::ComputeM(std::vector<double> cell_center, double cell_size){
-  // Find Neighbors
-  std::vector<double> neighbors = Neighborhood(cell_center, cell_size);
+Eigen::MatrixXf LaplaceOperatorHO::ComputeM(std::vector<double> cell_center, 
+                                            double cell_size,
+                                            std::vector<double> neighbors){
   int num_neighbors = neighbors.size();
   // Initialize M
-  int Q = geometry_.Q();
-  int num_q = (Q + 1)*(Q + 2)/2;
-  Eigen::MatrixXf M(num_neighbors, num_q);
+  Eigen::MatrixXf M(num_neighbors, num_q_);
   // Get relevant moments
   for (int i = 0; i < num_neighbors; i++){
     // If boundary cell, get moments for cell i
@@ -132,9 +120,9 @@ Eigen::MatrixXf LaplaceOperatorHO::ComputeM(std::vector<double> cell_center, dou
     int j = 0;
     M(i, j) = 1;
     // Loop through in lexicographical order
-    for (int a = 0; a < (Q + 1); a++){
-      for (int b = 0; b < (Q + 1); b++){
-        if ((a + b) == 0 || (a + b) > Q){
+    for (int a = 0; a < (Q_ + 1); a++){
+      for (int b = 0; b < (Q_ + 1); b++){
+        if ((a + b) == 0 || (a + b) > Q_){
           continue;
         }
         j += 1;
@@ -151,15 +139,37 @@ Eigen::MatrixXf LaplaceOperatorHO::ComputeM(std::vector<double> cell_center, dou
   return M;
 }
 
+
+Eigen::MatrixXf LaplaceOperatorHO::ComputeW(std::vector<double> cell_center, 
+                                            double cell_size,
+                                            std::vector<double> neighbors){
+  int num_neighbors = neighbors.size();
+  Eigen::MatrixXf W(num_neighbors, num_neighbors);
+  // Fill in weights with distance between neighbors and cell center
+  for (int i = 0; i < num_neighbors; i++){
+    std::vector<double> neighbor_center = geometry_info_[neighbors[i]].cell_center;
+    int d = std::sqrt(std::pow(cell_center[0] - neighbor_center[1], 2) +
+                      std::pow(cell_center[1] - neighbor_center[1], 2));
+    W(i, i) = std::pow(d, -5);
+  }
+  return W;
+}
+
+
 /// Returns a list of Morton Keys for cells in neighborhood 
-std::vector<double> LaplaceOperatorHO::Neighborhood(std::vector<double> cell_center, double cell_size){
+std::vector<double> LaplaceOperatorHO::Neighborhood(std::vector<double> cell_center, 
+                                                    double cell_size){
   int radius = 3;
   std::vector<double> neighbor_list;
   // iterate through all cells in radius
   for (int i = -radius; i <= radius; i ++){ // y-direction
     for (int j = -radius; j <= radius; j++){ // x-direction
-      std::vector<double> neighbor_center{cell_center[0] + j*cell_size, cell_center[1] + i*cell_size};
-      double neighbor_key = helpers::MortonKey(neighbor_center, depth_, geometry_.Maxes(), geometry_.Mins());
+      std::vector<double> neighbor_center{cell_center[0] + j*cell_size, 
+                                          cell_center[1] + i*cell_size};
+      double neighbor_key = helpers::MortonKey(neighbor_center, 
+                                               depth_, 
+                                               geometry_.Maxes(), 
+                                               geometry_.Mins());
       // Check if neighbor cell is inside the domain and add
       if (cell_map_[neighbor_key] > 0){
         neighbor_list.push_back(neighbor_key);
@@ -168,6 +178,28 @@ std::vector<double> LaplaceOperatorHO::Neighborhood(std::vector<double> cell_cen
   }
   return neighbor_list;
 }
+
+
+Eigen::RowVectorXf LaplaceOperatorHO::ComputeG(int edge, double cell_id){
+  std::vector<std::vector<double>> moments = geometry_info_[cell_id].volume_moments;
+  std::array<int, 2> e{0, 0};
+  Eigen::RowVectorXf G(num_q_);
+  int d = ((edge == 0 || edge == 2) ? 1 : 0);
+  e[d] = 1;
+  int i = 0; // place in row
+  for (int a = 0; a < (Q_ + 1); a++){
+    for (int b = 0; b < (Q_ + 1); b++){
+      if ((a + b) > Q_){
+        continue;
+      }
+      std::vector<int> q{a, b};
+      std::vector<int> p{a - e[0], b - e[1]};
+      G(i) = q[d]*moments[p[0]][p[1]];
+      i++;
+    }
+  }
+}
+                                          
 
 } // namespace solvers
 
