@@ -118,6 +118,19 @@ Eigen::MatrixXf PseudoInverse(const Eigen::MatrixXf &a){
 	return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
 }
 
+
+/**
+A function to caculate the pth moment over a square volume analytically
+*/
+double PMoment(std::vector<int> p, double cell_size){
+  double moment = 1;
+  for (int i = 0; i < p.size(); i++){
+    moment *= 1/(p[i] + 1.0)*(std::pow(cell_size/2, p[i] + 1) - std::pow(-cell_size/2, p[i] + 1));
+  }
+  return moment;
+}
+
+
 } // helpers
 
 } // boundary

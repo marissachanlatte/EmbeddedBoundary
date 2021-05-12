@@ -106,6 +106,18 @@ TEST(HelperTest, PseudoInverse){
   EXPECT_TRUE(inverse.isApprox(test_inverse));
 }
 
+
+TEST(HelperTest, PMoment){
+  double cell_size = .25;
+  std::vector<int> p{2, 3};
+  double moment = PMoment(p, cell_size);
+  EXPECT_EQ(moment, 0);
+  std::vector<int> p2{2, 0};
+  double moment2 = PMoment(p2, cell_size);
+  EXPECT_NEAR(moment2, 0.000325521, 1e-9);
+
+}
+
 }
 
 }

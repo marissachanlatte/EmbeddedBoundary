@@ -52,6 +52,10 @@ Adapated from https://gist.github.com/pshriwise/67c2ae78e5db3831da38390a8b2a209f
 */
 Eigen::MatrixXf PseudoInverse(const Eigen::MatrixXf &a);
 
+/**
+A function to caculate the pth moment over a square volume analytically
+*/
+double PMoment(std::vector<int> p, double cell_size);
 
 } // namespace helpers
 
