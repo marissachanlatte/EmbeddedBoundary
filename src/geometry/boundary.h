@@ -70,6 +70,7 @@ This class stores a map of all boundary cells with necessary geometry informatio
       double XMin();
       double YMax();
       double YMin();
+      int Q();
 
     private:
 

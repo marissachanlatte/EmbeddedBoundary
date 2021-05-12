@@ -602,6 +602,10 @@ int Boundary::MaxSolverDepth(){
   return max_solver_depth_;
 }
 
+
+int Boundary::Q(){
+  return Q_;
+}
 } // namespace geometry
 
 } // namespace boundary
