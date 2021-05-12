@@ -14,16 +14,17 @@ namespace solvers {
 
     class LaplaceOperatorHO{
         public:
-            LaplaceOperatorHO(boundary::geometry::Boundary geometry);
+            LaplaceOperatorHO(geometry::Boundary geometry);
             std::vector<double> Neighborhood(std::vector<double> cell_center, double cell_size);
             void ComputeAndPrint();
+            Eigen::MatrixXf ComputeM(std::vector<double> cell_center, double cell_size);
         private:
             double NeumannCondition(std::vector<double> point, std::vector<double> normal);
             double Phi(std::vector<double> point);
-            Eigen::MatrixXf ComputeM(std::vector<double> cell_center);
             double depth_;
-            boundary::geometry::Boundary geometry_;
+            geometry::Boundary geometry_;
             std::map<double, int> cell_map_;
+            std::map<double, geometry::geo_info> geometry_info_;
     };
 } // namespace solvers
 

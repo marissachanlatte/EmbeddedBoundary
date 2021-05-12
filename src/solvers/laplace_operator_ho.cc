@@ -13,6 +13,7 @@ LaplaceOperatorHO::LaplaceOperatorHO(boundary::geometry::Boundary geometry){
   depth_ = geometry.MaxSolverDepth();
   geometry_ = geometry;
   cell_map_ = geometry.CellMap();
+  geometry_info_ = geometry.BoundaryCells();
 }
 
 void LaplaceOperatorHO::ComputeAndPrint(){
@@ -21,8 +22,6 @@ void LaplaceOperatorHO::ComputeAndPrint(){
   double cell_size = geometry_.InitialCellSize()/num_x_;
   // Get cell map
   std::map<double, int> cell_map = geometry_.CellMap();
-  // Get geometry information
-  std::map<double, boundary::geometry::geo_info> geometry_info = geometry_.BoundaryCells();
   // Output file
   std::ofstream laplace_out;
   laplace_out.open ("../outputs/laplace_out.txt");
@@ -51,7 +50,7 @@ void LaplaceOperatorHO::ComputeAndPrint(){
       // Exterior stays 0
       // Interior & Boundary
       if (covered_id > 0){
-        double volume_moment = geometry_info[key].volume_moments[0][0];
+        double volume_moment = geometry_info_[key].volume_moments[0][0];
         // // Set Volume Fraction
         // volume_fraction = volume_moment/std::pow(cell_size, 2);
         // // Set Boundary Length
@@ -78,7 +77,7 @@ void LaplaceOperatorHO::ComputeAndPrint(){
           Eigen::MatrixXf W;
           // Construct M
           // M is the matrix of volume moments of the neighbors normalized
-          Eigen::MatrixXf M = ComputeM(cell_center);
+          Eigen::MatrixXf M = ComputeM(cell_center, cell_size);
           // Multiply together to get S (Eq. 23)
           // Eigen::VectorXf S = G*helpers::PseudoInverse(W*M)*W;
           // TODO: Why is S a vector? how do we convert to a double for laplacian?
@@ -115,10 +114,40 @@ double LaplaceOperatorHO::NeumannCondition(std::vector<double> point, std::vecto
 };
 
 /// Compute matrix M given cell center
-Eigen::MatrixXf LaplaceOperatorHO::ComputeM(std::vector<double> cell_center){
-  Eigen::MatrixXf M;
+Eigen::MatrixXf LaplaceOperatorHO::ComputeM(std::vector<double> cell_center, double cell_size){
   // Find Neighbors
+  std::vector<double> neighbors = Neighborhood(cell_center, cell_size);
+  int num_neighbors = neighbors.size();
+  // Initialize M
+  int Q = geometry_.Q();
+  int num_q = (Q + 1)*(Q + 2)/2;
+  Eigen::MatrixXf M(num_neighbors, num_q);
   // Get relevant moments
+  for (int i = 0; i < num_neighbors; i++){
+    // If boundary cell, get moments for cell i
+    std::vector<std::vector<double>>  moments;
+    if (cell_map_[neighbors[i]] == 2){ 
+      moments = geometry_info_[neighbors[i]].volume_moments;
+    }
+    int j = 0;
+    M(i, j) = 1;
+    // Loop through in lexicographical order
+    for (int a = 0; a < (Q + 1); a++){
+      for (int b = 0; b < (Q + 1); b++){
+        if ((a + b) == 0 || (a + b) > Q){
+          continue;
+        }
+        j += 1;
+        if (cell_map_[neighbors[i]] == 2){
+           M(i, j) = moments[b][a]/moments[0][0];
+        }
+        else {
+          std::vector<int> p{a, b};
+          M(i, j) = helpers::PMoment(p, cell_size)/std::pow(cell_size, 2);
+        }
+      }
+    }
+  }
   return M;
 }
 
@@ -139,6 +168,7 @@ std::vector<double> LaplaceOperatorHO::Neighborhood(std::vector<double> cell_cen
   }
   return neighbor_list;
 }
+
 } // namespace solvers
 
 } // namespace boundary
